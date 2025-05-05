@@ -1,5 +1,6 @@
 package com.airfryer.repicka.common.security;
 
+import com.airfryer.repicka.common.security.exception.CustomAccessDeniedHandler;
 import com.airfryer.repicka.common.security.exception.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,7 @@ public class SecurityConfig
 {
     // 예외 처리 클래스
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception
@@ -43,7 +45,8 @@ public class SecurityConfig
         // 예외 처리 설정
         httpSecurity
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(authenticationEntryPoint));
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler));
 
         return httpSecurity.build();
     }

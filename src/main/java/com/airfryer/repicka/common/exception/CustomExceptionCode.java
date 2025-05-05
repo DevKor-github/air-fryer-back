@@ -10,6 +10,7 @@ public enum CustomExceptionCode
 {
     // 권한 관련 예외
     NOT_LOGIN(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
+    LOW_AUTHORITY(HttpStatus.UNAUTHORIZED, "권한이 부족합니다."),
 
     EXAMPLE_EXCEPTION(HttpStatus.NOT_FOUND, "예외 예시입니다.");
 
