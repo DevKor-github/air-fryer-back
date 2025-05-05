@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.user.entity;
 
+import com.airfryer.repicka.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Table(name = "users")
 @NoArgsConstructor
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long user_id; // 사용자 식별자
@@ -46,10 +47,4 @@ public class User {
 
     @Column(nullable = false)
     private LocalDate last_access_date; // 마지막 접속 날짜
-
-    @Column(nullable = false)
-    private LocalDate created_at; // 레코드 생성 날짜
-
-    @Column(nullable = false)
-    private LocalDate updated_at; // 레코드 수정 날짜
 }
