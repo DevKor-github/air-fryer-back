@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum CustomExceptionCode
 {
-    // 로그인 관련 예외
+    // 권한 관련 예외
+    NOT_LOGIN(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
+
     EXAMPLE_EXCEPTION(HttpStatus.NOT_FOUND, "예외 예시입니다.");
 
     private final HttpStatus httpStatus;    // HTTP 상태 코드
