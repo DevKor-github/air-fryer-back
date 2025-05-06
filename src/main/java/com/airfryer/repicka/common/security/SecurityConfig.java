@@ -37,8 +37,7 @@ public class SecurityConfig
                 .httpBasic(HttpBasicConfigurer::disable)
                 .csrf(CsrfConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .headers(c -> c.frameOptions(
-                        HeadersConfigurer.FrameOptionsConfig::disable).disable())
+                .headers(HeadersConfigurer::disable)
                 .sessionManagement(c -> c.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS));
 
