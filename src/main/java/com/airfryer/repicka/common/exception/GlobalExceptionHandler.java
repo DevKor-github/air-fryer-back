@@ -20,16 +20,4 @@ public class GlobalExceptionHandler
                         .data(e.getData())
                         .build());
     }
-
-    // 이외의 예외 처리 핸들러
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponseDto> unexpectedExceptionHandler(Exception e)
-    {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ExceptionResponseDto.builder()
-                        .code("UNEXPECTED_ERROR")
-                        .message(e.getMessage())
-                        .data(null)
-                        .build());
-    }
 }
