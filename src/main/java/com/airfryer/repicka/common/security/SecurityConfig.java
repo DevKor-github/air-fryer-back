@@ -5,6 +5,7 @@ import com.airfryer.repicka.common.security.exception.CustomAuthenticationEntryP
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -39,13 +40,19 @@ public class SecurityConfig
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(HeadersConfigurer::disable)
                 .sessionManagement(c -> c.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS));
+                        SessionCreationPolicy.STATELESS))
+                .oauth2Login(Customizer.withDefaults())
+                .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers("/", "/oauth2/**", "/login", "/login/**").permitAll()
+                        .anyRequest().authenticated());
 
+        /*
         // 예외 처리 설정
         httpSecurity
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler));
+         */
 
         return httpSecurity.build();
     }
