@@ -1,6 +1,7 @@
 package com.airfryer.repicka.common.security.oauth2;
 
 import com.airfryer.repicka.common.security.oauth2.dto.GoogleResponse;
+import com.airfryer.repicka.common.security.oauth2.dto.KakaoResponse;
 import com.airfryer.repicka.common.security.oauth2.dto.OAuth2Response;
 import com.airfryer.repicka.domain.user.entity.User;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
@@ -28,8 +29,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2Response oAuth2Response = null;
         if (registrationId.equals("google")) {
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
-        }
-        else {
+        } else if (registrationId.equals("kakao")) {
+            oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
+        } else {
             return null;
         }
 

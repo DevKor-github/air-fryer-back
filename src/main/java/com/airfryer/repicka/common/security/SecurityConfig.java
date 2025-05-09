@@ -54,7 +54,7 @@ public class SecurityConfig
 
         // Oauth 2.0 설정
         httpSecurity
-                .oauth2Login((oauth2) -> oauth2
+                .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService)));
 
