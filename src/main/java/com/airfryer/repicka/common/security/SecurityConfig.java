@@ -48,12 +48,6 @@ public class SecurityConfig
                 .sessionManagement(c -> c.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS));
 
-        // 경로 설정
-        httpSecurity
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/oauth2/**", "/login", "/login/**").permitAll()
-                        .anyRequest().authenticated());
-
         // Oauth 2.0 설정
         httpSecurity
                 .oauth2Login(oauth2 -> oauth2
@@ -62,15 +56,11 @@ public class SecurityConfig
                         .successHandler(oAuth2SuccessHandler)
                 );
 
-        // login 루트도 NOT_LOGIN으로 잡혀서 주석 처리해둠
-        // TODO: NOT_LOGIN, 권한 예외 처리 재설정
-        /*
         // 예외 처리 설정
         httpSecurity
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler));
-         */
 
         return httpSecurity.build();
     }
