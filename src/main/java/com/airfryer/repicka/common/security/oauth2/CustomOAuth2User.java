@@ -12,13 +12,22 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-@RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
 public class CustomOAuth2User implements OAuth2User
 {
     private final User user;
-    private final Map<String, Object> attributes;
+    private Map<String, Object> attributes;
+
+    public CustomOAuth2User(User user) {
+        this.user = user;
+    }
+
+    // OAuth 2.0 로그인 생성자
+    public CustomOAuth2User(User user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes;
+    }
 
     @Override
     public Map<String, Object> getAttributes() {
