@@ -3,6 +3,7 @@ package com.airfryer.repicka.common.security;
 import com.airfryer.repicka.common.security.exception.CustomAccessDeniedHandler;
 import com.airfryer.repicka.common.security.exception.CustomAuthenticationEntryPoint;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2UserService;
+import com.airfryer.repicka.common.security.oauth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,7 @@ public class SecurityConfig
 {
     // OAuth 처리 서비스
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     // 예외 처리 클래스
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -56,7 +58,9 @@ public class SecurityConfig
         httpSecurity
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService)));
+                                .userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                );
 
         // login 루트도 NOT_LOGIN으로 잡혀서 주석 처리해둠
         // TODO: NOT_LOGIN, 권한 예외 처리 재설정
