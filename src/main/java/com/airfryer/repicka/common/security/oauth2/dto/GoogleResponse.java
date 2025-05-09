@@ -1,5 +1,6 @@
 package com.airfryer.repicka.common.security.oauth2.dto;
 
+import com.airfryer.repicka.domain.user.entity.LoginMethod;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
@@ -11,7 +12,7 @@ public class GoogleResponse implements OAuth2Response{
 
     @Override
     public String getProvider() {
-        return "GOOGLE";
+        return LoginMethod.GOOGLE.name();
     }
 
     @Override
