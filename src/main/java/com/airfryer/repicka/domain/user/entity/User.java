@@ -8,7 +8,12 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"email", "login_method"})
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -25,7 +30,11 @@ public class User extends BaseEntity {
     private String nickname; // 별명
 
     @NotNull
-    private String loginMethod; // 소셜 로그인 정보
+    @Enumerated(EnumType.STRING)
+    private LoginMethod loginMethod; // 소셜 로그인 정보
+
+    @NotNull
+    private String oauthId;
 
     @NotNull
     @Enumerated(EnumType.STRING)
