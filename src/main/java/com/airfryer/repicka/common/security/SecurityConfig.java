@@ -2,9 +2,12 @@ package com.airfryer.repicka.common.security;
 
 import com.airfryer.repicka.common.security.exception.CustomAccessDeniedHandler;
 import com.airfryer.repicka.common.security.exception.CustomAuthenticationEntryPoint;
+import com.airfryer.repicka.common.security.oauth2.CustomOAuth2UserService;
+import com.airfryer.repicka.common.security.oauth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,6 +28,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig
 {
+    // OAuth 처리 서비스
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
     // 예외 처리 클래스
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
@@ -40,6 +47,14 @@ public class SecurityConfig
                 .headers(HeadersConfigurer::disable)
                 .sessionManagement(c -> c.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS));
+
+        // Oauth 2.0 설정
+        httpSecurity
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                );
 
         // 예외 처리 설정
         httpSecurity
