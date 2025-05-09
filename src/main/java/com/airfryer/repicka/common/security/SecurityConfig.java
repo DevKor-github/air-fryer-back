@@ -2,6 +2,7 @@ package com.airfryer.repicka.common.security;
 
 import com.airfryer.repicka.common.security.exception.CustomAccessDeniedHandler;
 import com.airfryer.repicka.common.security.exception.CustomAuthenticationEntryPoint;
+import com.airfryer.repicka.common.security.oauth2.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig
 {
+    // OAuth 처리 서비스
+    private final CustomOAuth2UserService customOAuth2UserService;
+
     // 예외 처리 클래스
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
@@ -41,11 +45,15 @@ public class SecurityConfig
                 .headers(HeadersConfigurer::disable)
                 .sessionManagement(c -> c.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS))
-                .oauth2Login(Customizer.withDefaults())
+                .oauth2Login((oauth2) -> oauth2
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService)))
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/oauth2/**", "/login", "/login/**").permitAll()
                         .anyRequest().authenticated());
 
+        // login 루트도 NOT_LOGIN으로 잡혀서 주석 처리해둠
+        // TODO: NOT_LOGIN, 권한 예외 처리 재설정
         /*
         // 예외 처리 설정
         httpSecurity
