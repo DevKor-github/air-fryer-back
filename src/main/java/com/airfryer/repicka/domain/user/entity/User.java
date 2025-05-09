@@ -34,7 +34,7 @@ public class User extends BaseEntity {
     private LoginMethod loginMethod; // 소셜 로그인 정보
 
     @NotNull
-    private String oauthId;
+    private String oauthId; // OAuth2 제공자에서 발급해주는 ID
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -49,8 +49,8 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Gender gender; // 성별 (F,M)
 
-    private int height; // 키
-    private int weight; // 몸무게
+    private Integer height; // 키
+    private Integer weight; // 몸무게
     private String fcmToken; // 푸시알림 토큰
 
     @NotNull

@@ -6,13 +6,13 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class GoogleResponse implements OAuth2Response{
+public class GoogleResponse implements OAuth2Response
+{
     private final Map<String, Object> attribute;
 
-
     @Override
-    public String getProvider() {
-        return LoginMethod.GOOGLE.name();
+    public LoginMethod getProvider() {
+        return LoginMethod.GOOGLE;
     }
 
     @Override

@@ -11,8 +11,8 @@ public class KakaoResponse implements OAuth2Response
     private Map<String, Object> attributes;
 
     @Override
-    public String getProvider() {
-        return LoginMethod.KAKAO.name();
+    public LoginMethod getProvider() {
+        return LoginMethod.KAKAO;
     }
 
     @Override

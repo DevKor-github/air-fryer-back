@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum LoginMethod {
-    KAKAO("LOGIN_KAKAO", "카카오 로그인"),
-    GOOGLE("LOGIN_GOOGLE", "구글 로그인");
+    GOOGLE("google", "구글 로그인"),
+    KAKAO("kakao", "카카오 로그인");
 
-    private final String code;
+    private final String provider;
     private final String label;
 }
