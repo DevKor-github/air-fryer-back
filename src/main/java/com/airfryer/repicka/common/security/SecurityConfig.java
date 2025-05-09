@@ -44,13 +44,19 @@ public class SecurityConfig
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(HeadersConfigurer::disable)
                 .sessionManagement(c -> c.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS))
-                .oauth2Login((oauth2) -> oauth2
-                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService)))
+                        SessionCreationPolicy.STATELESS));
+
+        // 경로 설정
+        httpSecurity
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/oauth2/**", "/login", "/login/**").permitAll()
                         .anyRequest().authenticated());
+
+        // Oauth 2.0 설정
+        httpSecurity
+                .oauth2Login((oauth2) -> oauth2
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService)));
 
         // login 루트도 NOT_LOGIN으로 잡혀서 주석 처리해둠
         // TODO: NOT_LOGIN, 권한 예외 처리 재설정
