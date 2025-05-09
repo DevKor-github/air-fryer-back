@@ -1,4 +1,4 @@
-package com.airfryer.repicka.common.security;
+package com.airfryer.repicka.common.security.oauth2;
 
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.EqualsAndHashCode;
@@ -15,7 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
-public class CustomUserDetails implements OAuth2User
+public class CustomOAuth2User implements OAuth2User
 {
     private final User user;
     private final Map<String, Object> attributes;

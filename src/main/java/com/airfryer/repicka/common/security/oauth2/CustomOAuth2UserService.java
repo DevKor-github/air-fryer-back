@@ -6,7 +6,6 @@ import com.airfryer.repicka.common.security.oauth2.dto.OAuth2Response;
 import com.airfryer.repicka.domain.user.entity.User;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
