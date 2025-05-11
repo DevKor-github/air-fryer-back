@@ -1,6 +1,7 @@
 package com.airfryer.repicka.common.security.oauth2;
 
 import com.airfryer.repicka.common.security.jwt.JwtUtil;
+import com.airfryer.repicka.common.security.jwt.Token;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -29,14 +30,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler
         User user = userDetails.getUser();
 
         // 토큰 생성
-        String accessToken = jwtUtil.createToken(user.getUserId(), true);
-        String refreshToken = jwtUtil.createToken(user.getUserId(), false);
+        String accessToken = jwtUtil.createToken(user.getUserId(), Token.ACCESS_TOKEN);
+        String refreshToken = jwtUtil.createToken(user.getUserId(), Token.REFRESH_TOKEN);
 
-        // Access token 쿠키 생성
-        Cookie accessTokenCookie = jwtUtil.parseTokenToCookie(accessToken, true);
-
-        // Refresh token 쿠키 생성
-        Cookie refreshTokenCookie = jwtUtil.parseTokenToCookie(refreshToken, false);
+        // 토큰으로 쿠키 생성
+        Cookie accessTokenCookie = jwtUtil.parseTokenToCookie(accessToken, Token.ACCESS_TOKEN);
+        Cookie refreshTokenCookie = jwtUtil.parseTokenToCookie(refreshToken, Token.REFRESH_TOKEN);
 
         // 쿠키 저장
         response.addCookie(accessTokenCookie);

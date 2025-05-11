@@ -18,28 +18,22 @@ import java.util.Date;
 public class JwtUtil
 {
     private final Key key;
-    private final int accessTokenValidTime;
-    private final int refreshTokenValidTime;
 
     // 생성자
-    public JwtUtil(@Value("${JWT_SECRET}") String secret,
-                   @Value("${ACCESS_TOKEN_VALID_TIME}") String accessTokenValidTime,
-                   @Value("${REFRESH_TOKEN_VALID_TIME}") String refreshTokenValidTime)
+    public JwtUtil(@Value("${JWT_SECRET}") String secret)
     {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.accessTokenValidTime = Integer.parseInt(accessTokenValidTime);
-        this.refreshTokenValidTime = Integer.parseInt(refreshTokenValidTime);
     }
 
     // 토큰 생성
-    public String createToken(Long userId, boolean isAccessToken)
+    public String createToken(Long userId, Token tokenType)
     {
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
 
         ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime expiresAt = now.plusSeconds(isAccessToken ? accessTokenValidTime : refreshTokenValidTime);
+        ZonedDateTime expiresAt = now.plusSeconds(tokenType.getValidTime());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -50,14 +44,14 @@ public class JwtUtil
     }
 
     // 토큰을 쿠키로 변환
-    public Cookie parseTokenToCookie(String token, boolean isAccessToken)
+    public Cookie parseTokenToCookie(String token, Token tokenType)
     {
-        Cookie cookie = new Cookie(isAccessToken ? "accessToken" : "refreshToken", token);
+        Cookie cookie = new Cookie(tokenType.getName(), token);
 
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge(isAccessToken ? accessTokenValidTime : refreshTokenValidTime);
+        cookie.setMaxAge(tokenType.getValidTime());
         cookie.setAttribute("SameSite", "Strict");
 
         return cookie;
