@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if(existUser.isEmpty()) {
             user = User.builder()
                     .email(oAuth2Response.getEmail())
-                    .nickname(oAuth2Response.getName())
+                    .nickname("호랑이" + UUID.randomUUID())
                     .loginMethod(oAuth2Response.getProvider())
                     .oauthId(oAuth2Response.getProviderId())
                     .role(Role.USER)
