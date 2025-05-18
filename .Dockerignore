@@ -1,0 +1,40 @@
+# 빌드 결과물
+/build
+/target
+/*.jar
+
+# Gradle 관련
+.gradle
+gradle-app.setting
+gradlew
+gradlew.bat
+
+# IDE 관련
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# 테스트 리포트
+/test-output
+/test-results
+/reports
+
+# OS 관련
+.DS_Store
+Thumbs.db
+
+# 로그 파일
+*.log
+
+# 환경 파일 (로컬 개발용, 실수로 이미지에 포함될 수 있음)
+application.properties
+
+# Git 관련
+.git
+.gitignore
+
+# 문서
+README.md
+*.md
