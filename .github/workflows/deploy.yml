@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/repicka:latest
+          tags: repicka:latest
 
   deploy:
     needs: build
@@ -63,7 +63,7 @@ jobs:
       - name: Pull latest Docker image
         run: |
           docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-          docker pull ghcr.io/${{ github.repository_owner }}/repicka:latest
+          docker pull repicka:latest
 
       - name: Stop existing container (if any)
         run: |
@@ -76,4 +76,4 @@ jobs:
           --name repicka \
           --env-file .env \
           -p 8080:8080 \
-          ghcr.io/${{ github.repository_owner }}/repicka:latest
+          repicka:latest
