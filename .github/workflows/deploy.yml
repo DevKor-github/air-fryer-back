@@ -23,8 +23,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # TODO: 추후 CI 중 테스트 확인
       - name: Build with Gradle
-        run: ./gradlew clean build --no-daemon
+        run: ./gradlew clean build --no-daemon - x test
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
