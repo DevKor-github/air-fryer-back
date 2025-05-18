@@ -4,6 +4,9 @@ on:
   push:
     branches: [ feature/infra ]
 
+env:
+  DOCKER_IMAGE: ghcr.io/devkor-github/repicka:latest
+
 permissions:
   contents: read
 
@@ -30,7 +33,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: repicka:latest
+          tags: ${{ env.DOCKER_IMAGE }}
 
   deploy:
     needs: build
@@ -52,7 +55,7 @@ jobs:
       - name: Pull latest Docker image
         run: |
           docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-          docker pull repicka:latest
+          docker pull ${{ env.DOCKER_IMAGE }}
 
       - name: Stop existing container (if any)
         run: |
@@ -65,4 +68,4 @@ jobs:
           --name repicka \
           --env-file .env \
           -p 8080:8080 \
-          repicka:latest
+          ${{ env.DOCKER_IMAGE }}
