@@ -5,7 +5,7 @@ on:
     branches: [ feature/infra ]
 
 env:
-  DOCKER_IMAGE: ghcr.io/devkor-github/repicka:latest
+  DOCKER_IMAGE: ghcr.io/kyeahxx19/repicka:latest
 
 permissions:
   contents: read
