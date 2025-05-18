@@ -25,7 +25,7 @@ jobs:
 
       # TODO: 추후 CI 중 테스트 확인
       - name: Build with Gradle
-        run: ./gradlew clean build --no-daemon - x test
+        run: ./gradlew clean build -x test --no-daemon
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
