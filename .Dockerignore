@@ -1,7 +1,6 @@
 # 빌드 결과물
 /build
 /target
-/*.jar
 
 # Gradle 관련
 .gradle
