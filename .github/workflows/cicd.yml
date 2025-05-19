@@ -59,8 +59,8 @@ jobs:
 
       - name: Stop existing container (if any)
         run: |
-          docker stop your-app || true
-          docker rm your-app || true
+          docker stop repicka || true
+          docker rm repicka || true
 
       - name: Run new container
         run: |
