@@ -65,7 +65,7 @@ jobs:
       - name: Run new container
         run: |
           docker run -d \
-          --name repicka \
+          --network host \
           --env-file .env \
-          -p 8080:8080 \
+          --name repicka \
           ${{ env.DOCKER_IMAGE }}
