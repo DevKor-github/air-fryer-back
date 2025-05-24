@@ -21,7 +21,7 @@ import java.time.LocalDate;
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;    // 사용자 식별자
+    private Long id; // 사용자 식별자
 
     @NotNull
     private String email; // 이메일
