@@ -101,7 +101,6 @@ public class CreateEntityUtil
                 .postType(PostType.RENTAL)
                 .price(10000)
                 .deposit(10000)
-                .likeCount(0)
                 .build();
 
         post = postRepository.save(post);

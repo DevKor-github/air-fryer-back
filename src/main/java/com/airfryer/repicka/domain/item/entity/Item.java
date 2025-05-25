@@ -39,6 +39,7 @@ public class Item extends BaseEntity
             name = "product_type",
             columnDefinition = "text[]"
     )
+    @Builder.Default
     private ProductType[] productTypes = new ProductType[2];
 
     // 사이즈

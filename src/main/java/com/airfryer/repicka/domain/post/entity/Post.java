@@ -48,5 +48,6 @@ public class Post extends BaseEntity
 
     // 좋아요 개수
     @NotNull
-    private int likeCount;
+    @Builder.Default
+    private int likeCount = 0;
 }
