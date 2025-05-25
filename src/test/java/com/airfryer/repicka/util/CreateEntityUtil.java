@@ -4,6 +4,9 @@ import com.airfryer.repicka.domain.item.entity.*;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
+import com.airfryer.repicka.domain.post.entity.Post;
+import com.airfryer.repicka.domain.post.entity.PostType;
+import com.airfryer.repicka.domain.post.repository.PostRepository;
 import com.airfryer.repicka.domain.user.entity.Gender;
 import com.airfryer.repicka.domain.user.entity.LoginMethod;
 import com.airfryer.repicka.domain.user.entity.Role;
@@ -24,6 +27,7 @@ public class CreateEntityUtil
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
+    private final PostRepository postRepository;
 
     public User createUser()
     {
@@ -79,5 +83,21 @@ public class CreateEntityUtil
         itemImage = itemImageRepository.save(itemImage);
 
         return itemImage;
+    }
+
+    public Post createPost()
+    {
+        Post post = Post.builder()
+                .writer(createUser())
+                .item(createItem())
+                .postType(PostType.RENTAL)
+                .price(10000)
+                .deposit(10000)
+                .likeCount(0)
+                .build();
+
+        post = postRepository.save(post);
+
+        return post;
     }
 }
