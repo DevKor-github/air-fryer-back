@@ -4,6 +4,7 @@ import com.airfryer.repicka.common.entity.BaseEntity;
 import io.hypersistence.utils.hibernate.type.array.EnumArrayType;
 import io.hypersistence.utils.hibernate.type.array.StringArrayType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.Type;
@@ -26,13 +27,19 @@ public class Item extends BaseEntity
     private Long id;
 
     // 제품 타입
-    @NotNull
-    @Type(value = StringArrayType.class)
+    @NotEmpty
+    @Type(
+            value = EnumArrayType.class,
+            parameters = @org.hibernate.annotations.Parameter(
+                    name = EnumArrayType.SQL_ARRAY_TYPE,
+                    value = "text"
+            )
+    )
     @Column(
             name = "product_type",
             columnDefinition = "text[]"
     )
-    private ProductType[] productType;
+    private ProductType[] productTypes;
 
     // 사이즈
     @NotNull

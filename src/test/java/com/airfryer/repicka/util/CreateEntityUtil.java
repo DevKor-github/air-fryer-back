@@ -63,7 +63,7 @@ public class CreateEntityUtil
     public Item createItem()
     {
         Item item = Item.builder()
-                .productType(new ProductType[]{ProductType.HOCKEY, ProductType.ACCESSORY})
+                .productTypes(new ProductType[]{ProductType.HOCKEY, ProductType.ACCESSORY})
                 .size(ItemSize.XL)
                 .title("title")
                 .description("description")

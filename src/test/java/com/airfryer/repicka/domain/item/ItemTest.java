@@ -39,7 +39,7 @@ public class ItemTest
         Item findItem = itemRepository.findById(item.getId()).orElse(null);
 
         assertThat(findItem).isNotNull();
-        assertThat(findItem.getProductType()).isEqualTo(item.getProductType());
+        assertThat(findItem.getProductTypes()).isEqualTo(item.getProductTypes());
         assertThat(findItem.getSize()).isEqualTo(item.getSize());
         assertThat(findItem.getTitle()).isEqualTo(item.getTitle());
         assertThat(findItem.getDescription()).isEqualTo(item.getDescription());
