@@ -6,6 +6,7 @@ import com.airfryer.repicka.domain.user.entity.Gender;
 import com.airfryer.repicka.domain.user.entity.LoginMethod;
 import com.airfryer.repicka.domain.user.entity.Role;
 import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.util.CreateEntityUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,57 +24,31 @@ public class ItemTest
 {
     @Autowired ItemRepository itemRepository;
 
+    @Autowired CreateEntityUtil createEntityUtil;
+
     @Test
     @DisplayName("Item 엔티티 생성 테스트")
     void createItem()
     {
         /// Given
 
-        ProductType[] productType = {ProductType.HOCKEY, ProductType.ACCESSORY};
-        ItemSize size = ItemSize.XL;
-        String title = "title";
-        String description = "description";
-        ItemColor color = ItemColor.BLACK;
-        ItemQuality quality = ItemQuality.LOW;
-        String location = "location";
-        TradeMethod tradeMethod = TradeMethod.DIRECT;
-        Boolean canDeal = true;
-        CurrentItemState state = CurrentItemState.AVAILABLE;
-        LocalDateTime repostDate = LocalDateTime.now();
-
-        /// When
-
-        Item item = Item.builder()
-                .productType(productType)
-                .size(size)
-                .title(title)
-                .description(description)
-                .color(color)
-                .quality(quality)
-                .location(location)
-                .tradeMethod(tradeMethod)
-                .canDeal(canDeal)
-                .state(state)
-                .repostDate(repostDate)
-                .build();
-
-        item = itemRepository.save(item);
+        Item item = createEntityUtil.createItem();
 
         /// Then
 
         Item findItem = itemRepository.findById(item.getId()).orElse(null);
 
         assertThat(findItem).isNotNull();
-        assertThat(findItem.getProductType()).isEqualTo(productType);
-        assertThat(findItem.getSize()).isEqualTo(size);
-        assertThat(findItem.getTitle()).isEqualTo(title);
-        assertThat(findItem.getDescription()).isEqualTo(description);
-        assertThat(findItem.getColor()).isEqualTo(color);
-        assertThat(findItem.getQuality()).isEqualTo(quality);
-        assertThat(findItem.getLocation()).isEqualTo(location);
-        assertThat(findItem.getTradeMethod()).isEqualTo(tradeMethod);
-        assertThat(findItem.getCanDeal()).isEqualTo(canDeal);
-        assertThat(findItem.getState()).isEqualTo(state);
-        assertThat(findItem.getRepostDate()).isEqualTo(repostDate);
+        assertThat(findItem.getProductType()).isEqualTo(item.getProductType());
+        assertThat(findItem.getSize()).isEqualTo(item.getSize());
+        assertThat(findItem.getTitle()).isEqualTo(item.getTitle());
+        assertThat(findItem.getDescription()).isEqualTo(item.getDescription());
+        assertThat(findItem.getColor()).isEqualTo(item.getColor());
+        assertThat(findItem.getQuality()).isEqualTo(item.getQuality());
+        assertThat(findItem.getLocation()).isEqualTo(item.getLocation());
+        assertThat(findItem.getTradeMethod()).isEqualTo(item.getTradeMethod());
+        assertThat(findItem.getCanDeal()).isEqualTo(item.getCanDeal());
+        assertThat(findItem.getState()).isEqualTo(item.getState());
+        assertThat(findItem.getRepostDate()).isEqualTo(item.getRepostDate());
     }
 }

@@ -1,0 +1,70 @@
+package com.airfryer.repicka.util;
+
+import com.airfryer.repicka.domain.item.entity.*;
+import com.airfryer.repicka.domain.item.repository.ItemRepository;
+import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
+import com.airfryer.repicka.domain.user.entity.Gender;
+import com.airfryer.repicka.domain.user.entity.LoginMethod;
+import com.airfryer.repicka.domain.user.entity.Role;
+import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.repository.UserRepository;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Component
+@RequiredArgsConstructor
+public class CreateEntityUtil
+{
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final ItemImageRepository itemImageRepository;
+
+    public User createUser()
+    {
+        User user = User.builder()
+                .email("test@naver.com")
+                .nickname("Test")
+                .loginMethod(LoginMethod.GOOGLE)
+                .oauthId("0000000000")
+                .role(Role.USER)
+                .profileImageUrl("/프로필-이미지-기본경로")
+                .isKoreaUnivVerified(false)
+                .gender(Gender.MALE)
+                .height(180)
+                .weight(70)
+                .fcmToken("fcmToken")
+                .todayPostCount(0)
+                .lastAccessDate(LocalDate.now())
+                .build();
+
+        user = userRepository.save(user);
+
+        return user;
+    }
+
+    public Item createItem()
+    {
+        Item item = Item.builder()
+                .productType(new ProductType[]{ProductType.HOCKEY, ProductType.ACCESSORY})
+                .size(ItemSize.XL)
+                .title("title")
+                .description("description")
+                .color(ItemColor.BLACK)
+                .quality(ItemQuality.LOW)
+                .location("location")
+                .tradeMethod(TradeMethod.DIRECT)
+                .canDeal(true)
+                .state(CurrentItemState.AVAILABLE)
+                .repostDate(LocalDateTime.now())
+                .build();
+
+        item = itemRepository.save(item);
+
+        return item;
+    }
+}
