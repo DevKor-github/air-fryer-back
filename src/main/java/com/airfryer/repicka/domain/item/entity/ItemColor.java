@@ -9,9 +9,9 @@ public enum ItemColor
 {
     CRIMSON("CRIMSON", "크림슨"),
     WHITE("CRIMSON", "하양"),
-    BLACK("CRIMSON", "검정"),
-    IVORY("CRIMSON", "아이보리"),
-    OTHER("CRIMSON", "기타");
+    BLACK("BLACK", "검정"),
+    IVORY("IVORY", "아이보리"),
+    OTHER("OTHER", "기타");
 
     private final String code;
     private final String label;
