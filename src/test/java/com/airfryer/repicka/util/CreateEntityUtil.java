@@ -7,6 +7,8 @@ import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
+import com.airfryer.repicka.domain.post_like.entity.PostLike;
+import com.airfryer.repicka.domain.post_like.repository.PostLikeRepository;
 import com.airfryer.repicka.domain.user.entity.Gender;
 import com.airfryer.repicka.domain.user.entity.LoginMethod;
 import com.airfryer.repicka.domain.user.entity.Role;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -28,28 +31,28 @@ public class CreateEntityUtil
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
 
-    public User createUser()
-    {
-        User user = User.builder()
-                .email("test@naver.com")
-                .nickname("Test")
-                .loginMethod(LoginMethod.GOOGLE)
-                .oauthId("0000000000")
-                .role(Role.USER)
-                .profileImageUrl("/프로필-이미지-기본경로")
-                .isKoreaUnivVerified(false)
-                .gender(Gender.MALE)
-                .height(180)
-                .weight(70)
-                .fcmToken("fcmToken")
-                .todayPostCount(0)
-                .lastAccessDate(LocalDate.now())
-                .build();
-
-        user = userRepository.save(user);
-
-        return user;
+    public User createUser() {
+        return userRepository.findByOauthIdAndLoginMethod("test@naver.com", LoginMethod.GOOGLE)
+                .orElseGet(() -> {
+                    User user = User.builder()
+                            .email("test" + UUID.randomUUID() + "@naver.com")
+                            .nickname("Test")
+                            .loginMethod(LoginMethod.GOOGLE)
+                            .oauthId("0000000000")
+                            .role(Role.USER)
+                            .profileImageUrl("/프로필-이미지-기본경로")
+                            .isKoreaUnivVerified(false)
+                            .gender(Gender.MALE)
+                            .height(180)
+                            .weight(70)
+                            .fcmToken("fcmToken")
+                            .todayPostCount(0)
+                            .lastAccessDate(LocalDate.now())
+                            .build();
+                    return userRepository.save(user);
+                });
     }
 
     public Item createItem()
@@ -99,5 +102,17 @@ public class CreateEntityUtil
         post = postRepository.save(post);
 
         return post;
+    }
+
+    public PostLike createPostLike()
+    {
+        PostLike postLike = PostLike.builder()
+                .liker(createUser())
+                .post(createPost())
+                .build();
+
+        postLike = postLikeRepository.save(postLike);
+
+        return postLike;
     }
 }
