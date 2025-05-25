@@ -1,5 +1,8 @@
 package com.airfryer.repicka.util;
 
+import com.airfryer.repicka.domain.appointment.entity.Appointment;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.item.entity.*;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
@@ -32,27 +35,29 @@ public class CreateEntityUtil
     private final ItemImageRepository itemImageRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final AppointmentRepository appointmentRepository;
 
-    public User createUser() {
-        return userRepository.findByOauthIdAndLoginMethod("test@naver.com", LoginMethod.GOOGLE)
-                .orElseGet(() -> {
-                    User user = User.builder()
-                            .email("test" + UUID.randomUUID() + "@naver.com")
-                            .nickname("Test")
-                            .loginMethod(LoginMethod.GOOGLE)
-                            .oauthId("0000000000")
-                            .role(Role.USER)
-                            .profileImageUrl("/프로필-이미지-기본경로")
-                            .isKoreaUnivVerified(false)
-                            .gender(Gender.MALE)
-                            .height(180)
-                            .weight(70)
-                            .fcmToken("fcmToken")
-                            .todayPostCount(0)
-                            .lastAccessDate(LocalDate.now())
-                            .build();
-                    return userRepository.save(user);
-                });
+    public User createUser()
+    {
+        User user = User.builder()
+                .email("test" + UUID.randomUUID() + "@naver.com")
+                .nickname("Test")
+                .loginMethod(LoginMethod.GOOGLE)
+                .oauthId("0000000000")
+                .role(Role.USER)
+                .profileImageUrl("/프로필-이미지-기본경로")
+                .isKoreaUnivVerified(false)
+                .gender(Gender.MALE)
+                .height(180)
+                .weight(70)
+                .fcmToken("fcmToken")
+                .todayPostCount(0)
+                .lastAccessDate(LocalDate.now())
+                .build();
+
+        user = userRepository.save(user);
+
+        return user;
     }
 
     public Item createItem()
@@ -114,5 +119,25 @@ public class CreateEntityUtil
         postLike = postLikeRepository.save(postLike);
 
         return postLike;
+    }
+
+    public Appointment createAppointment()
+    {
+        Appointment appointment = Appointment.builder()
+                .post(createPost())
+                .owner(createUser())
+                .borrower(createUser())
+                .rentalLocation("rentalLocation")
+                .returnLocation("returnLocation")
+                .rentalDate(LocalDateTime.now())
+                .returnDate(LocalDateTime.now().plusDays(1))
+                .price(10000)
+                .deposit(10000)
+                .state(AppointmentState.SUCCESS)
+                .build();
+
+        appointment = appointmentRepository.save(appointment);
+
+        return appointment;
     }
 }
