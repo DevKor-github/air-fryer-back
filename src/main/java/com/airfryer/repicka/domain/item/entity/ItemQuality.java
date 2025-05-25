@@ -7,10 +7,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ItemQuality
 {
-    BEST("CRIMSON", "최상"),
-    HIGH("CRIMSON", "상"),
-    MIDDLE("CRIMSON", "중"),
-    LOW("CRIMSON", "하");
+    BEST("BEST", "최상"),
+    HIGH("HIGH", "상"),
+    MIDDLE("MIDDLE", "중"),
+    LOW("LOW", "하");
 
     private final String code;
     private final String label;
