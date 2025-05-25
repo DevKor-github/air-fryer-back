@@ -39,7 +39,7 @@ public class Item extends BaseEntity
             name = "product_type",
             columnDefinition = "text[]"
     )
-    private ProductType[] productTypes;
+    private ProductType[] productTypes = new ProductType[2];
 
     // 사이즈
     @NotNull
