@@ -18,8 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 public class UserTest
 {
-    @Autowired
-    UserRepository userRepository;
+    @Autowired UserRepository userRepository;
 
     @Test
     @DisplayName("User 엔티티 생성 테스트")

@@ -27,7 +27,7 @@ public class Item extends BaseEntity
 
     // 제품 타입
     @NotNull
-    @Type(value = EnumArrayType.class)
+    @Type(value = StringArrayType.class)
     @Column(
             name = "product_type",
             columnDefinition = "text[]"
