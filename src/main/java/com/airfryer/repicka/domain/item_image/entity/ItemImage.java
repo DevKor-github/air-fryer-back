@@ -29,6 +29,6 @@ public class ItemImage extends BaseEntity
 
     // 이미지 URL
     @NotNull
-    @Column(length = 255)
+    @Column(length = 2100)
     private String imageUrl;
 }
