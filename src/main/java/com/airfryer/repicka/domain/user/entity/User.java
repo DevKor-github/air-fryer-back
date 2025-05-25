@@ -45,7 +45,7 @@ public class User extends BaseEntity
     private String profileImageUrl; // 프로필 이미지 URL
 
     @NotNull
-    private boolean isKoreaUnivVerified; // 고려대 학생 인증 여부
+    private Boolean isKoreaUnivVerified; // 고려대 학생 인증 여부
 
     @Enumerated(EnumType.STRING)
     private Gender gender; // 성별 (F,M)
