@@ -64,7 +64,9 @@ public class Appointment extends BaseEntity
     private int price;
 
     // 보증금
-    private int deposit;
+    @NotNull
+    @Builder.Default
+    private int deposit = 0;
 
     // 약속 진행 상태
     @NotNull

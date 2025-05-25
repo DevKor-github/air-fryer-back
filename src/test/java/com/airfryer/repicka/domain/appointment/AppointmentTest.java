@@ -41,7 +41,7 @@ public class AppointmentTest
         assertThat(findAppointment.getRentalDate()).isEqualTo(appointment.getRentalDate());
         assertThat(findAppointment.getReturnDate()).isEqualTo(appointment.getReturnDate());
         assertThat(findAppointment.getPrice()).isEqualTo(appointment.getPrice());
-        assertThat(findAppointment.getDeposit()).isEqualTo(appointment.getDeposit());
+        assertThat(findAppointment.getDeposit()).isEqualTo(appointment.getDeposit()).isEqualTo(0);
         assertThat(findAppointment.getState()).isEqualTo(appointment.getState());
     }
 }

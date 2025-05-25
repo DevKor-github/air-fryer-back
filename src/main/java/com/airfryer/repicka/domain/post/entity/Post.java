@@ -44,7 +44,9 @@ public class Post extends BaseEntity
     private int price;
 
     // 보증금
-    private int deposit;
+    @NotNull
+    @Builder.Default
+    private int deposit = 0;
 
     // 좋아요 개수
     @NotNull

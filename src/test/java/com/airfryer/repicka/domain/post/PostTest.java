@@ -37,7 +37,7 @@ public class PostTest
         assertThat(findPost.getItem()).isEqualTo(post.getItem());
         assertThat(findPost.getPostType()).isEqualTo(post.getPostType());
         assertThat(findPost.getPrice()).isEqualTo(post.getPrice());
-        assertThat(findPost.getDeposit()).isEqualTo(post.getDeposit());
+        assertThat(findPost.getDeposit()).isEqualTo(post.getDeposit()).isEqualTo(0);
         assertThat(findPost.getLikeCount()).isEqualTo(post.getLikeCount()).isEqualTo(0);
     }
 }

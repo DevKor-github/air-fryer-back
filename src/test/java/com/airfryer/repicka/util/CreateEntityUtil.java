@@ -100,7 +100,6 @@ public class CreateEntityUtil
                 .item(createItem())
                 .postType(PostType.RENTAL)
                 .price(10000)
-                .deposit(10000)
                 .build();
 
         post = postRepository.save(post);
@@ -131,7 +130,6 @@ public class CreateEntityUtil
                 .rentalDate(LocalDateTime.now())
                 .returnDate(LocalDateTime.now().plusDays(1))
                 .price(10000)
-                .deposit(10000)
                 .state(AppointmentState.SUCCESS)
                 .build();
 
