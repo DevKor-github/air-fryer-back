@@ -2,6 +2,7 @@ package com.airfryer.repicka.util;
 
 import com.airfryer.repicka.domain.item.entity.*;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
+import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.user.entity.Gender;
 import com.airfryer.repicka.domain.user.entity.LoginMethod;
@@ -66,5 +67,17 @@ public class CreateEntityUtil
         item = itemRepository.save(item);
 
         return item;
+    }
+
+    public ItemImage createItemImage()
+    {
+        ItemImage itemImage = ItemImage.builder()
+                .item(createItem())
+                .imageUrl("/이미지-경로")
+                .build();
+
+        itemImage = itemImageRepository.save(itemImage);
+
+        return itemImage;
     }
 }
