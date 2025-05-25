@@ -18,10 +18,11 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class User extends BaseEntity {
+public class User extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId; // 사용자 식별자
+    private Long id; // 사용자 식별자
 
     @NotNull
     private String email; // 이메일
@@ -44,7 +45,7 @@ public class User extends BaseEntity {
     private String profileImageUrl; // 프로필 이미지 URL
 
     @NotNull
-    private boolean isKoreaUnivVerified; // 고려대 학생 인증 여부
+    private Boolean isKoreaUnivVerified; // 고려대 학생 인증 여부
 
     @Enumerated(EnumType.STRING)
     private Gender gender; // 성별 (F,M)
