@@ -1,10 +1,40 @@
 package com.airfryer.repicka.domain.appointment.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.airfryer.repicka.common.response.SuccessResponseDto;
+import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
+import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostDto;
+import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.user.entity.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/appointment")
+@RequestMapping("/api")
+@RequiredArgsConstructor
 public class AppointmentController
 {
+    private final AppointmentService appointmentService;
+
+    // 대여 신청을 통한 약속 생성
+    // 빌리고 싶은 사람이 게시글에서 바로 대여 신청 버튼을 눌러서 약속을 생성하는 방식
+    @PostMapping("/post/{postId}/appointment")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> createAppointmentInPost(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                      @PathVariable Long postId,
+                                                                      @RequestBody CreateAppointmentInPostDto dto)
+    {
+        User borrower = oAuth2User.getUser();
+        appointmentService.createAppointmentInPost(borrower, postId, dto);
+
+        // TODO: 채팅방 생성해서 data로 데이터 응답해야 함.
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(SuccessResponseDto.builder()
+                        .message("약속을 성공적으로 생성하였습니다.")
+                        .data(null)
+                        .build());
+    }
 }

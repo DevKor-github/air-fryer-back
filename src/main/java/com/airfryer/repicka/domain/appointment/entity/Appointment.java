@@ -65,7 +65,7 @@ public class Appointment extends BaseEntity
     @NotNull
     private LocalDateTime returnDate;
 
-    // 대여료 / 판매값
+    // 대여료/판매값
     @NotNull
     private int price;
 
