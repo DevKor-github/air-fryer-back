@@ -31,6 +31,12 @@ public class Appointment extends BaseEntity
     @JoinColumn(name = "post")
     private Post post;
 
+    // 생성자
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator")
+    private User creator;
+
     // 소유자
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
