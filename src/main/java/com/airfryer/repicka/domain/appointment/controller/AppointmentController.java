@@ -31,7 +31,7 @@ public class AppointmentController
         User borrower = oAuth2User.getUser();
         appointmentService.offerAppointmentInPost(borrower, postId, dto);
 
-        // TODO: 채팅방 생성해서 data로 데이터 응답해야 함.
+        // TODO: 채팅방을 새로 생성하였다면 data로 데이터 응답해야 함.
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
                         .message("약속을 성공적으로 생성하였습니다.")

@@ -62,6 +62,7 @@ public class AppointmentService
             // 기존에 존재하던 약속 데이터
             Appointment pendingAppointment = pendingAppointmentOptional.get();
 
+            // 약속 데이터 수정
             pendingAppointment.updateAppointment(dto);
 
             // 약속 데이터 저장
@@ -86,8 +87,8 @@ public class AppointmentService
 
             // 약속 데이터 저장
             appointmentRepository.save(appointment);
-        }
 
-        // TODO: 채팅방 생성해서 데이터 반환해야 함.
+            // TODO: 채팅방 생성해서 데이터 반환해야 함.
+        }
     }
 }
