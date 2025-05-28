@@ -20,16 +20,16 @@ public class AppointmentController
 {
     private final AppointmentService appointmentService;
 
-    // 대여 신청을 통한 약속 생성
-    // 빌리고 싶은 사람이 게시글에서 바로 대여 신청 버튼을 눌러서 약속을 생성하는 방식
+    // 대여 신청을 통한 약속 제시
+    // 빌리고 싶은 사람이 게시글에서 바로 대여 신청 버튼을 눌러서 약속을 제시하는 방식
     @PostMapping("/post/{postId}/appointment")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public ResponseEntity<SuccessResponseDto> createAppointmentInPost(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+    public ResponseEntity<SuccessResponseDto> offerAppointmentInPost(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                       @PathVariable Long postId,
                                                                       @RequestBody @Valid CreateAppointmentInPostRequestDto dto)
     {
         User borrower = oAuth2User.getUser();
-        appointmentService.createAppointmentInPost(borrower, postId, dto);
+        appointmentService.offerAppointmentInPost(borrower, postId, dto);
 
         // TODO: 채팅방 생성해서 data로 데이터 응답해야 함.
         return ResponseEntity.status(HttpStatus.CREATED)

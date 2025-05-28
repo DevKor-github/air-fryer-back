@@ -1,6 +1,7 @@
 package com.airfryer.repicka.domain.appointment.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
+import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostRequestDto;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.user.entity.User;
@@ -78,4 +79,15 @@ public class Appointment extends BaseEntity
     @NotNull
     @Enumerated(EnumType.STRING)
     private AppointmentState state;
+
+    // 약속 데이터 수정
+    public void updateAppointment(CreateAppointmentInPostRequestDto dto)
+    {
+        this.rentalLocation = dto.getRentalLocation();
+        this.returnLocation = dto.getReturnLocation();
+        this.rentalDate = dto.getRentalDate();
+        this.returnDate = dto.getReturnDate();
+        this.price = dto.getPrice();
+        this.deposit = dto.getDeposit();
+    }
 }
