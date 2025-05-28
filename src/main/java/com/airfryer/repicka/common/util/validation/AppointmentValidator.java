@@ -14,11 +14,6 @@ public class AppointmentValidator
         return returnDate.isAfter(rentalDate);
     }
 
-    // 장소 형식 체크
-    public boolean checkLocationFormat(String location) {
-        return location.length() < 255;
-    }
-
     // 소유자와 대여자가 동일하지 않은지 확인
     public boolean isOwnerAndBorrowerDifferent(User owner, User borrower) {
         return !Objects.equals(owner.getId(), borrower.getId());

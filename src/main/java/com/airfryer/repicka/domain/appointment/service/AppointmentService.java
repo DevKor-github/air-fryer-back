@@ -3,7 +3,7 @@ package com.airfryer.repicka.domain.appointment.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.util.validation.AppointmentValidator;
-import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostDto;
+import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostRequestDto;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
@@ -28,8 +28,10 @@ public class AppointmentService
     // 대여 신청을 통한 약속 생성
     // 빌리고 싶은 사람이 게시글에서 바로 대여 신청 버튼을 눌러서 약속을 생성하는 방식
     @Transactional
-    public void createAppointmentInPost(User borrower, Long postId, CreateAppointmentInPostDto dto)
+    public void createAppointmentInPost(User borrower, Long postId, CreateAppointmentInPostRequestDto dto)
     {
+        // TODO: 채팅방 및 약속이 이미 생성된 상태라면 예외 처리 해야함.
+
         // 게시글 데이터 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
@@ -40,26 +42,6 @@ public class AppointmentService
                     "rentalDate", dto.getRentalDate(),
                     "returnDate", dto.getReturnDate()
             ));
-        }
-
-        // 대여 장소 형식 체크
-        if(!appointmentValidator.checkLocationFormat(dto.getRentalLocation())) {
-            throw new CustomException(CustomExceptionCode.INVALID_LOCATION, dto.getRentalLocation());
-        }
-
-        // 반납 장소 형식 체크
-        if(!appointmentValidator.checkLocationFormat(dto.getReturnLocation())) {
-            throw new CustomException(CustomExceptionCode.INVALID_LOCATION, dto.getReturnLocation());
-        }
-
-        // 대여로/판매값이 음수가 아닌지 확인
-        if(dto.getPrice() < 0) {
-            throw new CustomException(CustomExceptionCode.PRICE_IS_NEGATIVE, dto.getPrice());
-        }
-
-        // 보증금이 음수가 아닌지 확인
-        if(dto.getDeposit() < 0) {
-            throw new CustomException(CustomExceptionCode.PRICE_IS_NEGATIVE, dto.getDeposit());
         }
 
         // 소유자와 대여자가 다른지 확인
@@ -73,8 +55,8 @@ public class AppointmentService
                 .creator(borrower)
                 .owner(post.getWriter())
                 .borrower(borrower)
-                .rentalLocation(dto.getRentalLocation())
-                .returnLocation(dto.getReturnLocation())
+                .rentalLocation(dto.getRentalLocation().trim())
+                .returnLocation(dto.getReturnLocation().trim())
                 .rentalDate(dto.getRentalDate())
                 .returnDate(dto.getReturnDate())
                 .price(dto.getPrice())
