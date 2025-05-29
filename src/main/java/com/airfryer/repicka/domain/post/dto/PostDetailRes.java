@@ -1,34 +1,31 @@
 package com.airfryer.repicka.domain.post.dto;
 
+import com.airfryer.repicka.domain.item.dto.BaseItemDto;
 import com.airfryer.repicka.domain.item.entity.*;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.user.dto.BaseUserDto;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @Builder
 public class PostDetailRes {
     private Long id; // 게시글 식별자
+
     private BaseUserDto writer; // 게시글 올린 사용자 정보
-    // question: 아래부터 state까지 상품 정보인데 BaseItemDto나 다른 이름으로 따로 빼는 게 나을까요?
+
+    // question: item에 title과 description이 존재하는 게 중복 저장은 안돼서 db 딴에선 좋긴 한데 너무 명시적이지 않게 느껴질 수 있을 거 같아요
+    private BaseItemDto itemInfo; // 상품 정보
+
+    private PostType postType; // 게시글 타입: 대여 or 판매
+
+    private int price; // 가격
+
     @Builder.Default
-    private ProductType[] productTypes = new ProductType[2];
-    private ItemSize size;
-    private String title;
-    private String description;
-    private ItemColor color;
-    private ItemQuality quality;
-    private String location;
-    private TradeMethod tradeMethod;
-    private Boolean canDeal;
-    private CurrentItemState state;
-    private PostType postType;
-    private int price;
-    @Builder.Default
-    private int deposit = 0;
+    private int deposit = 0; // 보증급
+
     @Builder.Default
     private String[] images = new String[10];
 
@@ -37,16 +34,7 @@ public class PostDetailRes {
         return PostDetailRes.builder()
                 .id(post.getId())
                 .writer(BaseUserDto.from(user))
-                .productTypes(item.getProductTypes())
-                .size(item.getSize())
-                .title(item.getTitle())
-                .description(item.getDescription())
-                .color(item.getColor())
-                .quality(item.getQuality())
-                .location(item.getLocation())
-                .tradeMethod(item.getTradeMethod())
-                .canDeal(item.getCanDeal())
-                .state(item.getState())
+                .itemInfo(BaseItemDto.from(item))
                 .postType(post.getPostType())
                 .price(post.getPrice())
                 .deposit(post.getDeposit())
