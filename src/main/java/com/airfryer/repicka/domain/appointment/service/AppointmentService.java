@@ -3,7 +3,7 @@ package com.airfryer.repicka.domain.appointment.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.util.validation.AppointmentValidator;
-import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInPostReq;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
@@ -28,7 +28,7 @@ public class AppointmentService
 
     // 게시글에서 약속 제시
     @Transactional
-    public void offerAppointmentInPost(User borrower, CreateAppointmentInPostReq dto)
+    public void offerAppointmentInPost(User borrower, OfferAppointmentInPostReq dto)
     {
         // 게시글 데이터 조회
         Post post = postRepository.findById(dto.getPostId())
@@ -86,8 +86,8 @@ public class AppointmentService
 
             // 약속 데이터 저장
             appointmentRepository.save(appointment);
-
-            // TODO: 채팅방 생성해서 데이터 반환해야 함.
         }
+
+        // TODO: 채팅방 데이터 반환해야 함.
     }
 }

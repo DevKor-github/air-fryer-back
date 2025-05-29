@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class CreateAppointmentInPostReq
+public class OfferAppointmentInPostReq
 {
     @NotNull(message = "게시물 ID를 입력해주세요.")
     private Long postId;
