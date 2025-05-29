@@ -26,8 +26,7 @@ public class AppointmentService
 
     private final AppointmentValidator appointmentValidator;
 
-    // 대여 신청을 통한 약속 제시
-    // 빌리고 싶은 사람이 게시글에서 바로 대여 신청 버튼을 눌러서 약속을 제시하는 방식
+    // 게시글에서 약속 제시
     @Transactional
     public void offerAppointmentInPost(User borrower, CreateAppointmentInPostReq dto)
     {
