@@ -6,9 +6,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class CreatePostReq {
     @NotNull(message = "상품 내용을 입력해주세요.")
     @Valid

@@ -2,9 +2,9 @@ package com.airfryer.repicka.domain.user.dto;
 
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @Builder
 public class BaseUserDto {
     private Long id; // 사용자 식별자
