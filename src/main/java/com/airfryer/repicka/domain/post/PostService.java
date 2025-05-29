@@ -28,8 +28,8 @@ public class PostService {
     @Transactional
     public List<PostDetailRes> createPostWithItemAndImages(CreatePostReq postDetail, User user) {
         // 상품, 상품 이미지 저장
-        Item item = itemService.saveItem(postDetail.getItem());
-        List<ItemImage> images = itemImageService.saveItemImage(postDetail.getImages(), item);
+        Item item = itemService.createItem(postDetail.getItem());
+        List<ItemImage> images = itemImageService.createItemImage(postDetail.getImages(), item);
 
         // 게시글 타입에 따라 저장
         List<Post> posts = new ArrayList<>();

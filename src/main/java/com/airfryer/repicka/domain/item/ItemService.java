@@ -16,7 +16,7 @@ public class ItemService {
 
     // question: MapStruct와 set을 사용 or 정적 팩토리 메서드 or 지금 방법 뭐가 나을까요?
     @Transactional
-    public Item saveItem(CreateItemReq itemDetail) {
+    public Item createItem(CreateItemReq itemDetail) {
         Item item = Item.builder()
                 .productTypes(itemDetail.getProductTypes())
                 .size(itemDetail.getSize())
