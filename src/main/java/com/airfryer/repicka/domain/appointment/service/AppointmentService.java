@@ -29,11 +29,11 @@ public class AppointmentService
     // 대여 신청을 통한 약속 제시
     // 빌리고 싶은 사람이 게시글에서 바로 대여 신청 버튼을 눌러서 약속을 제시하는 방식
     @Transactional
-    public void offerAppointmentInPost(User borrower, Long postId, CreateAppointmentInPostReq dto)
+    public void offerAppointmentInPost(User borrower, CreateAppointmentInPostReq dto)
     {
         // 게시글 데이터 조회
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
+        Post post = postRepository.findById(dto.getPostId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, dto.getPostId()));
 
         // 반납 일사가 대여 일시의 이후인지 확인
         if(!appointmentValidator.isRentalDateEarlierThanReturnDate(dto.getRentalDate(), dto.getReturnDate())) {
