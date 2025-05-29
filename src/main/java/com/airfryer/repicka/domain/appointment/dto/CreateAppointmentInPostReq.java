@@ -1,13 +1,12 @@
 package com.airfryer.repicka.domain.appointment.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-public class CreateAppointmentInPostRequestDto
+public class CreateAppointmentInPostReq
 {
     @Size(max = 255, message = "대여 장소는 최대 255자까지 입력할 수 있습니다.")
     private String rentalLocation;      // 대여 장소

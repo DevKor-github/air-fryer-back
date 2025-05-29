@@ -2,7 +2,7 @@ package com.airfryer.repicka.domain.appointment.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostRequestDto;
+import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostReq;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.validation.Valid;
@@ -26,7 +26,7 @@ public class AppointmentController
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerAppointmentInPost(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                       @PathVariable Long postId,
-                                                                      @RequestBody @Valid CreateAppointmentInPostRequestDto dto)
+                                                                      @RequestBody @Valid CreateAppointmentInPostReq dto)
     {
         User borrower = oAuth2User.getUser();
         appointmentService.offerAppointmentInPost(borrower, postId, dto);

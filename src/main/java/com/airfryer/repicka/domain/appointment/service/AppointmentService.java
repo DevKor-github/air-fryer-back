@@ -3,7 +3,7 @@ package com.airfryer.repicka.domain.appointment.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.util.validation.AppointmentValidator;
-import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostRequestDto;
+import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostReq;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
@@ -29,7 +29,7 @@ public class AppointmentService
     // 대여 신청을 통한 약속 제시
     // 빌리고 싶은 사람이 게시글에서 바로 대여 신청 버튼을 눌러서 약속을 제시하는 방식
     @Transactional
-    public void offerAppointmentInPost(User borrower, Long postId, CreateAppointmentInPostRequestDto dto)
+    public void offerAppointmentInPost(User borrower, Long postId, CreateAppointmentInPostReq dto)
     {
         // 게시글 데이터 조회
         Post post = postRepository.findById(postId)
