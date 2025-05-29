@@ -28,5 +28,5 @@ public class CreateAppointmentInPostReq
 
     @NotNull(message = "보증금을 입력해주세요.")
     @Min(value = 0, message = "보증금은 0원 이상이어야 합니다.")
-    private int deposit;    // 보증금
+    private int deposit = 0;    // 보증금
 }
