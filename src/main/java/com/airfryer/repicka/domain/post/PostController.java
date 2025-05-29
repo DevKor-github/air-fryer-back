@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/post")
@@ -25,12 +27,12 @@ public class PostController {
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> createPost(@AuthenticationPrincipal CustomOAuth2User user,
                                                          @Valid @RequestBody CreatePostReq req) {
-        PostDetailRes postDetailRes = postService.createPostWithItemAndImages(req, user.getUser());
+        List<PostDetailRes> postDetailResList = postService.createPostWithItemAndImages(req, user.getUser());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
                         .message("게시글을 성공적으로 생성하였습니다.")
-                        .data(postDetailRes)
+                        .data(postDetailResList)
                         .build());
     }
 
