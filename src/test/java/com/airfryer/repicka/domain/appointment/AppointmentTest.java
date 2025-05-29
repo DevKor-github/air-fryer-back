@@ -34,6 +34,7 @@ public class AppointmentTest
 
         assertThat(findAppointment).isNotNull();
         assertThat(findAppointment.getPost()).isEqualTo(appointment.getPost());
+        assertThat(findAppointment.getCreator()).isEqualTo(appointment.getCreator());
         assertThat(findAppointment.getOwner()).isEqualTo(appointment.getOwner());
         assertThat(findAppointment.getBorrower()).isEqualTo(appointment.getBorrower());
         assertThat(findAppointment.getRentalLocation()).isEqualTo(appointment.getRentalLocation());

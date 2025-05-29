@@ -121,10 +121,14 @@ public class CreateEntityUtil
 
     public Appointment createAppointment()
     {
+        User owner = createUser();
+        User borrower = createUser();
+
         Appointment appointment = Appointment.builder()
                 .post(createPost())
-                .owner(createUser())
-                .borrower(createUser())
+                .creator(owner)
+                .owner(owner)
+                .borrower(borrower)
                 .rentalLocation("rentalLocation")
                 .returnLocation("returnLocation")
                 .rentalDate(LocalDateTime.now())

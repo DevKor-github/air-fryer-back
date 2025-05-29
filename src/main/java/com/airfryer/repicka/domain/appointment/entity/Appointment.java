@@ -1,7 +1,7 @@
 package com.airfryer.repicka.domain.appointment.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
-import com.airfryer.repicka.domain.item.entity.Item;
+import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostReq;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -31,6 +31,12 @@ public class Appointment extends BaseEntity
     @JoinColumn(name = "post")
     private Post post;
 
+    // 생성자
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator")
+    private User creator;
+
     // 소유자
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -59,7 +65,7 @@ public class Appointment extends BaseEntity
     @NotNull
     private LocalDateTime returnDate;
 
-    // 대여료 / 판매값
+    // 대여료/판매값
     @NotNull
     private int price;
 
@@ -72,4 +78,15 @@ public class Appointment extends BaseEntity
     @NotNull
     @Enumerated(EnumType.STRING)
     private AppointmentState state;
+
+    // 약속 데이터 수정
+    public void updateAppointment(CreateAppointmentInPostReq dto)
+    {
+        this.rentalLocation = dto.getRentalLocation();
+        this.returnLocation = dto.getReturnLocation();
+        this.rentalDate = dto.getRentalDate();
+        this.returnDate = dto.getReturnDate();
+        this.price = dto.getPrice();
+        this.deposit = dto.getDeposit();
+    }
 }
