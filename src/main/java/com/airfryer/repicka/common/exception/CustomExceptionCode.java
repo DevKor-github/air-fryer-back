@@ -12,6 +12,9 @@ public enum CustomExceptionCode
     NOT_LOGIN(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     LOW_AUTHORITY(HttpStatus.UNAUTHORIZED, "권한이 부족합니다."),
 
+    // 제품(Item) 관련 예외
+    DEAL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "가격 협의가 불가능한 제품입니다."),
+
     // 게시글(Post) 관련 예외
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글 데이터를 찾을 수 없습니다."),
 

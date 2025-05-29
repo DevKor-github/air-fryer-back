@@ -47,6 +47,13 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_BORROWER, borrower.getId());
         }
 
+        // 가격 협의가 불가능한데 가격을 바꿔서 요청을 보내는 경우, 예외 처리
+        if(!post.getItem().getCanDeal() && (dto.getPrice() != post.getPrice() || dto.getDeposit() != post.getDeposit())) {
+            throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
+        }
+
+        // TODO: 기존에 확정된 다른 약속 데이터랑 충돌하지 않는지 확인하는 로직이 필요함.
+
         // 협의 중인 약속 데이터가 이미 존재한다면, 기존 데이터를 수정
         // 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 데이터를 생성
         Optional<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostAndOwnerAndBorrowerAndState(
