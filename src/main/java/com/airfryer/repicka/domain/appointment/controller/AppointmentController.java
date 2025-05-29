@@ -21,7 +21,7 @@ public class AppointmentController
     private final AppointmentService appointmentService;
 
     // 게시글에서 약속 제시
-    @PostMapping("/appointment")
+    @PostMapping("/appointment/in-post")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerAppointmentInPost(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                      @RequestBody @Valid CreateAppointmentInPostReq dto)
