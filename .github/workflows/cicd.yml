@@ -2,7 +2,7 @@ name: CI/CD with github actions & docker
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ develop ]
 
 env:
   DOCKER_IMAGE: ghcr.io/kyeahxx19/repicka:latest
