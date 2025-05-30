@@ -37,15 +37,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler
         String accessToken = jwtUtil.createToken(user.getId(), Token.ACCESS_TOKEN);
         String refreshToken = jwtUtil.createToken(user.getId(), Token.REFRESH_TOKEN);
 
-        // 토큰으로 쿠키 생성
-        Cookie accessTokenCookie = jwtUtil.parseTokenToCookie(accessToken, Token.ACCESS_TOKEN);
-        Cookie refreshTokenCookie = jwtUtil.parseTokenToCookie(refreshToken, Token.REFRESH_TOKEN);
-
-        // 쿠키 저장
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-
         // 리다이렉트
-        response.sendRedirect(frontendURI);
+        response.sendRedirect(frontendURI + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);
     }
 }
