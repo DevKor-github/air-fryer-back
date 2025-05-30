@@ -70,7 +70,7 @@ public class AppointmentController
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
-                        .message("날짜별 제품 대여 가능 여부를 성공적으로 조히하였습니다.")
+                        .message("날짜별 제품 대여 가능 여부를 성공적으로 조회하였습니다.")
                         .data(data)
                         .build());
     }
