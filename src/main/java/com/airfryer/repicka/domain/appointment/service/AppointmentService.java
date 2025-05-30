@@ -8,6 +8,7 @@ import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.post.entity.Post;
+import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.transaction.Transactional;
@@ -34,12 +35,19 @@ public class AppointmentService
         Post post = postRepository.findById(dto.getPostId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, dto.getPostId()));
 
-        // 반납 일사가 대여 일시의 이후인지 확인
-        if(!appointmentValidator.isRentalDateEarlierThanReturnDate(dto.getRentalDate(), dto.getReturnDate())) {
-            throw new CustomException(CustomExceptionCode.RENTAL_DATE_IS_LATER_THAN_RETURN_DATE, Map.of(
-                    "rentalDate", dto.getRentalDate(),
-                    "returnDate", dto.getReturnDate()
-            ));
+        // 대여의 경우 예외 처리
+        // 1. 반납 일시 데이터를 전달하지 않았다면 예외 처리
+        // 2. 반납 일시가 대여 일시의 이후인지 확인
+        if(post.getPostType() == PostType.RENTAL)
+        {
+            if(dto.getReturnDate() == null) {
+                throw new CustomException(CustomExceptionCode.RETURN_DATE_NOT_FOUND, null);
+            } else if(!appointmentValidator.isRentalDateEarlierThanReturnDate(dto.getRentalDate(), dto.getReturnDate())) {
+                throw new CustomException(CustomExceptionCode.RENTAL_DATE_IS_LATER_THAN_RETURN_DATE, Map.of(
+                        "rentalDate", dto.getRentalDate(),
+                        "returnDate", dto.getReturnDate()
+                ));
+            }
         }
 
         // 소유자와 대여자가 다른지 확인
@@ -83,9 +91,9 @@ public class AppointmentService
                     .owner(post.getWriter())
                     .borrower(borrower)
                     .rentalLocation(dto.getRentalLocation().trim())
-                    .returnLocation(dto.getReturnLocation().trim())
+                    .returnLocation(post.getPostType() == PostType.RENTAL ? dto.getReturnLocation().trim() : null)
                     .rentalDate(dto.getRentalDate())
-                    .returnDate(dto.getReturnDate())
+                    .returnDate(post.getPostType() == PostType.RENTAL ? dto.getReturnDate() : null)
                     .price(dto.getPrice())
                     .deposit(dto.getDeposit())
                     .state(AppointmentState.PENDING)

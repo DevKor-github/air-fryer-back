@@ -21,15 +21,13 @@ public class OfferAppointmentInPostReq
     @Future(message = "대여 일시는 현재보다 미래여야 합니다.")
     private LocalDateTime rentalDate;   // 대여 일시
 
-    @NotNull(message = "반납 일시를 입력해주세요.")
     @Future(message = "반납 일시는 현재보다 미래여야 합니다.")
-    private LocalDateTime returnDate;   // 반납 일시
+    private LocalDateTime returnDate = null;    // 반납 일시
 
     @NotNull(message = "대여료 또는 판매값을 입력해주세요.")
     @Min(value = 0, message = "대여료 또는 판매값은 0원 이상이어야 합니다.")
     private int price;      // 대여료/판매값
 
-    @NotNull(message = "보증금을 입력해주세요.")
     @Min(value = 0, message = "보증금은 0원 이상이어야 합니다.")
     private int deposit = 0;    // 보증금
 }
