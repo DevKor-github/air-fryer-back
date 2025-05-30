@@ -17,6 +17,7 @@ public enum CustomExceptionCode
 
     // 게시글(Post) 관련 예외
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글 데이터를 찾을 수 없습니다."),
+    NOT_RENTAL_POST(HttpStatus.BAD_REQUEST, "대여 게시글이 아닙니다."),
 
     // 약속(Appointment) 관련 예외
     RETURN_DATE_NOT_FOUND(HttpStatus.NOT_FOUND, "대여 약속 제시에서 반납 일시는 필수적입니다."),

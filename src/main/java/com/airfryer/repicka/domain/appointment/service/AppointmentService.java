@@ -3,10 +3,12 @@ package com.airfryer.repicka.domain.appointment.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.util.validation.AppointmentValidator;
+import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInPostReq;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
@@ -15,8 +17,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -64,8 +68,8 @@ public class AppointmentService
 
         // 협의 중인 약속 데이터가 이미 존재한다면, 기존 데이터를 수정
         // 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 데이터를 생성
-        Optional<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostAndOwnerAndBorrowerAndState(
-                post,
+        Optional<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerAndBorrowerAndState(
+                post.getId(),
                 post.getWriter(),
                 borrower,
                 AppointmentState.PENDING
@@ -77,7 +81,7 @@ public class AppointmentService
             Appointment pendingAppointment = pendingAppointmentOptional.get();
 
             // 약속 데이터 수정
-            pendingAppointment.updateAppointment(dto);
+            pendingAppointment.updateAppointment(dto, post.getPostType() == PostType.RENTAL);
 
             // 약속 데이터 저장
             appointmentRepository.save(pendingAppointment);
@@ -104,5 +108,115 @@ public class AppointmentService
         }
 
         // TODO: 채팅방 데이터 반환해야 함.
+    }
+
+    // 월 단위로 날짜별 제품 대여 가능 여부 조회
+    public GetItemAvailabilityRes getItemAvailability(Long rentalPostId, int year, int month)
+    {
+        /// 대여 게시글인지 확인
+
+        // 게시글 데이터 조회
+        Post rentalPost = postRepository.findById(rentalPostId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, rentalPostId));
+
+        // 대여 게시글이 아니라면 예외 처리
+        if (rentalPost.getPostType() != PostType.RENTAL) {
+            throw new CustomException(CustomExceptionCode.NOT_RENTAL_POST, rentalPostId);
+        }
+
+        /// 판매 게시글이 존재한다면, 예정된 판매 약속의 존재 여부 확인
+        /// 예정된 판매 약속이 존재한다면, 해당 약속 이후 날짜는 전부 대여 불가능
+
+        // 반환할 날짜별 제품 대여 가능 여부 해시맵
+        Map<LocalDate, Boolean> map = new LinkedHashMap<>();
+
+        for (int i = 1; i <= YearMonth.of(year, month).lengthOfMonth(); i++) {
+            map.put(LocalDate.of(year, month, i), true);
+        }
+
+        // 제품 조회
+        Item item = rentalPost.getItem();
+
+        // 동일한 제품에 대한 판매 게시글 조회
+        Optional<Post> salePostOptional = postRepository.findByItemIdAndPostType(item.getId(), PostType.SALE);
+
+        // 판매 게시글이 존재할 때
+        if (salePostOptional.isPresent()) {
+            Post salePost = salePostOptional.get();
+
+            // 예정된 판매 약속 조회
+            Optional<Appointment> saleAppointmentOptional = appointmentRepository.findByPostIdAndReturnDateAndState(
+                    salePost.getId(),
+                    null,
+                    AppointmentState.CONFIRMED
+            );
+
+            // 예정된 판매 약속이 존재한다면, 해당 약속 이후 날짜는 전부 대여 불가능
+            if (saleAppointmentOptional.isPresent()) {
+                Appointment saleAppointment = saleAppointmentOptional.get();
+
+                for (int i = saleAppointment.getRentalDate().getDayOfMonth(); i <= YearMonth.of(year, month).lengthOfMonth(); i++) {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+        }
+
+        /// 해당 월 동안 예정된 대여 약속들에 대해, 각 구간마다 대여 불가능 처리
+
+        // 해당 월 동안 존재하는 모든 대여 약속 조회
+        List<Appointment> appointmentList = appointmentRepository.findListOverlappingWithPeriod(
+                rentalPostId,
+                LocalDateTime.of(year, month, 1, 0, 0, 0),
+                LocalDateTime.of(year, month, YearMonth.of(year, month).lengthOfMonth(), 23, 59, 59, 0)
+        );
+
+        // 모든 대여 약속 구간에 대해, 대여 불가능 처리
+        for (Appointment appointment : appointmentList)
+        {
+            // 대여 시작 날짜가 해당 월 이전이고, 대여 종료 날짜가 해당 월 이후인 경우
+            if(appointment.getRentalDate().getMonthValue() < month && appointment.getReturnDate().getMonthValue() > month)
+            {
+                map.replaceAll((key, value) -> false);
+                break;
+            }
+            // 대여 시작 날짜가 해당 월에 속하고, 대여 종료 날짜가 해당 월 이후인 경우
+            else if(appointment.getRentalDate().getMonthValue() == month && appointment.getReturnDate().getMonthValue() > month)
+            {
+                for(int i = appointment.getRentalDate().getDayOfMonth(); i <= YearMonth.of(year, month).lengthOfMonth(); i++)
+                {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+            // 대여 시작 날짜가 해당 월 이전이고, 대여 종료 날짜가 해당 월에 속하는 경우
+            else if(appointment.getRentalDate().getMonthValue() < month && appointment.getReturnDate().getMonthValue() == month)
+            {
+                for(int i = 1; i <= appointment.getReturnDate().getDayOfMonth(); i++)
+                {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+            // 대여 시작 날짜 및 대여 종료 날짜가 둘 다 해당 월에 속하는 경우
+            else
+            {
+                for(int i = appointment.getRentalDate().getDayOfMonth(); i <= appointment.getReturnDate().getDayOfMonth(); i++)
+                {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+        }
+
+        /// 현재 이전의 날짜들은 전부 불가능 처리
+
+        for (int i = 1; i <= YearMonth.of(year, month).lengthOfMonth() && LocalDate.of(year, month, i).isBefore(LocalDate.now()); i++) {
+            map.put(LocalDate.of(year, month, i), false);
+        }
+
+        return GetItemAvailabilityRes.builder()
+                .itemId(item.getId())
+                .postId(rentalPost.getId())
+                .year(year)
+                .month(month)
+                .availability(map)
+                .build();
     }
 }

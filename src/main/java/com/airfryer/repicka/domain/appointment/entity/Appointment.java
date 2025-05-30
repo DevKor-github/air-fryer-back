@@ -79,12 +79,12 @@ public class Appointment extends BaseEntity
     private AppointmentState state;
 
     // 약속 데이터 수정
-    public void updateAppointment(OfferAppointmentInPostReq dto)
+    public void updateAppointment(OfferAppointmentInPostReq dto, boolean isRental)
     {
         this.rentalLocation = dto.getRentalLocation();
-        this.returnLocation = dto.getReturnLocation();
+        this.returnLocation = isRental ? dto.getReturnLocation() : null;
         this.rentalDate = dto.getRentalDate();
-        this.returnDate = dto.getReturnDate();
+        this.returnDate = isRental ? dto.getReturnDate() : null;
         this.price = dto.getPrice();
         this.deposit = dto.getDeposit();
     }

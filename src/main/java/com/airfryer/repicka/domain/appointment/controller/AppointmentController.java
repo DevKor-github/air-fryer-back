@@ -2,6 +2,7 @@ package com.airfryer.repicka.domain.appointment.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
+import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInPostReq;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.user.entity.User;
@@ -57,4 +58,20 @@ public class AppointmentController
                             .build());
         }
     */
+
+    // 월 단위로 날짜별 제품 대여 가능 여부 조회
+    @GetMapping("/post/{postId}/availability")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> getItemAvailability(@PathVariable Long postId,
+                                                                  @RequestParam int year,
+                                                                  @RequestParam int month)
+    {
+        GetItemAvailabilityRes data = appointmentService.getItemAvailability(postId, year, month);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("날짜별 제품 대여 가능 여부를 성공적으로 조히하였습니다.")
+                        .data(data)
+                        .build());
+    }
 }
