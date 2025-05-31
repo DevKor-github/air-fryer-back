@@ -34,7 +34,7 @@ public class AppointmentController
         appointmentService.offerAppointmentInRentalPost(borrower, dto);
 
         // TODO: 채팅방 데이터를 data로 응답해야 함.
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("대여 게시글에서 약속을 성공적으로 제시하였습니다.")
                         .data(null)
@@ -51,7 +51,7 @@ public class AppointmentController
         appointmentService.offerAppointmentInSalePost(buyer, dto);
 
         // TODO: 채팅방 데이터를 data로 응답해야 함.
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("판매 게시글에서 약속을 성공적으로 제시하였습니다.")
                         .data(null)
