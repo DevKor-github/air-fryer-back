@@ -11,7 +11,6 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.item.entity.CurrentItemState;
 import com.airfryer.repicka.domain.item.entity.Item;
-import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
@@ -66,7 +65,7 @@ public class AppointmentService
 
         // 게시글 작성자와 대여자가 동일한 경우, 예외 처리
         if(!appointmentValidator.isOwnerAndRequesterDifferent(post.getWriter(), borrower)) {
-            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, borrower.getId());
+            throw new CustomException(CustomExceptionCode.SAME_WRITER_AND_REQUESTER, borrower.getId());
         }
 
         /// 제품 데이터 조회
@@ -191,7 +190,7 @@ public class AppointmentService
 
         // 게시글 작성자와 구매자가 동일한 경우, 예외 처리
         if(!appointmentValidator.isOwnerAndRequesterDifferent(post.getWriter(), buyer)) {
-            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, buyer.getId());
+            throw new CustomException(CustomExceptionCode.SAME_WRITER_AND_REQUESTER, buyer.getId());
         }
 
         /// 제품 데이터 조회
