@@ -65,7 +65,7 @@ public class AppointmentService
 
         // 게시글 작성자와 대여자가 동일한 경우, 예외 처리
         if(!appointmentValidator.isOwnerAndRequesterDifferent(post.getWriter(), borrower)) {
-            throw new CustomException(CustomExceptionCode.SAME_WRITER_AND_REQUESTER, borrower.getId());
+            throw new CustomException(CustomExceptionCode.SAME_WRITER_AND_REQUESTER, null);
         }
 
         /// 제품 데이터 조회
@@ -190,7 +190,7 @@ public class AppointmentService
 
         // 게시글 작성자와 구매자가 동일한 경우, 예외 처리
         if(!appointmentValidator.isOwnerAndRequesterDifferent(post.getWriter(), buyer)) {
-            throw new CustomException(CustomExceptionCode.SAME_WRITER_AND_REQUESTER, buyer.getId());
+            throw new CustomException(CustomExceptionCode.SAME_WRITER_AND_REQUESTER, null);
         }
 
         /// 제품 데이터 조회
