@@ -20,10 +20,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     // 게시글 ID, 반납 일시, 약속 상태로 약속 데이터 조회
     Optional<Appointment> findByPostIdAndReturnDateAndState(Long postId, LocalDateTime returnDate, AppointmentState state);
 
-    // 어떤 게시글의 특정 구간 동안 존재하는 모든 약속 조회
+    // 게시글 ID, 약속 상태로 약속 리스트 조회
+    List<Appointment> findByPostIdAndState(Long postId, AppointmentState state);
+
+    // 어떤 게시글의 특정 구간 동안 존재하는 모든 특정 상태의 약속 조회
     @Query("""
         SELECT a FROM Appointment a
-        WHERE a.post.id = :postId AND (
+        WHERE a.post.id = :postId AND a.state = :state AND (
            (a.rentalDate BETWEEN :start AND :end) OR
            (a.returnDate BETWEEN :start AND :end) OR
            (a.rentalDate < :start AND a.returnDate > :end)
@@ -31,6 +34,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     """)
     List<Appointment> findListOverlappingWithPeriod(
             @Param("postId") Long postId,
+            @Param("state") AppointmentState state,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );

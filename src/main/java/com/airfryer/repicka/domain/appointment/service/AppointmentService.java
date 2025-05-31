@@ -8,6 +8,7 @@ import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInPostReq;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.item.entity.CurrentItemState;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
@@ -111,9 +112,9 @@ public class AppointmentService
     }
 
     // 월 단위로 날짜별 제품 대여 가능 여부 조회
-    public GetItemAvailabilityRes getItemAvailability(Long rentalPostId, int year, int month)
+    public GetItemAvailabilityRes getItemRentalAvailability(Long rentalPostId, int year, int month)
     {
-        // 게시글 데이터 조회
+        // 대여 게시글 데이터 조회
         Post rentalPost = postRepository.findById(rentalPostId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, rentalPostId));
 
@@ -170,6 +171,7 @@ public class AppointmentService
         // 해당 월 동안 존재하는 모든 대여 약속 조회
         List<Appointment> appointmentList = appointmentRepository.findListOverlappingWithPeriod(
                 rentalPostId,
+                AppointmentState.CONFIRMED,
                 LocalDateTime.of(year, month, 1, 0, 0, 0),
                 LocalDateTime.of(year, month, YearMonth.of(year, month).lengthOfMonth(), 23, 59, 59, 0)
         );
@@ -216,5 +218,57 @@ public class AppointmentService
                 .month(month)
                 .availability(map)
                 .build();
+    }
+
+    // 월 단위로 날짜별 제품 대여 가능 여부 조회
+    public LocalDate getItemSaleAvailability(Long salePostId)
+    {
+        // 판매 게시글 데이터 조회
+        Post salePost = postRepository.findById(salePostId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, salePostId));
+
+        // 판매 게시글이 아니라면 예외 처리
+        if(salePost.getPostType() != PostType.SALE) {
+            throw new CustomException(CustomExceptionCode.NOT_SALE_POST, salePostId);
+        }
+
+        // 제품 조회
+        Item item = salePost.getItem();
+
+        // 제품이 판매 예정이면 예외 처리
+        if(item.getState() == CurrentItemState.SALE_RESERVED) {
+            throw new CustomException(CustomExceptionCode.ALREADY_SALE_RESERVED, item.getId());
+        }
+
+        // 제품 구매가 가능한 첫 날짜
+        LocalDate result = LocalDate.now();
+
+        /// 대여 게시글이 존재한다면, 예정된 모든 대여 약속 조회
+        /// 모든 대여 약속 중 가장 나중의 반납 날짜 다음날을 반환하도록 처리
+
+        // 해당 제품에 대한 대여 게시글 조회
+        Optional<Post> rentalPostOptional = postRepository.findByItemIdAndPostType(item.getId(), PostType.RENTAL);
+
+        // 대여 게시글이 존재할 때
+        if(rentalPostOptional.isPresent())
+        {
+            Post rentalPost = rentalPostOptional.get();
+
+            // 모든 예정된 대여 약속 조회
+            List<Appointment> appointmentList = appointmentRepository.findByPostIdAndState(
+                    rentalPost.getId(),
+                    AppointmentState.CONFIRMED
+            );
+
+            // 모든 대여 약속에 대해, 대여 반납 날짜의 다음날보다 제품 구매가 가능한 첫 날짜가 이전이라면 갱신
+            for (Appointment appointment : appointmentList)
+            {
+                if(result.isBefore(appointment.getReturnDate().toLocalDate().plusDays(1))) {
+                    result = appointment.getReturnDate().toLocalDate().plusDays(1);
+                }
+            }
+        }
+
+        return result;
     }
 }

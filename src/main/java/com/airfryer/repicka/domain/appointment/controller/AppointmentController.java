@@ -16,6 +16,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -62,15 +64,29 @@ public class AppointmentController
     // 월 단위로 날짜별 제품 대여 가능 여부 조회
     @GetMapping("/post/{postId}/rental-availability")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public ResponseEntity<SuccessResponseDto> getItemAvailability(@PathVariable Long postId,
-                                                                  @RequestParam int year,
-                                                                  @RequestParam int month)
+    public ResponseEntity<SuccessResponseDto> getItemRentalAvailability(@PathVariable Long postId,
+                                                                        @RequestParam int year,
+                                                                        @RequestParam int month)
     {
-        GetItemAvailabilityRes data = appointmentService.getItemAvailability(postId, year, month);
+        GetItemAvailabilityRes data = appointmentService.getItemRentalAvailability(postId, year, month);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("날짜별 제품 대여 가능 여부를 성공적으로 조회하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
+    // 제품 구매가 가능한 첫 날짜 조회
+    @GetMapping("/post/{postId}/sale-availability")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> getItemSaleAvailability(@PathVariable Long postId)
+    {
+        LocalDate data = appointmentService.getItemSaleAvailability(postId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("제품 구매가 가능한 첫 날짜를 성공적으로 조회하였습니다.")
                         .data(data)
                         .build());
     }

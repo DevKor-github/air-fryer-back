@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum CurrentItemState
 {
     AVAILABLE("AVAILABLE", "가능"),
-    RESERVED("RESERVED", "대여 예정"),
+    RENTAL_RESERVED("RENTAL_RESERVED", "대여 예정"),
+    SALE_RESERVED("SALE_RESERVED", "판매 예정"),
     RENTED("RENTED", "대여중"),
     SOLD_OUT("SOLD_OUT", "판매됨");
 
