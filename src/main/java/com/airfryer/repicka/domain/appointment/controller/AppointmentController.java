@@ -60,7 +60,7 @@ public class AppointmentController
     */
 
     // 월 단위로 날짜별 제품 대여 가능 여부 조회
-    @GetMapping("/post/{postId}/availability")
+    @GetMapping("/post/{postId}/rental-availability")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> getItemAvailability(@PathVariable Long postId,
                                                                   @RequestParam int year,

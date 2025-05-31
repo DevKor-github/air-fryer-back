@@ -113,8 +113,6 @@ public class AppointmentService
     // 월 단위로 날짜별 제품 대여 가능 여부 조회
     public GetItemAvailabilityRes getItemAvailability(Long rentalPostId, int year, int month)
     {
-        /// 대여 게시글인지 확인
-
         // 게시글 데이터 조회
         Post rentalPost = postRepository.findById(rentalPostId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, rentalPostId));
@@ -124,15 +122,21 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.NOT_RENTAL_POST, rentalPostId);
         }
 
-        /// 판매 게시글이 존재한다면, 예정된 판매 약속의 존재 여부 확인
-        /// 예정된 판매 약속이 존재한다면, 해당 약속 이후 날짜는 전부 대여 불가능
-
         // 반환할 날짜별 제품 대여 가능 여부 해시맵
         Map<LocalDate, Boolean> map = new LinkedHashMap<>();
 
+        // 일단, 모든 날짜를 true로 초기화
         for (int i = 1; i <= YearMonth.of(year, month).lengthOfMonth(); i++) {
             map.put(LocalDate.of(year, month, i), true);
         }
+
+        // 이전의 날짜들은 전부 불가능 처리
+        for (int i = 1; i <= YearMonth.of(year, month).lengthOfMonth() && LocalDate.of(year, month, i).isBefore(LocalDate.now()); i++) {
+            map.put(LocalDate.of(year, month, i), false);
+        }
+
+        /// 판매 게시글이 존재한다면, 예정된 판매 약속의 존재 여부 확인
+        /// 예정된 판매 약속이 존재한다면, 해당 약속 이후 날짜는 전부 대여 불가능
 
         // 제품 조회
         Item item = rentalPost.getItem();
@@ -203,12 +207,6 @@ public class AppointmentService
                     map.put(LocalDate.of(year, month, i), false);
                 }
             }
-        }
-
-        /// 현재 이전의 날짜들은 전부 불가능 처리
-
-        for (int i = 1; i <= YearMonth.of(year, month).lengthOfMonth() && LocalDate.of(year, month, i).isBefore(LocalDate.now()); i++) {
-            map.put(LocalDate.of(year, month, i), false);
         }
 
         return GetItemAvailabilityRes.builder()
