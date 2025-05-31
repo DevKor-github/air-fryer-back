@@ -61,7 +61,7 @@ public class AppointmentService
 
         // 대여 게시글이 아닌 경우, 예외 처리
         if(post.getPostType() != PostType.RENTAL) {
-            throw new CustomException(CustomExceptionCode.NOT_RENTAL_POST, dto.getPostId());
+            throw new CustomException(CustomExceptionCode.NOT_RENTAL_POST, post.getPostType());
         }
 
         // 게시글 작성자와 대여자가 동일한 경우, 예외 처리
@@ -186,7 +186,7 @@ public class AppointmentService
 
         // 판매 게시글이 아닌 경우, 예외 처리
         if(post.getPostType() != PostType.SALE) {
-            throw new CustomException(CustomExceptionCode.NOT_SALE_POST, dto.getPostId());
+            throw new CustomException(CustomExceptionCode.NOT_SALE_POST, post.getPostType());
         }
 
         // 게시글 작성자와 구매자가 동일한 경우, 예외 처리
@@ -310,7 +310,7 @@ public class AppointmentService
 
         // 대여 게시글이 아닌 경우, 예외 처리
         if (rentalPost.getPostType() != PostType.RENTAL) {
-            throw new CustomException(CustomExceptionCode.NOT_RENTAL_POST, rentalPostId);
+            throw new CustomException(CustomExceptionCode.NOT_RENTAL_POST, rentalPost.getPostType());
         }
 
         /// 제품 데이터 조회
@@ -424,7 +424,7 @@ public class AppointmentService
 
         // 판매 게시글이 아니라면 예외 처리
         if(salePost.getPostType() != PostType.SALE) {
-            throw new CustomException(CustomExceptionCode.NOT_SALE_POST, salePostId);
+            throw new CustomException(CustomExceptionCode.NOT_SALE_POST, salePost.getPostType());
         }
 
         /// 제품 데이터 조회
