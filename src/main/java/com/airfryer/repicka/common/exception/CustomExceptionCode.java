@@ -29,7 +29,7 @@ public enum CustomExceptionCode
     ALREADY_SALE_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 판매 약속이 예정되어 있습니다."),
     INVALID_LOCATION(HttpStatus.BAD_REQUEST, "입력한 장소 형식이 올바르지 않습니다."),
     PRICE_IS_NEGATIVE(HttpStatus.BAD_REQUEST, "가격은 0 또는 양수여야 합니다."),
-    SAME_OWNER_AND_BORROWER(HttpStatus.BAD_REQUEST, "제품 소유자와 대여자는 달라야 합니다."),
+    SAME_OWNER_AND_REQUESTER(HttpStatus.BAD_REQUEST, "제품 소유자와 대여 및 구매 요청자는 달라야 합니다."),
     SALE_APPOINTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "제품은 판매 예정인데, 판매 약속 데이터를 찾을 수 없습니다. (내부 로직 오류)"),
 
     EXAMPLE_EXCEPTION(HttpStatus.NOT_FOUND, "예외 예시입니다.");
