@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class PostService {
     public List<PostDetailRes> createPostWithItemAndImages(CreatePostReq postDetail, User user) {
         // 상품, 상품 이미지 저장
         Item item = itemService.createItem(postDetail.getItem());
-        List<ItemImage> images = itemImageService.createItemImage(postDetail.getImages(), item);
+        List<ItemImage> itemImages = itemImageService.createItemImage(postDetail.getImages(), item);
 
         // 게시글 타입에 따라 저장
         List<Post> posts = new ArrayList<>();
@@ -54,11 +55,19 @@ public class PostService {
         // entity 정보를 사용하여 각 Post에 대해 PostDetailRes 생성
         List<PostDetailRes> postDetailResList = new ArrayList<>();
         for (Post post : posts) {
-            PostDetailRes postDetailRes = PostDetailRes.from(user, item, post, postDetail.getImages());
+            PostDetailRes postDetailRes = PostDetailRes.from(post, itemImages);
             postDetailResList.add(postDetailRes);
         }
 
         return postDetailResList;
+    }
+
+    public PostDetailRes getPostDetail(Long postId) {
+        // 게시글, 상품, 이미지 등 조회
+        Optional<Post> post = postRepository.findById(postId);
+        List<ItemImage> itemImages = itemImageService.getItemImages(post.get().getItem());
+
+        return PostDetailRes.from(post.get(), itemImages);
     }
 
     // 게시글 목록 검색
@@ -66,6 +75,8 @@ public class PostService {
     public List<PostPreviewRes> searchPostList(SearchPostReq condition) {
         // 태그로 게시글 리스트 찾기
         List<Post> posts = postRepository.findPostsByCondition(condition);
+
+        // TODO: 대여 날짜에 대한 필터링 appointmentService와 연결
 
         // 게시글 정보 PostPreviewRes로 정제
         List<PostPreviewRes> postPreviewResList = new ArrayList<>();

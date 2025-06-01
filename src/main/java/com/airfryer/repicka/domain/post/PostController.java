@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,6 +33,18 @@ public class PostController {
                 .body(SuccessResponseDto.builder()
                         .message("게시글을 성공적으로 생성하였습니다.")
                         .data(postDetailResList)
+                        .build());
+    }
+
+    @GetMapping("/{postId}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable Long postId) {
+        PostDetailRes postDetailRes = postService.getPostDetail(postId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("게시글 상세 내용을 성공적으로 조회하였습니다.")
+                        .data(postDetailRes)
                         .build());
     }
 

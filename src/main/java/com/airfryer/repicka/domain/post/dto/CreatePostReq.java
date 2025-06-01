@@ -26,6 +26,6 @@ public class CreatePostReq {
 
     // TODO: S3 연결 이후 프론트에서 이미지를 받는 형식으로 변경
     @NotNull(message = "이미지를 첨부해주세요.")
-    @Size(min = 1, max = 10, message = "이미지는 최소 1개 이상, 최대 10개 이하이어야 합니다.")
-    private String[] images = new String[10]; // 상품 이미지
+    @Size(min = 1, max = 6, message = "이미지는 최소 1개 이상, 최대 6개 이하이어야 합니다.")
+    private String[] images = new String[6]; // 상품 이미지
 }
