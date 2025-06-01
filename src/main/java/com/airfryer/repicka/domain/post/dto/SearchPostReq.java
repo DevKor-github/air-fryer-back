@@ -1,6 +1,7 @@
 package com.airfryer.repicka.domain.post.dto;
 
 import com.airfryer.repicka.domain.item.entity.*;
+import com.airfryer.repicka.domain.post.entity.PostType;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -20,4 +21,6 @@ public class SearchPostReq {
     private LocalDateTime rentalDate; // 원하는 대여 날짜
 
     private PostOrder postOrder = PostOrder.RECENT; // 게시글 순서
+
+    private PostType postType; // 게시글 타입
 }
