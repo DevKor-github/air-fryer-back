@@ -10,6 +10,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class PostPreviewRes {
+    private Long id;
+
     private PostType postType; // 게시글 타입
 
     private String title; // 게시글 제목
@@ -29,6 +31,7 @@ public class PostPreviewRes {
 
     public static PostPreviewRes from(Post post, ItemImage itemImage, boolean isAvailable) {
         return PostPreviewRes.builder()
+                .id(post.getId())
                 .postType(post.getPostType())
                 .title(post.getItem().getTitle())
                 .productTypes(post.getItem().getProductTypes())

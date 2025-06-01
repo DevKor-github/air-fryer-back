@@ -8,6 +8,7 @@ import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
 import com.airfryer.repicka.domain.post.dto.SearchPostReq;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,7 +39,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable Long postId) {
+    public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId) {
         PostDetailRes postDetailRes = postService.getPostDetail(postId);
 
         return ResponseEntity.status(HttpStatus.OK)
