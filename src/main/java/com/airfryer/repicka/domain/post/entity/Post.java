@@ -52,4 +52,9 @@ public class Post extends BaseEntity
     @NotNull
     @Builder.Default
     private int likeCount = 0;
+
+    // 채팅방 개수
+    @NotNull
+    @Builder.Default
+    private int chatCount = 0;
 }
