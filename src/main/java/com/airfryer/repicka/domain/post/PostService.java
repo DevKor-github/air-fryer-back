@@ -6,6 +6,8 @@ import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.post.dto.CreatePostReq;
 import com.airfryer.repicka.domain.post.dto.PostDetailRes;
+import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
+import com.airfryer.repicka.domain.post.dto.SearchPostReq;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
@@ -25,6 +27,7 @@ public class PostService {
     private final ItemService itemService;
     private final ItemImageService itemImageService;
 
+    // 게시글 생성
     @Transactional
     public List<PostDetailRes> createPostWithItemAndImages(CreatePostReq postDetail, User user) {
         // 상품, 상품 이미지 저장
@@ -56,6 +59,23 @@ public class PostService {
         }
 
         return postDetailResList;
+    }
+
+    // 게시글 목록 검색
+    @Transactional(readOnly = true)
+    public List<PostPreviewRes> getPostList(SearchPostReq condition) {
+        // 태그로 게시글 리스트 찾기
+        List<Post> posts = postRepository.searchPostsByTags(condition);
+
+        // 게시글 정보 PostPreviewRes로 정제
+        List<PostPreviewRes> postPreviewResList = new ArrayList<>();
+        for (Post post : posts) {
+            ItemImage itemImage = itemImageService.getThumbnail(post.getItem());
+            PostPreviewRes postPreviewRes = PostPreviewRes.from(post, itemImage);
+            postPreviewResList.add(postPreviewRes);
+        }
+
+        return postPreviewResList;
     }
 
 }
