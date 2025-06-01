@@ -23,7 +23,7 @@ public class ItemImageService {
         int order = 1;
         for (String url: urls) {
             ItemImage itemImage = ItemImage.builder()
-                    .order(order++)
+                    .displayOrder(order++)
                     .item(item)
                     .imageUrl(url)
                     .build();
@@ -37,7 +37,7 @@ public class ItemImageService {
     }
 
     public ItemImage getThumbnail(Item item) {
-        return itemImageRepository.findByOrderAndItemId(1, item.getId());
+        return itemImageRepository.findByDisplayOrderAndItemId(1, item.getId());
     }
 
     public List<ItemImage> getItemImages(Item item) {

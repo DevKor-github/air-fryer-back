@@ -23,7 +23,7 @@ public class ItemImage extends BaseEntity
 
     // 사진 순서
     @NotNull
-    private Integer order;
+    private Integer displayOrder;
 
     // 제품
     @NotNull
