@@ -1,7 +1,8 @@
 package com.airfryer.repicka.domain.appointment.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
-import com.airfryer.repicka.domain.appointment.dto.CreateAppointmentInPostReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInRentalPostReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInSalePostReq;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -62,7 +63,6 @@ public class Appointment extends BaseEntity
     private LocalDateTime rentalDate;
 
     // 반납 일시
-    @NotNull
     private LocalDateTime returnDate;
 
     // 대여료/판매값
@@ -80,7 +80,7 @@ public class Appointment extends BaseEntity
     private AppointmentState state;
 
     // 약속 데이터 수정
-    public void updateAppointment(CreateAppointmentInPostReq dto)
+    public void updateAppointment(OfferAppointmentInRentalPostReq dto)
     {
         this.rentalLocation = dto.getRentalLocation();
         this.returnLocation = dto.getReturnLocation();
@@ -88,5 +88,15 @@ public class Appointment extends BaseEntity
         this.returnDate = dto.getReturnDate();
         this.price = dto.getPrice();
         this.deposit = dto.getDeposit();
+    }
+
+    public void updateAppointment(OfferAppointmentInSalePostReq dto)
+    {
+        this.rentalLocation = dto.getSaleLocation();
+        this.returnLocation = null;
+        this.rentalDate = dto.getSaleDate();
+        this.returnDate = null;
+        this.price = dto.getPrice();
+        this.deposit = 0;
     }
 }
