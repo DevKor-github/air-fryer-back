@@ -37,6 +37,10 @@ public class ItemImageService {
     }
 
     public ItemImage getThumbnail(Item item) {
-        return itemImageRepository.findByOrderAndItem_id(1, item.getId());
+        return itemImageRepository.findByOrderAndItemId(1, item.getId());
+    }
+
+    public List<ItemImage> getItemImages(Item item) {
+        return itemImageRepository.findAllByItemId(item.getId());
     }
 }
