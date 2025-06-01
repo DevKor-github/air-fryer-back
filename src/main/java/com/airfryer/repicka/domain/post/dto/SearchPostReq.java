@@ -7,17 +7,15 @@ import java.time.LocalDateTime;
 
 @Getter
 public class SearchPostReq {
+    private int page = 0; // 페이지 번호 (0부터 시작)
+
     private String keyword; // 검색 키워드
 
-    private ProductType productType; // 제품 타입
+    private ProductType[] productTypes; // 제품 타입
 
     private ItemSize size; // 제품 사이즈
 
     private ItemColor color; // 제품 색상
-
-    private ItemQuality quality; // 제품 품질
-
-    private TradeMethod tradeMethod; // 거래 방식
 
     private LocalDateTime rentalDate; // 원하는 대여 날짜
 

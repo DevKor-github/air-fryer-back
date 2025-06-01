@@ -12,9 +12,9 @@ public class PostPreviewRes {
     private String title; // 게시글 제목
 
     @Builder.Default
-    private ProductType[] productTypes = new ProductType[2];
+    private ProductType[] productTypes = new ProductType[2]; // 제품 타입
 
-    private String image; // 대표 사진
+    private String thumbnail; // 대표 사진
 
     private int price; // 대여료 / 판매값
 
@@ -26,7 +26,7 @@ public class PostPreviewRes {
         return PostPreviewRes.builder()
                 .title(post.getItem().getTitle())
                 .productTypes(post.getItem().getProductTypes())
-                .image(itemImage.getImageUrl())
+                .thumbnail(itemImage.getImageUrl())
                 .price(post.getPrice())
                 .likeCount(post.getLikeCount())
                 .chatCount(post.getChatCount())
