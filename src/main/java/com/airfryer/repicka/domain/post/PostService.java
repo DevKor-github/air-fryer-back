@@ -2,6 +2,8 @@ package com.airfryer.repicka.domain.post;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.item.ItemService;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
@@ -20,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final ItemService itemService;
     private final ItemImageService itemImageService;
+    private final AppointmentService appointmentService;
 
     // 게시글 생성
     @Transactional
@@ -80,13 +82,12 @@ public class PostService {
         // 태그로 게시글 리스트 찾기
         List<Post> posts = postRepository.findPostsByCondition(condition);
 
-        // TODO: 대여 날짜에 대한 필터링 appointmentService와 연결
-
         // 게시글 정보 PostPreviewRes로 정제
         List<PostPreviewRes> postPreviewResList = new ArrayList<>();
         for (Post post : posts) {
-            ItemImage itemImage = itemImageService.getThumbnail(post.getItem());
-            PostPreviewRes postPreviewRes = PostPreviewRes.from(post, itemImage);
+            boolean isAvailable = appointmentService.isPostAvailableOnDate(post.getId(), condition.getRentalDate()); // 원하는 날짜에 대여나 구매 가능 여부
+            ItemImage itemImage = itemImageService.getThumbnail(post.getItem()); // 대표 사진
+            PostPreviewRes postPreviewRes = PostPreviewRes.from(post, itemImage, isAvailable);
             postPreviewResList.add(postPreviewRes);
         }
 

@@ -22,7 +22,9 @@ public class PostPreviewRes {
 
     private int chatCount; // 채팅방 개수
 
-    public static PostPreviewRes from(Post post, ItemImage itemImage) {
+    private boolean isAvailable;
+
+    public static PostPreviewRes from(Post post, ItemImage itemImage, boolean isAvailable) {
         return PostPreviewRes.builder()
                 .title(post.getItem().getTitle())
                 .productTypes(post.getItem().getProductTypes())
@@ -30,6 +32,7 @@ public class PostPreviewRes {
                 .price(post.getPrice())
                 .likeCount(post.getLikeCount())
                 .chatCount(post.getChatCount())
+                .isAvailable(isAvailable)
                 .build();
     }
 }

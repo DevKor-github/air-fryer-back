@@ -477,4 +477,8 @@ public class AppointmentService
 
         return firstSaleAvailableDate;
     }
+
+    public boolean isPostAvailableOnDate(Long postId, LocalDateTime date) {
+        return appointmentRepository.findListOverlappingWithPeriod(postId, AppointmentState.CONFIRMED, date, date).isEmpty();
+    }
 }
