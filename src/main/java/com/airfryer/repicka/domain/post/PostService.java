@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.post;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.item.ItemService;
 import com.airfryer.repicka.domain.item.entity.Item;
@@ -42,12 +41,12 @@ public class PostService {
         // 게시글 타입에 따라 저장
         List<Post> posts = new ArrayList<>();
 
-        for (PostType postType: postDetail.getPostType()) {
+        for (PostType postType: postDetail.getPostTypes()) {
             Post post = Post.builder()
                     .writer(user)
                     .item(item)
                     .postType(postType)
-                    .price(postDetail.getPrice())
+                    .price(postType == PostType.RENTAL ? postDetail.getRentalFee() : postDetail.getSalePrice())
                     .deposit(postType == PostType.RENTAL ? postDetail.getDeposit() : 0)
                     .build();
 

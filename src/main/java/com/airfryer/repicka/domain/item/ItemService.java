@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 public class ItemService {
     private final ItemRepository itemRepository;
 
-    // question: MapStruct와 set을 사용 or 정적 팩토리 메서드 or 지금 방법 뭐가 나을까요?
     @Transactional
     public Item createItem(CreateItemReq itemDetail) {
         Item item = Item.builder()
@@ -27,7 +26,7 @@ public class ItemService {
                 .location(itemDetail.getLocation().trim())
                 .tradeMethod(itemDetail.getTradeMethod())
                 .canDeal(itemDetail.getCanDeal())
-                .state(itemDetail.getState())
+                .state(CurrentItemState.AVAILABLE)
                 .repostDate(LocalDateTime.now())
                 .build();
 
