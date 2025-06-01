@@ -23,6 +23,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     // 게시글 ID, 약속 상태로 약속 리스트 조회
     List<Appointment> findByPostIdAndState(Long postId, AppointmentState state);
 
+    // 게시글, ID, 약속 상태로 반납 날짜가 가장 늦은 약속 데이터 조회
+    Optional<Appointment> findTop1ByPostIdAndStateOrderByReturnDateDesc(Long postId, AppointmentState state);
+
     // 어떤 게시글의 특정 구간 동안 존재하는 모든 특정 상태의 약속 조회
     @Query("""
         SELECT a FROM Appointment a

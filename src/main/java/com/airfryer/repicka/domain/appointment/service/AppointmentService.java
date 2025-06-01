@@ -224,15 +224,18 @@ public class AppointmentService
             // 제품 구매가 가능한 첫 날짜
             LocalDate firstSaleAvailableDate = LocalDate.now();
 
-            // 예정된 대여 약속 리스트 조회
-            List<Appointment> appointmentList = appointmentRepository.findByPostIdAndState(
+            // 예정된 대여 약속 중, 반납 날짜가 가장 늦은 약속 데이터 조회
+            Optional<Appointment> appointmentOptional = appointmentRepository.findTop1ByPostIdAndStateOrderByReturnDateDesc(
                     rentalPost.getId(),
                     AppointmentState.CONFIRMED
             );
 
-            // 모든 대여 약속에 대해, 대여 반납 날짜의 다음날보다 제품 구매가 가능한 첫 날짜가 이전이라면 갱신
-            for(Appointment appointment : appointmentList)
+            // 예정된 대여 약속이 하나라도 존재하는 경우
+            if(appointmentOptional.isPresent())
             {
+                Appointment appointment = appointmentOptional.get();
+
+                // 제품 구매가 가능한 첫 날짜 갱신
                 if(firstSaleAvailableDate.isBefore(appointment.getReturnDate().toLocalDate().plusDays(1))) {
                     firstSaleAvailableDate = appointment.getReturnDate().toLocalDate().plusDays(1);
                 }
@@ -442,7 +445,7 @@ public class AppointmentService
         /// 반환할 데이터 생성
 
         // 제품 구매가 가능한 첫 날짜
-        LocalDate firstAvailableSaleDate = LocalDate.now();
+        LocalDate firstSaleAvailableDate = LocalDate.now();
 
         /// 모든 대여 약속 중, 가장 나중의 반납 날짜 다음날을 반환하도록 처리
 
@@ -454,21 +457,24 @@ public class AppointmentService
         {
             Post rentalPost = rentalPostOptional.get();
 
-            // 모든 예정된 대여 약속 조회
-            List<Appointment> appointmentList = appointmentRepository.findByPostIdAndState(
+            // 예정된 대여 약속 중, 반납 날짜가 가장 늦은 약속 데이터 조회
+            Optional<Appointment> appointmentOptional = appointmentRepository.findTop1ByPostIdAndStateOrderByReturnDateDesc(
                     rentalPost.getId(),
                     AppointmentState.CONFIRMED
             );
 
-            // 모든 대여 약속에 대해, 대여 반납 날짜의 다음날보다 제품 구매가 가능한 첫 날짜가 이전이라면 갱신
-            for (Appointment appointment : appointmentList)
+            // 예정된 대여 약속이 하나라도 존재하는 경우
+            if(appointmentOptional.isPresent())
             {
-                if(firstAvailableSaleDate.isBefore(appointment.getReturnDate().toLocalDate().plusDays(1))) {
-                    firstAvailableSaleDate = appointment.getReturnDate().toLocalDate().plusDays(1);
+                Appointment appointment = appointmentOptional.get();
+
+                // 제품 구매가 가능한 첫 날짜 갱신
+                if(firstSaleAvailableDate.isBefore(appointment.getReturnDate().toLocalDate().plusDays(1))) {
+                    firstSaleAvailableDate = appointment.getReturnDate().toLocalDate().plusDays(1);
                 }
             }
         }
 
-        return firstAvailableSaleDate;
+        return firstSaleAvailableDate;
     }
 }
