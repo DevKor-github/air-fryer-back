@@ -18,7 +18,7 @@ public class SearchPostReq {
 
     private ItemColor color; // 제품 색상
 
-    private LocalDateTime rentalDate; // 원하는 대여 날짜
+    private LocalDateTime date; // 원하는 거래 날짜
 
     private PostOrder postOrder = PostOrder.RECENT; // 게시글 순서
 

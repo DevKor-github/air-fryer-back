@@ -3,12 +3,15 @@ package com.airfryer.repicka.domain.post.dto;
 import com.airfryer.repicka.domain.item.entity.ProductType;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.post.entity.Post;
+import com.airfryer.repicka.domain.post.entity.PostType;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
 public class PostPreviewRes {
+    private PostType postType; // 게시글 타입
+
     private String title; // 게시글 제목
 
     @Builder.Default
@@ -26,6 +29,7 @@ public class PostPreviewRes {
 
     public static PostPreviewRes from(Post post, ItemImage itemImage, boolean isAvailable) {
         return PostPreviewRes.builder()
+                .postType(post.getPostType())
                 .title(post.getItem().getTitle())
                 .productTypes(post.getItem().getProductTypes())
                 .thumbnail(itemImage.getImageUrl())

@@ -84,7 +84,7 @@ public class PostService {
         // 게시글 정보 PostPreviewRes로 정제
         List<PostPreviewRes> postPreviewResList = new ArrayList<>();
         for (Post post : posts) {
-            boolean isAvailable = appointmentService.isPostAvailableOnDate(post.getId(), condition.getRentalDate()); // 원하는 날짜에 대여나 구매 가능 여부
+            boolean isAvailable = appointmentService.isPostAvailableOnDate(post.getId(), condition.getDate()); // 원하는 날짜에 대여나 구매 가능 여부
             ItemImage itemImage = itemImageService.getThumbnail(post.getItem()); // 대표 사진
             PostPreviewRes postPreviewRes = PostPreviewRes.from(post, itemImage, isAvailable);
             postPreviewResList.add(postPreviewRes);

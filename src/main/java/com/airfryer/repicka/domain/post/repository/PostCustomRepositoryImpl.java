@@ -39,7 +39,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         }
 
         if (condition.getProductTypes() != null) {
-            builder.and(item.productTypes.in(condition.getProductTypes()));
+            // TODO: ProductType에 따라서 필터링 진행
         }
 
         if (condition.getSize() != null) {
