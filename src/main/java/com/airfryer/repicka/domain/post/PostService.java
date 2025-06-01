@@ -63,9 +63,9 @@ public class PostService {
 
     // 게시글 목록 검색
     @Transactional(readOnly = true)
-    public List<PostPreviewRes> getPostList(SearchPostReq condition) {
+    public List<PostPreviewRes> searchPostList(SearchPostReq condition) {
         // 태그로 게시글 리스트 찾기
-        List<Post> posts = postRepository.searchPostsByTags(condition);
+        List<Post> posts = postRepository.findPostsByCondition(condition);
 
         // 게시글 정보 PostPreviewRes로 정제
         List<PostPreviewRes> postPreviewResList = new ArrayList<>();

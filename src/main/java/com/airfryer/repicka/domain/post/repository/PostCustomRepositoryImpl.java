@@ -27,7 +27,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
     // 태그 기반 게시글 검색
     @Override
-    public List<Post> searchPostsByTags(SearchPostReq condition) {
+    public List<Post> findPostsByCondition(SearchPostReq condition) {
         QPost post = QPost.post;
         QItem item = QItem.item;
         int offset = condition.getPage() * 10;

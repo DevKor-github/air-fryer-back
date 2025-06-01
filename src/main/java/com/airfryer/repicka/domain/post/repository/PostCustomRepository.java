@@ -6,5 +6,5 @@ import com.airfryer.repicka.domain.post.entity.Post;
 import java.util.List;
 
 public interface PostCustomRepository {
-    List<Post> searchPostsByTags(SearchPostReq condition);
+    List<Post> findPostsByCondition(SearchPostReq condition);
 }
