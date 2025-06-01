@@ -1,5 +1,7 @@
 package com.airfryer.repicka.domain.post;
 
+import com.airfryer.repicka.common.exception.CustomException;
+import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.item.ItemService;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
@@ -64,10 +66,12 @@ public class PostService {
 
     public PostDetailRes getPostDetail(Long postId) {
         // 게시글, 상품, 이미지 등 조회
-        Optional<Post> post = postRepository.findById(postId);
-        List<ItemImage> itemImages = itemImageService.getItemImages(post.get().getItem());
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
 
-        return PostDetailRes.from(post.get(), itemImages);
+        List<ItemImage> itemImages = itemImageService.getItemImages(post.getItem());
+
+        return PostDetailRes.from(post, itemImages);
     }
 
     // 게시글 목록 검색
