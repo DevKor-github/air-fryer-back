@@ -62,7 +62,7 @@ public class AppointmentController
 
     // 월 단위로 날짜별 제품 대여 가능 여부 조회
     @GetMapping("/post/{postId}/rental-availability")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<SuccessResponseDto> getItemRentalAvailability(@PathVariable Long postId,
                                                                         @RequestParam int year,
                                                                         @RequestParam int month)
@@ -78,7 +78,7 @@ public class AppointmentController
 
     // 제품 구매가 가능한 첫 날짜 조회
     @GetMapping("/post/{postId}/sale-availability")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<SuccessResponseDto> getItemSaleAvailability(@PathVariable Long postId)
     {
         LocalDate data = appointmentService.getItemSaleAvailability(postId);
