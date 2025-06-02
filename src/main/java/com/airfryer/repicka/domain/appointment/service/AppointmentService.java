@@ -557,7 +557,7 @@ public class AppointmentService
 
         /// 구매 약속의 경우, 제품 상태를 구매 가능으로 변경
 
-        // 대여 약속의 경우
+        // 구매 약속의 경우
         if(post.getPostType() == PostType.SALE)
         {
             // 제품 상태를 구매 가능으로 변경
