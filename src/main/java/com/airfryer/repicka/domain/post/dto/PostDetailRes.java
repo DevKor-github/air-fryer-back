@@ -2,12 +2,16 @@ package com.airfryer.repicka.domain.post.dto;
 
 import com.airfryer.repicka.domain.item.dto.BaseItemDto;
 import com.airfryer.repicka.domain.item.entity.*;
+import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.user.dto.BaseUserDto;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -27,18 +31,23 @@ public class PostDetailRes {
     private int deposit = 0; // 보증급
 
     @Builder.Default
-    private String[] images = new String[10];
+    private List<String> images = new ArrayList<>();
 
     // user, item, post, imageUrl로 PostDetailRes 반환하는 정적 팩토리 메서드
-    public static PostDetailRes from(User user, Item item, Post post, String[] images) {
+    public static PostDetailRes from(Post post, List<ItemImage> itemImages) {
+        List<String> urls = new ArrayList<>();
+        for (ItemImage image : itemImages) {
+            urls.add(image.getImageUrl());
+        }
+
         return PostDetailRes.builder()
                 .id(post.getId())
-                .writer(BaseUserDto.from(user))
-                .itemInfo(BaseItemDto.from(item))
+                .writer(BaseUserDto.from(post.getWriter()))
+                .itemInfo(BaseItemDto.from(post.getItem()))
                 .postType(post.getPostType())
                 .price(post.getPrice())
                 .deposit(post.getDeposit())
-                .images(images)
+                .images(urls)
                 .build();
     }
 }
