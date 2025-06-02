@@ -90,4 +90,9 @@ public class Item extends BaseEntity
     public void confirmSale() {
         this.state = CurrentItemState.SALE_RESERVED;
     }
+
+    /// 제품 판매 취소
+    public void cancelSale() {
+        this.state = CurrentItemState.AVAILABLE;
+    }
 }

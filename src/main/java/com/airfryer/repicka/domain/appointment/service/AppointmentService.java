@@ -2,10 +2,7 @@ package com.airfryer.repicka.domain.appointment.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.domain.appointment.dto.ConfirmAppointmentRes;
-import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
-import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInRentalPostReq;
-import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInSalePostReq;
+import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
@@ -32,6 +29,8 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final PostRepository postRepository;
     private final ItemRepository itemRepository;
+
+    /// 서비스
 
     // 대여 게시글에서 약속 제시
     @Transactional
@@ -508,6 +507,77 @@ public class AppointmentService
 
         // 약속 데이터 반환
         return ConfirmAppointmentRes.builder()
+                .appointmentId(appointment.getId())
+                .postId(post.getId())
+                .ownerId(appointment.getOwner().getId())
+                .borrowerId(appointment.getBorrower().getId())
+                .type(post.getPostType())
+                .rentalDate(appointment.getRentalDate())
+                .returnDate(appointment.getReturnDate())
+                .rentalLocation(appointment.getRentalLocation())
+                .returnLocation(appointment.getReturnLocation())
+                .price(appointment.getPrice())
+                .deposit(appointment.getDeposit())
+                .build();
+    }
+
+    // 약속 취소
+    @Transactional
+    public CancelAppointmentRes cancelAppointment(User user, Long appointmentId)
+    {
+        /// 약속 데이터 조회
+
+        // 약속 데이터 조회
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
+
+        /// 예외 처리
+        /// 1. 제시 중이거나 확정된 약속인가?
+        /// 2. 취소자가 약속 관계자인가?
+
+        // 제시 중이거나 확정된 약속이 아닌 경우, 예외 처리
+        if(appointment.getState() != AppointmentState.PENDING && appointment.getState() != AppointmentState.CONFIRMED) {
+            throw new CustomException(CustomExceptionCode.APPOINTMENT_CANNOT_CANCELLED, appointment.getState());
+        }
+
+        // 취소자가 약속 관계자가 아닌 경우, 예외 처리
+        if(!Objects.equals(user.getId(), appointment.getOwner().getId()) && !Objects.equals(user.getId(), appointment.getBorrower().getId())) {
+            throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
+        }
+
+        /// 게시글 데이터 조회
+
+        // 게시글 데이터 조회
+        Post post = appointment.getPost();
+
+        /// 제품 데이터 조회
+
+        // 제품 데이터 조회
+        Item item = post.getItem();
+
+        /// 구매 약속의 경우, 제품 상태를 구매 가능으로 변경
+
+        // 대여 약속의 경우
+        if(post.getPostType() == PostType.SALE)
+        {
+            // 제품 상태를 구매 가능으로 변경
+            item.cancelSale();
+            itemRepository.save(item);
+        }
+
+        /// 약속 취소
+
+        // 약속 취소
+        appointment.cancelAppointment();
+        appointmentRepository.save(appointment);
+
+        // TODO: 사용자 피드백 요청
+        // TODO: 채팅방 제거
+
+        /// 약속 데이터 반환
+
+        // 약속 데이터 반환
+        return CancelAppointmentRes.builder()
                 .appointmentId(appointment.getId())
                 .postId(post.getId())
                 .ownerId(appointment.getOwner().getId())

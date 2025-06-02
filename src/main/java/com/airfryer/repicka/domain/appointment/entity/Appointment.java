@@ -106,4 +106,10 @@ public class Appointment extends BaseEntity
     public void confirmAppointment() {
         this.state = AppointmentState.CONFIRMED;
     }
+
+    /// 약속 취소
+
+    public void cancelAppointment() {
+        this.state = AppointmentState.CANCELLED;
+    }
 }
