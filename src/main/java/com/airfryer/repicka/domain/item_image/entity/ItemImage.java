@@ -21,6 +21,10 @@ public class ItemImage extends BaseEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 사진 순서
+    @NotNull
+    private Integer displayOrder;
+
     // 제품
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

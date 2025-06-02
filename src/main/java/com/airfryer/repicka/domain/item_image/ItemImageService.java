@@ -20,8 +20,10 @@ public class ItemImageService {
     public List<ItemImage> createItemImage(String[] urls, Item item) {
         List<ItemImage> itemImages = new ArrayList<>();
         // TODO: image to url로 변환을 여기에서 처리하거나 s3 서비스에서 처리
+        int order = 1;
         for (String url: urls) {
             ItemImage itemImage = ItemImage.builder()
+                    .displayOrder(order++)
                     .item(item)
                     .imageUrl(url)
                     .build();
@@ -32,5 +34,13 @@ public class ItemImageService {
         itemImages = itemImageRepository.saveAll(itemImages);
 
         return itemImages;
+    }
+
+    public ItemImage getThumbnail(Item item) {
+        return itemImageRepository.findByDisplayOrderAndItemId(1, item.getId());
+    }
+
+    public List<ItemImage> getItemImages(Item item) {
+        return itemImageRepository.findAllByItemId(item.getId());
     }
 }
