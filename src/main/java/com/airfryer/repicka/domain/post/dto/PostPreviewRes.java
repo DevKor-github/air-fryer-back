@@ -25,7 +25,7 @@ public class PostPreviewRes {
 
     private int likeCount; // 좋아요 개수
 
-    private int chatCount; // 채팅방 개수
+    private int chatRoomCount; // 채팅방 개수
 
     private boolean isAvailable;
 
@@ -38,7 +38,7 @@ public class PostPreviewRes {
                 .thumbnail(itemImage.getImageUrl())
                 .price(post.getPrice())
                 .likeCount(post.getLikeCount())
-                .chatCount(post.getChatCount())
+                .chatRoomCount(post.getChatRoomCount())
                 .isAvailable(isAvailable)
                 .build();
     }
