@@ -594,6 +594,16 @@ public class AppointmentService
 
     /// 공통 로직
 
+    // 해당 날짜에 예정된 대여 약속이 하나도 없는지 판별
+    public boolean isPostAvailableOnDate(Long postId, LocalDateTime date) {
+        return appointmentRepository.findListOverlappingWithPeriod(
+                postId,
+                AppointmentState.CONFIRMED,
+                date,
+                date
+        ).isEmpty();
+    }
+
     // 해당 구간 동안 예정된 대여 약속이 하나도 존재하지 않는지 판별
     public boolean isPostAvailableOnInterval(Long postId, LocalDateTime startDate, LocalDateTime endDate)
     {
@@ -655,9 +665,5 @@ public class AppointmentService
         }
 
         return firstSaleAvailableDate;
-    }
-
-    public boolean isPostAvailableOnDate(Long postId, LocalDateTime date) {
-        return appointmentRepository.findListOverlappingWithPeriod(postId, AppointmentState.CONFIRMED, date, date).isEmpty();
     }
 }
