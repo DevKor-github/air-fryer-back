@@ -83,7 +83,7 @@ public class AppointmentService
         }
 
         // 대여를 원하는 구간 동안 예정된 대여 약속이 하나라도 존재하는 경우, 예외 처리
-        if(!isPostAvailableOnInterval(post.getId(), dto.getRentalDate(), dto.getRentalDate())) {
+        if(!isPostAvailableOnInterval(post.getId(), dto.getRentalDate(), dto.getReturnDate())) {
             throw new CustomException(CustomExceptionCode.ALREADY_RENTAL_RESERVED_PERIOD, Map.of(
                     "rentalDate", dto.getRentalDate(),
                     "returnDate", dto.getReturnDate()
