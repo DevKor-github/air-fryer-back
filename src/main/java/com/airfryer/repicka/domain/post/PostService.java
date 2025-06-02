@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,12 +56,10 @@ public class PostService {
 
         posts = postRepository.saveAll(posts);
 
-        // entity 정보를 사용하여 각 Post에 대해 PostDetailRes 생성
-        List<PostDetailRes> postDetailResList = new ArrayList<>();
-        for (Post post : posts) {
-            PostDetailRes postDetailRes = PostDetailRes.from(post, itemImages);
-            postDetailResList.add(postDetailRes);
-        }
+        // 각 Post에 대해 PostDetailRes 생성
+        List<PostDetailRes> postDetailResList = posts.stream()
+                .map(post -> { return PostDetailRes.from(post, itemImages); })
+                .toList();
 
         return postDetailResList;
     }
@@ -82,13 +81,13 @@ public class PostService {
         List<Post> posts = postRepository.findPostsByCondition(condition);
 
         // 게시글 정보 PostPreviewRes로 정제
-        List<PostPreviewRes> postPreviewResList = new ArrayList<>();
-        for (Post post : posts) {
-            boolean isAvailable = appointmentService.isPostAvailableOnDate(post.getId(), condition.getDate()); // 원하는 날짜에 대여나 구매 가능 여부
-            ItemImage itemImage = itemImageService.getThumbnail(post.getItem()); // 대표 사진
-            PostPreviewRes postPreviewRes = PostPreviewRes.from(post, itemImage, isAvailable);
-            postPreviewResList.add(postPreviewRes);
-        }
+        List<PostPreviewRes> postPreviewResList = posts.stream()
+                .map(post -> {
+                    boolean isAvailable = appointmentService.isPostAvailableOnDate(post.getId(), condition.getDate()); // 원하는 날짜에 대여나 구매 가능 여부
+                    ItemImage itemImage = itemImageService.getThumbnail(post.getItem()); // 대표 사진
+                    return PostPreviewRes.from(post, itemImage, isAvailable);
+                })
+                .toList();
 
         return postPreviewResList;
     }

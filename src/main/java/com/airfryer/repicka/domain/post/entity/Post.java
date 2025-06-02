@@ -56,5 +56,5 @@ public class Post extends BaseEntity
     // 채팅방 개수
     @NotNull
     @Builder.Default
-    private int chatCount = 0;
+    private int chatRoomCount = 0;
 }
