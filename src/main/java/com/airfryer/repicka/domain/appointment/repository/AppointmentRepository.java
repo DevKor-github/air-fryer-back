@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long>
 {
     // 게시글 ID, 소유자, 대여자, 약속 상태로 약속 데이터 조회
-    Optional<Appointment> findByPostIdAndOwnerAndBorrowerAndState(Long postId, User owner, User borrower, AppointmentState state);
+    Optional<Appointment> findByPostIdAndOwnerAndRequesterAndState(Long postId, User owner, User requester, AppointmentState state);
 
     // 게시글 ID, 반납 일시, 약속 상태로 약속 데이터 조회
     Optional<Appointment> findByPostIdAndReturnDateAndState(Long postId, LocalDateTime returnDate, AppointmentState state);

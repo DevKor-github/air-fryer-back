@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.appointment;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
-import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.util.CreateEntityUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ public class AppointmentTest
         assertThat(findAppointment.getPost()).isEqualTo(appointment.getPost());
         assertThat(findAppointment.getCreator()).isEqualTo(appointment.getCreator());
         assertThat(findAppointment.getOwner()).isEqualTo(appointment.getOwner());
-        assertThat(findAppointment.getBorrower()).isEqualTo(appointment.getBorrower());
+        assertThat(findAppointment.getRequester()).isEqualTo(appointment.getRequester());
         assertThat(findAppointment.getRentalLocation()).isEqualTo(appointment.getRentalLocation());
         assertThat(findAppointment.getReturnLocation()).isEqualTo(appointment.getReturnLocation());
         assertThat(findAppointment.getRentalDate()).isEqualTo(appointment.getRentalDate());

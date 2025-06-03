@@ -106,7 +106,7 @@ public class AppointmentService
         /// 게시글 작성자와 대여자 간의 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 약속 데이터를 생성
 
         // 게시글 작성자와 대여자 간의 협의 중인 약속 데이터 조회
-        Optional<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerAndBorrowerAndState(
+        Optional<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerAndRequesterAndState(
                 post.getId(),
                 post.getWriter(),
                 borrower,
@@ -133,7 +133,7 @@ public class AppointmentService
                     .post(post)
                     .creator(borrower)
                     .owner(post.getWriter())
-                    .borrower(borrower)
+                    .requester(borrower)
                     .rentalLocation(dto.getRentalLocation().trim())
                     .returnLocation(dto.getReturnLocation().trim())
                     .rentalDate(dto.getRentalDate())
@@ -209,7 +209,7 @@ public class AppointmentService
         /// 게시글 작성자와 구매자 간의 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 약속 데이터를 생성
 
         // 게시글 작성자와 구매자 간의 협의 중인 약속 데이터 조회
-        Optional<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerAndBorrowerAndState(
+        Optional<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerAndRequesterAndState(
                 post.getId(),
                 post.getWriter(),
                 buyer,
@@ -236,7 +236,7 @@ public class AppointmentService
                     .post(post)
                     .creator(buyer)
                     .owner(post.getWriter())
-                    .borrower(buyer)
+                    .requester(buyer)
                     .rentalLocation(dto.getSaleLocation().trim())
                     .returnLocation(null)
                     .rentalDate(dto.getSaleDate())
@@ -430,7 +430,7 @@ public class AppointmentService
         }
 
         // 동의자가 약속 관계자가 아닌 경우, 예외 처리
-        if(!Objects.equals(user.getId(), appointment.getOwner().getId()) && !Objects.equals(user.getId(), appointment.getBorrower().getId())) {
+        if(!Objects.equals(user.getId(), appointment.getOwner().getId()) && !Objects.equals(user.getId(), appointment.getRequester().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
@@ -510,7 +510,7 @@ public class AppointmentService
                 .appointmentId(appointment.getId())
                 .postId(post.getId())
                 .ownerId(appointment.getOwner().getId())
-                .borrowerId(appointment.getBorrower().getId())
+                .borrowerId(appointment.getRequester().getId())
                 .type(post.getPostType())
                 .rentalDate(appointment.getRentalDate())
                 .returnDate(appointment.getReturnDate())
@@ -541,7 +541,7 @@ public class AppointmentService
         }
 
         // 취소자가 약속 관계자가 아닌 경우, 예외 처리
-        if(!Objects.equals(user.getId(), appointment.getOwner().getId()) && !Objects.equals(user.getId(), appointment.getBorrower().getId())) {
+        if(!Objects.equals(user.getId(), appointment.getOwner().getId()) && !Objects.equals(user.getId(), appointment.getRequester().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
@@ -581,7 +581,7 @@ public class AppointmentService
                 .appointmentId(appointment.getId())
                 .postId(post.getId())
                 .ownerId(appointment.getOwner().getId())
-                .borrowerId(appointment.getBorrower().getId())
+                .borrowerId(appointment.getRequester().getId())
                 .type(post.getPostType())
                 .rentalDate(appointment.getRentalDate())
                 .returnDate(appointment.getReturnDate())
