@@ -95,7 +95,7 @@ public class AppointmentController
                                                                  @PathVariable Long appointmentId)
     {
         User user = oAuth2User.getUser();
-        ConfirmAppointmentRes data = appointmentService.confirmAppointment(user, appointmentId);
+        AppointmentRes data = appointmentService.confirmAppointment(user, appointmentId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
@@ -111,7 +111,7 @@ public class AppointmentController
                                                                 @PathVariable Long appointmentId)
     {
         User user = oAuth2User.getUser();
-        CancelAppointmentRes data = appointmentService.cancelAppointment(user, appointmentId);
+        AppointmentRes data = appointmentService.cancelAppointment(user, appointmentId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()

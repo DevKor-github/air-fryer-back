@@ -406,7 +406,7 @@ public class AppointmentService
 
     // 약속 확정
     @Transactional
-    public ConfirmAppointmentRes confirmAppointment(User user, Long appointmentId)
+    public AppointmentRes confirmAppointment(User user, Long appointmentId)
     {
         /// 약속 데이터 조회
 
@@ -506,7 +506,7 @@ public class AppointmentService
         appointmentRepository.save(appointment);
 
         // 약속 데이터 반환
-        return ConfirmAppointmentRes.builder()
+        return AppointmentRes.builder()
                 .appointmentId(appointment.getId())
                 .postId(post.getId())
                 .ownerId(appointment.getOwner().getId())
@@ -523,7 +523,7 @@ public class AppointmentService
 
     // 약속 취소
     @Transactional
-    public CancelAppointmentRes cancelAppointment(User user, Long appointmentId)
+    public AppointmentRes cancelAppointment(User user, Long appointmentId)
     {
         /// 약속 데이터 조회
 
@@ -577,7 +577,7 @@ public class AppointmentService
         /// 약속 데이터 반환
 
         // 약속 데이터 반환
-        return CancelAppointmentRes.builder()
+        return AppointmentRes.builder()
                 .appointmentId(appointment.getId())
                 .postId(post.getId())
                 .ownerId(appointment.getOwner().getId())

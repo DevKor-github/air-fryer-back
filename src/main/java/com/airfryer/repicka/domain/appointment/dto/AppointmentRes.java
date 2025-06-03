@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class CancelAppointmentRes
+public class AppointmentRes
 {
     private Long appointmentId;     // 약속 ID
     private Long postId;            // 게시글 ID
