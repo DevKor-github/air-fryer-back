@@ -76,6 +76,9 @@ public class Item extends BaseEntity
     @NotNull
     private Boolean canDeal;
 
+    // 판매 날짜
+    private LocalDateTime saleDate;
+
     // 끌올 날짜
     @NotNull
     private LocalDateTime repostDate;
