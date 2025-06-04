@@ -76,11 +76,6 @@ public class Item extends BaseEntity
     @NotNull
     private Boolean canDeal;
 
-    // 현재 제품 상태
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private CurrentItemState state;
-
     // 끌올 날짜
     @NotNull
     private LocalDateTime repostDate;
