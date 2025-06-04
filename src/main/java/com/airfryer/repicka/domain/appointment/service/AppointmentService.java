@@ -75,7 +75,7 @@ public class AppointmentService
         /// 예외 처리
         /// 1. 가격 협의가 불가능한데, 가격을 바꿔서 요청하지는 않았는가?
         /// 2. 대여를 원하는 구간 동안, 예정된 대여 약속이 하나도 존재하지 않는가?
-        /// 3. 제품이 판매 예정이라면, 대여를 원하는 구간이 판매 날짜 이전인가?
+        /// 3. 대여를 원하는 구간이 제품 판매 날짜 이전인가?
 
         // 가격 협의가 불가능한데 가격을 바꿔서 요청을 보내는 경우, 예외 처리
         if(!item.getCanDeal() && (dto.getPrice() != post.getPrice() || dto.getDeposit() != post.getDeposit())) {
@@ -90,11 +90,11 @@ public class AppointmentService
             ));
         }
 
-        // 제품이 판매 예정인 경우
-        if(item.getState() == CurrentItemState.SALE_RESERVED)
+        // 제품이 판매 예정 혹은 판매된 경우
+        if(item.getSaleDate() != null)
         {
             // 대여를 원하는 구간이 판매 날짜 이전이 아닌 경우, 예외 처리
-            if(!dto.getReturnDate().isBefore(getSaleDate(item.getId()))) {
+            if(!dto.getReturnDate().isBefore(item.getSaleDate())) {
                 throw new CustomException(CustomExceptionCode.ALREADY_SALE_RESERVED_PERIOD, Map.of(
                         "rentalDate", dto.getRentalDate(),
                         "returnDate", dto.getReturnDate()
@@ -189,8 +189,8 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
 
-        // 제품이 이미 판매 예정인 경우, 예외 처리
-        if(item.getState() == CurrentItemState.SALE_RESERVED) {
+        // 판매 예정 혹은 판매된 제품인 경우, 예외 처리
+        if(item.getSaleDate() != null) {
             throw new CustomException(CustomExceptionCode.ALREADY_SALE_RESERVED, item.getId());
         }
 
@@ -257,6 +257,9 @@ public class AppointmentService
     @Transactional(readOnly = true)
     public GetItemAvailabilityRes getItemRentalAvailability(Long rentalPostId, int year, int month)
     {
+        // 해당 월의 길이
+        int lastDayOfMonth = YearMonth.of(year, month).lengthOfMonth();
+
         /// 대여 게시글 데이터 조회
 
         // 대여 게시글 데이터 조회
@@ -282,37 +285,39 @@ public class AppointmentService
         Map<LocalDate, Boolean> map = new LinkedHashMap<>();
 
         // 일단, 모든 날짜에 대여가 가능한 것으로 초기화
-        for (int i = 1; i <= YearMonth.of(year, month).lengthOfMonth(); i++) {
+        for (int i = 1; i <= lastDayOfMonth; i++) {
             map.put(LocalDate.of(year, month, i), true);
         }
 
         /// 불가능 처리
         /// 1. 현재 이전의 날짜들은 전부 불가능 처리
-        /// 2. 예정된 판매 약속이 존재하는 경우, 해당 약속 이후 날짜는 전부 대여 불가능 처리
+        /// 2. 제품 판매 날짜부터는 전부 대여 불가능 처리
         /// 3. 해당 월 동안 예정된 모든 대여 약속들에 대해, 각 구간마다 대여 불가능 처리
 
         // 현재 이전의 날짜들은 전부 불가능 처리
-        for(int i = 1; i <= YearMonth.of(year, month).lengthOfMonth() && LocalDate.of(year, month, i).isBefore(LocalDate.now()); i++) {
+        for(int i = 1; i <= lastDayOfMonth && LocalDate.of(year, month, i).isBefore(LocalDate.now()); i++) {
             map.put(LocalDate.of(year, month, i), false);
         }
 
-        // 제품이 판매 예정인 경우
-        if(item.getState() == CurrentItemState.SALE_RESERVED)
+        // 제품이 판매 예정 혹은 판매된 경우, 이후의 날짜들은 전부 대여 불가능 처리
+        if(item.getSaleDate() != null)
         {
-            // 판매 게시글 조회
-            Post salePost = postRepository.findByItemIdAndPostType(item.getId(), PostType.SALE)
-                    .orElseThrow(() -> new CustomException(CustomExceptionCode.SALE_POST_NOT_FOUND, item.getId()));
+            LocalDate saleDate = item.getSaleDate().toLocalDate();  // 제품 판매 예정 날짜
 
-            // 예정된 판매 약속 조회
-            Appointment saleAppointment = appointmentRepository.findByPostIdAndReturnDateAndState(
-                    salePost.getId(),
-                    null,
-                    AppointmentState.CONFIRMED
-            ).orElseThrow(() -> new CustomException(CustomExceptionCode.SALE_APPOINTMENT_NOT_FOUND, salePost.getId()));
-
-            // 해당 약속 이후 날짜는 전부 대여 불가능
-            for (int i = saleAppointment.getRentalDate().getDayOfMonth(); i <= YearMonth.of(year, month).lengthOfMonth(); i++) {
-                map.put(LocalDate.of(year, month, i), false);
+            // 해당 월 이전에 이미 판매된 경우
+            if(saleDate.isBefore(LocalDate.of(year, month, 1))) {
+                for(int i = 1; i <= lastDayOfMonth; i++) {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+            // 해당 월 동안 판매되는 경우
+            else if(
+                    !saleDate.isBefore(LocalDate.of(year, month, 1)) &&
+                    !saleDate.isAfter(LocalDate.of(year, month, lastDayOfMonth))
+            ) {
+                for(int i = saleDate.getDayOfMonth(); i <= lastDayOfMonth; i++) {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
             }
         }
 
@@ -336,7 +341,7 @@ public class AppointmentService
             // 대여 시작 날짜가 해당 월에 속하고, 대여 종료 날짜가 해당 월 이후인 경우
             else if(appointment.getRentalDate().getMonthValue() == month && appointment.getReturnDate().getMonthValue() > month)
             {
-                for(int i = appointment.getRentalDate().getDayOfMonth(); i <= YearMonth.of(year, month).lengthOfMonth(); i++)
+                for(int i = appointment.getRentalDate().getDayOfMonth(); i <= lastDayOfMonth; i++)
                 {
                     map.put(LocalDate.of(year, month, i), false);
                 }
@@ -394,8 +399,8 @@ public class AppointmentService
         /// 예외 처리
         /// 1. 제품이 판매 예정이지 않은가?
 
-        // 제품이 판매 예정이면 예외 처리
-        if(item.getState() == CurrentItemState.SALE_RESERVED) {
+        // 제품이 판매 예정이거나 판매 되었다면 예외 처리
+        if(item.getSaleDate() != null) {
             throw new CustomException(CustomExceptionCode.ALREADY_SALE_RESERVED, item.getId());
         }
 
@@ -463,11 +468,11 @@ public class AppointmentService
                 ));
             }
 
-            // 제품이 판매 예정인 경우
-            if(item.getState() == CurrentItemState.SALE_RESERVED)
+            // 제품이 판매 예정 혹은 판매된 경우
+            if(item.getSaleDate() != null)
             {
                 // 대여를 원하는 구간이 판매 날짜 이전이 아닌 경우, 예외 처리
-                if(!appointment.getReturnDate().isBefore(getSaleDate(item.getId()))) {
+                if(!appointment.getReturnDate().isBefore(item.getSaleDate())) {
                     throw new CustomException(CustomExceptionCode.ALREADY_SALE_RESERVED_PERIOD, Map.of(
                             "rentalDate", appointment.getRentalDate(),
                             "returnDate", appointment.getReturnDate()
@@ -478,8 +483,8 @@ public class AppointmentService
         // 구매 약속의 경우
         else
         {
-            // 제품이 이미 판매 예정인 경우, 예외 처리
-            if(item.getState() == CurrentItemState.SALE_RESERVED) {
+            // 제품이 판매 예정이거나 판매 되었다면 예외 처리
+            if(item.getSaleDate() != null) {
                 throw new CustomException(CustomExceptionCode.ALREADY_SALE_RESERVED, item.getId());
             }
 
@@ -494,8 +499,8 @@ public class AppointmentService
                 ));
             }
 
-            // 제품 상태를 판매 예정으로 변경
-            item.confirmSale();
+            // 제품 상태의 판매 예정 날짜 변경
+            item.confirmSale(LocalDateTime.now());
             itemRepository.save(item);
         }
 
@@ -560,7 +565,7 @@ public class AppointmentService
         // 구매 약속의 경우
         if(post.getPostType() == PostType.SALE)
         {
-            // 제품 상태를 구매 가능으로 변경
+            // 제품의 판매 예정 날짜 변경
             item.cancelSale();
             itemRepository.save(item);
         }
@@ -613,23 +618,6 @@ public class AppointmentService
                 startDate,
                 endDate
         ).isEmpty();
-    }
-
-    // 특정 제품의 판매 예정 날짜 조회
-    public LocalDateTime getSaleDate(Long itemId)
-    {
-        // 판매 게시글 조회
-        Post salePost = postRepository.findByItemIdAndPostType(itemId, PostType.SALE)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.SALE_POST_NOT_FOUND, itemId));
-
-        // 예정된 판매 약속 조회
-        Appointment saleAppointment = appointmentRepository.findByPostIdAndReturnDateAndState(
-                salePost.getId(),
-                null,
-                AppointmentState.CONFIRMED
-        ).orElseThrow(() -> new CustomException(CustomExceptionCode.SALE_APPOINTMENT_NOT_FOUND, salePost.getId()));
-
-        return saleAppointment.getRentalDate();
     }
 
     // 제품 구매가 가능한 첫 날짜 조회

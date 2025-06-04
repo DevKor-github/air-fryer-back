@@ -85,12 +85,12 @@ public class Item extends BaseEntity
 
     /// 제품 판매 확정
 
-    public void confirmSale() {
-        this.state = CurrentItemState.SALE_RESERVED;
+    public void confirmSale(LocalDateTime saleDate) {
+        this.saleDate = saleDate;
     }
 
     /// 제품 판매 취소
     public void cancelSale() {
-        this.state = CurrentItemState.AVAILABLE;
+        this.saleDate = null;
     }
 }
