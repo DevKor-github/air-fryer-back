@@ -44,13 +44,20 @@ public class Appointment extends BaseEntity
     @JoinColumn(name = "owner")
     private User owner;
 
-    // 대여자
+    // 대여자(구매자)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "borrower")
-    private User borrower;
+    private User requester;
 
-    // 대여 장소
+    // 대여(구매) 일시
+    @NotNull
+    private LocalDateTime rentalDate;
+
+    // 반납 일시
+    private LocalDateTime returnDate;
+
+    // 대여(구매) 장소
     @Column(length = 255)
     private String rentalLocation;
 
@@ -58,14 +65,7 @@ public class Appointment extends BaseEntity
     @Column(length = 255)
     private String returnLocation;
 
-    // 대여 일시
-    @NotNull
-    private LocalDateTime rentalDate;
-
-    // 반납 일시
-    private LocalDateTime returnDate;
-
-    // 대여료/판매값
+    // 대여료(판매값)
     @NotNull
     private int price;
 
@@ -79,7 +79,8 @@ public class Appointment extends BaseEntity
     @Enumerated(EnumType.STRING)
     private AppointmentState state;
 
-    // 약속 데이터 수정
+    /// 약속 데이터 수정
+
     public void updateAppointment(OfferAppointmentInRentalPostReq dto)
     {
         this.rentalLocation = dto.getRentalLocation();
@@ -98,5 +99,17 @@ public class Appointment extends BaseEntity
         this.returnDate = null;
         this.price = dto.getPrice();
         this.deposit = 0;
+    }
+
+    /// 약속 확정
+
+    public void confirmAppointment() {
+        this.state = AppointmentState.CONFIRMED;
+    }
+
+    /// 약속 취소
+
+    public void cancelAppointment() {
+        this.state = AppointmentState.CANCELLED;
     }
 }

@@ -11,6 +11,7 @@ public enum AppointmentState
     CONFIRMED("CONFIRMED", "확정"),
     CANCELLED("CANCELLED", "취소"),
     EXPIRED("EXPIRED", "만료"),
+    IN_PROGRESS("IN_PROGRESS", "대여중"),
     SUCCESS("SUCCESS", "완료");
 
     private final String code;

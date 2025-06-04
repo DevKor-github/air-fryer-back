@@ -2,9 +2,7 @@ package com.airfryer.repicka.domain.appointment.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
-import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInRentalPostReq;
-import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInSalePostReq;
+import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.validation.Valid;
@@ -33,7 +31,7 @@ public class AppointmentController
         User borrower = oAuth2User.getUser();
         appointmentService.offerAppointmentInRentalPost(borrower, dto);
 
-        // TODO: 채팅방 데이터를 data로 응답해야 함.
+        // TODO: 채팅방 데이터와 약속 데이터를 응답해야 함.
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("대여 게시글에서 약속을 성공적으로 제시하였습니다.")
@@ -86,6 +84,38 @@ public class AppointmentController
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("제품 구매가 가능한 첫 날짜를 성공적으로 조회하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
+    // 약속 확정
+    @PatchMapping("/appointment/{appointmentId}/confirm")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> confirmAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                 @PathVariable Long appointmentId)
+    {
+        User user = oAuth2User.getUser();
+        AppointmentRes data = appointmentService.confirmAppointment(user, appointmentId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("약속을 성공적으로 확정하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
+    // 약속 취소
+    @PatchMapping("/appointment/{appointmentId}/cancel")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> cancelAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                @PathVariable Long appointmentId)
+    {
+        User user = oAuth2User.getUser();
+        AppointmentRes data = appointmentService.cancelAppointment(user, appointmentId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("약속을 성공적으로 취소하였습니다.")
                         .data(data)
                         .build());
     }

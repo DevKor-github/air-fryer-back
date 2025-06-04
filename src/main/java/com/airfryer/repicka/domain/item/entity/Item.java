@@ -84,4 +84,15 @@ public class Item extends BaseEntity
     // 끌올 날짜
     @NotNull
     private LocalDateTime repostDate;
+
+    /// 제품 판매 확정
+
+    public void confirmSale() {
+        this.state = CurrentItemState.SALE_RESERVED;
+    }
+
+    /// 제품 판매 취소
+    public void cancelSale() {
+        this.state = CurrentItemState.AVAILABLE;
+    }
 }

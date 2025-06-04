@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum CurrentItemState
 {
-    AVAILABLE("AVAILABLE", "가능"),
+    AVAILABLE("AVAILABLE", "구매 가능"),
     SALE_RESERVED("SALE_RESERVED", "판매 예정"),
     RENTED("RENTED", "대여중"),
     SOLD_OUT("SOLD_OUT", "판매됨");
