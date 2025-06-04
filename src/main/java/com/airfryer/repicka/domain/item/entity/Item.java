@@ -76,10 +76,8 @@ public class Item extends BaseEntity
     @NotNull
     private Boolean canDeal;
 
-    // 현재 제품 상태
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private CurrentItemState state;
+    // 판매 날짜
+    private LocalDateTime saleDate;
 
     // 끌올 날짜
     @NotNull
@@ -87,12 +85,12 @@ public class Item extends BaseEntity
 
     /// 제품 판매 확정
 
-    public void confirmSale() {
-        this.state = CurrentItemState.SALE_RESERVED;
+    public void confirmSale(LocalDateTime saleDate) {
+        this.saleDate = saleDate;
     }
 
     /// 제품 판매 취소
     public void cancelSale() {
-        this.state = CurrentItemState.AVAILABLE;
+        this.saleDate = null;
     }
 }

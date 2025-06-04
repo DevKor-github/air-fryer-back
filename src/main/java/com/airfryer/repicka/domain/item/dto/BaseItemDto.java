@@ -5,6 +5,8 @@ import com.airfryer.repicka.domain.post.entity.PostType;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class BaseItemDto {
@@ -18,7 +20,7 @@ public class BaseItemDto {
     private String location; // 거래 장소
     private TradeMethod tradeMethod; // 거래 방법
     private Boolean canDeal; // 가격 제시 가능 여부
-    private CurrentItemState state; // 현재 상품 대여, 예약, 판매 상태
+    private LocalDateTime saleDate; // 제품 판매 날짜
 
     public static BaseItemDto from(Item item) {
         return BaseItemDto.builder()
@@ -31,7 +33,7 @@ public class BaseItemDto {
                 .location(item.getLocation())
                 .tradeMethod(item.getTradeMethod())
                 .canDeal(item.getCanDeal())
-                .state(item.getState())
+                .saleDate(item.getSaleDate())
                 .build();
     }
 }

@@ -26,7 +26,7 @@ public class ItemService {
                 .location(itemDetail.getLocation().trim())
                 .tradeMethod(itemDetail.getTradeMethod())
                 .canDeal(itemDetail.getCanDeal())
-                .state(CurrentItemState.AVAILABLE)
+                .saleDate(null)
                 .repostDate(LocalDateTime.now())
                 .build();
 
