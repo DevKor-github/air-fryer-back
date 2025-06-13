@@ -48,6 +48,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         // 리다이렉트
-        response.sendRedirect(frontendURI);
+        response.sendRedirect(frontendURI + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);
     }
 }
