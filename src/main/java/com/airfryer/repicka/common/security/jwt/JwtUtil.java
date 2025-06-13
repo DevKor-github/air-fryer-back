@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -44,17 +45,15 @@ public class JwtUtil
     }
 
     // 토큰을 쿠키로 변환
-    public Cookie parseTokenToCookie(String token, Token tokenType)
+    public ResponseCookie parseTokenToCookie(String token, Token tokenType)
     {
-        Cookie cookie = new Cookie(tokenType.getName(), token);
-
-        cookie.setHttpOnly(tokenType.isHttpOnly());
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(tokenType.getValidTime());
-        cookie.setAttribute("SameSite", "None");
-
-        return cookie;
+        return ResponseCookie.from(tokenType.getName(), token)
+                .httpOnly(tokenType.isHttpOnly())
+                .sameSite("None")
+                .secure(true)
+                .path("/")
+                .maxAge(tokenType.getValidTime())
+                .build();
     }
 
     // 토큰 검증
