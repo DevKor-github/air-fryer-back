@@ -41,7 +41,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         // 이미 존재하는 사용자인지 확인
-        Optional<User> existUser = userRepository.findByOauthIdAndLoginMethod(oAuth2Response.getProviderId(), oAuth2Response.getProvider());
+        Optional<User> existUser = userRepository.findByEmailAndLoginMethod(oAuth2Response.getEmail(), oAuth2Response.getProvider());
         User user;
 
         // 이미 존재하는 사용자가 아니라면 새로 추가

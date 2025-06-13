@@ -33,7 +33,7 @@ public class UserTest
 
         /// Then
 
-        User findUser = userRepository.findByOauthIdAndLoginMethod(user.getOauthId(), user.getLoginMethod()).orElse(null);
+        User findUser = userRepository.findByEmailAndLoginMethod(user.getEmail(), user.getLoginMethod()).orElse(null);
 
         assertThat(findUser).isNotNull();
         assertThat(findUser.getEmail()).isEqualTo(user.getEmail());
