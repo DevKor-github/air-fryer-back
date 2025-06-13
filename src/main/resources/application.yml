@@ -47,3 +47,13 @@ spring:
 logging:
   level:
     org.springframework.security: DEBUG
+
+## 로컬 HTTPS 설정
+server:
+  ssl:
+    enabled: true
+    key-store: ${KEY_STORE}
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: ${KEY_STORE_TYPE}
+    key-alias: ${KEY_ALIAS}
+  port: 8080
