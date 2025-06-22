@@ -5,10 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -25,6 +28,34 @@ public class GlobalExceptionHandler
                         .code(e.getCode().name())
                         .message(e.getCode().getMessage())
                         .data(e.getData())
+                        .build());
+    }
+
+    // 404 에러 처리 - 없는 API 엔드포인트
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    public ResponseEntity<ExceptionResponseDto> handleNotFoundException(Exception e)
+    {
+        log.warn("404 Not Found: {}", e.getMessage());
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ExceptionResponseDto.builder()
+                        .code("NOT_FOUND")
+                        .message("요청한 API를 찾을 수 없습니다.")
+                        .data(null)
+                        .build());
+    }
+
+    // 405 에러 처리 - 지원하지 않는 HTTP 메서드
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ExceptionResponseDto> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e)
+    {
+        log.warn("405 Method Not Allowed: {}", e.getMessage());
+        
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(ExceptionResponseDto.builder()
+                        .code("METHOD_NOT_ALLOWED")
+                        .message("지원하지 않는 HTTP 메서드입니다: " + e.getMethod())
+                        .data(null)
                         .build());
     }
 
@@ -75,7 +106,7 @@ public class GlobalExceptionHandler
                         .build());
     }
 
-    // NullPointerException 처리 핸들러
+    // NullPointerException 처리 (자주 발생하는 500 에러)
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ExceptionResponseDto> handleNullPointerException(NullPointerException e)
     {
