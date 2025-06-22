@@ -55,6 +55,10 @@ public class S3Service {
     
     // 다중 이미지 업로드
     public String[] uploadImages(MultipartFile[] files) {
+        if (files == null || files.length == 0) {
+            throw new CustomException(CustomExceptionCode.INVALID_FILE_FORMAT, "업로드할 파일이 없습니다");
+        }
+        
         return Arrays.stream(files)
             .map(this::uploadImage)
             .toArray(String[]::new);
@@ -63,21 +67,21 @@ public class S3Service {
     // 파일 유효성 검사
     private void validateFile(MultipartFile file) {
         // 파일이 비어있는지 확인
-        if (file.isEmpty()) {
-            throw new CustomException(CustomExceptionCode.FILE_NOT_FOUND, "업로드할 파일이 없습니다");
+        if (file == null || file.isEmpty()) {
+            throw new CustomException(CustomExceptionCode.INVALID_FILE_FORMAT, "업로드할 파일이 없습니다");
         }
         
         // 파일 크기 확인
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new CustomException(CustomExceptionCode.FILE_SIZE_EXCEEDED, 
-                String.format("파일 크기가 너무 큽니다. 파일 크기: %d bytes, 최대 허용: %d bytes", file.getSize(), MAX_FILE_SIZE));
+                String.format("파일 크기: %d bytes, 최대 허용: %d bytes", file.getSize(), MAX_FILE_SIZE));
         }
         
         // 파일 확장자 확인
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || !isValidImageExtension(originalFilename)) {
             throw new CustomException(CustomExceptionCode.INVALID_FILE_FORMAT, 
-                "이미지 형식이 허용되지 않습니다. 허용되는 이미지 형식: " + String.join(", ", ALLOWED_EXTENSIONS));
+                "허용되는 이미지 형식: " + String.join(", ", ALLOWED_EXTENSIONS));
         }
     }
     
