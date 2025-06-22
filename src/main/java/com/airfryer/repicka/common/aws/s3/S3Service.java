@@ -32,7 +32,7 @@ public class S3Service {
         try {
             validateFile(file);
             
-            String fileName = "images/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
@@ -56,7 +56,7 @@ public class S3Service {
     // 다중 이미지 업로드
     public String[] uploadImages(MultipartFile[] files) {
         if (files == null || files.length == 0) {
-            throw new CustomException(CustomExceptionCode.INVALID_FILE_FORMAT, "업로드할 파일이 없습니다");
+            throw new CustomException(CustomExceptionCode.FILE_NOT_FOUND, "업로드할 파일이 없습니다");
         }
         
         return Arrays.stream(files)
@@ -68,7 +68,7 @@ public class S3Service {
     private void validateFile(MultipartFile file) {
         // 파일이 비어있는지 확인
         if (file == null || file.isEmpty()) {
-            throw new CustomException(CustomExceptionCode.INVALID_FILE_FORMAT, "업로드할 파일이 없습니다");
+            throw new CustomException(CustomExceptionCode.FILE_NOT_FOUND, "업로드할 파일이 없습니다");
         }
         
         // 파일 크기 확인

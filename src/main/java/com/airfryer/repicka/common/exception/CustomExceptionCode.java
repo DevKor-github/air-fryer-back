@@ -39,7 +39,7 @@ public enum CustomExceptionCode
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
     INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다."),
     FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 너무 큽니다."),
-    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
+    FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "파일을 찾을 수 없습니다."),
 
     // 내부 로직 오류 (발생하면 안됨!)
     SALE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "제품은 판매 예정인데, 판매 게시글 데이터를 찾을 수 없습니다. (내부 로직 오류)"),
