@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -36,6 +38,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler
         // 토큰 생성
         String accessToken = jwtUtil.createToken(user.getId(), Token.ACCESS_TOKEN);
         String refreshToken = jwtUtil.createToken(user.getId(), Token.REFRESH_TOKEN);
+
+        // 토큰으로 쿠키 생성
+        ResponseCookie accessTokenCookie = jwtUtil.parseTokenToCookie(accessToken, Token.ACCESS_TOKEN);
+        ResponseCookie refreshTokenCookie = jwtUtil.parseTokenToCookie(refreshToken, Token.REFRESH_TOKEN);
+
+        // 쿠키 저장
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         // 리다이렉트
         response.sendRedirect(frontendURI + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);

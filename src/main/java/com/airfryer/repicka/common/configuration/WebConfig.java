@@ -16,7 +16,7 @@ public class WebConfig implements WebMvcConfigurer
                 .allowCredentials(true)
                 .allowedOrigins(
                         "http://localhost:5173",
-                        "https://devkor-github.github.io/repicka-web/"
+                        "https://devkor-github.github.io"
                 )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
     }
