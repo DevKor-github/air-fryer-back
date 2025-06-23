@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long>
 {
     // oauthId와 로그인 방식으로 사용자 찾기
-    Optional<User> findByEmailAndLoginMethod(String email, LoginMethod loginMethod);
+    Optional<User> findByOauthIdAndLoginMethod(String oauthId, LoginMethod loginMethod);
 }
