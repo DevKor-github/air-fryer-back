@@ -23,16 +23,19 @@ public class S3Service {
     
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
+
+    @Value("${spring.cloud.aws.cloudfront.domain}")
+    private String cloudfrontDomain;
     
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "gif", "webp");
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     
     // 단일 이미지 업로드
-    public String uploadImage(MultipartFile file) {
+    public String uploadImage(MultipartFile file, String directory) {
         try {
             validateFile(file);
             
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String fileName = directory + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
@@ -45,7 +48,7 @@ public class S3Service {
                 metadata
             );
             amazonS3.putObject(putObjectRequest);
-            return amazonS3.getUrl(bucket, fileName).toString();
+            return cloudfrontDomain + "/" + fileName;
             
         } catch (IOException e) {
             throw new CustomException(CustomExceptionCode.FILE_UPLOAD_FAILED, file.getOriginalFilename());
@@ -54,13 +57,13 @@ public class S3Service {
     }
     
     // 다중 이미지 업로드
-    public String[] uploadImages(MultipartFile[] files) {
+    public String[] uploadImages(MultipartFile[] files, String directory) {
         if (files == null || files.length == 0) {
             throw new CustomException(CustomExceptionCode.FILE_NOT_FOUND, "업로드할 파일이 없습니다");
         }
         
         return Arrays.stream(files)
-            .map(this::uploadImage)
+            .map(file -> uploadImage(file, directory))
             .toArray(String[]::new);
     }
     

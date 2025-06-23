@@ -18,11 +18,12 @@ public class S3Controller {
 
     private final S3Service s3Service;
 
+    // 테스트용 이미지 업로드 api
     @PostMapping("/image")
     public ResponseEntity<SuccessResponseDto> uploadFile(
             @RequestParam(value = "image", required = false) MultipartFile image)
     {
-        String imageUrl = s3Service.uploadImage(image);
+        String imageUrl = s3Service.uploadImage(image, "image");
         return ResponseEntity.ok(SuccessResponseDto.builder()
                 .message("이미지 업로드 성공")
                 .data(imageUrl)
@@ -33,7 +34,7 @@ public class S3Controller {
     public ResponseEntity<SuccessResponseDto> uploadImages(
             @RequestParam(value = "images", required = false) MultipartFile[] images)  
     {
-        String[] imageUrls = s3Service.uploadImages(images);
+        String[] imageUrls = s3Service.uploadImages(images, "images");
         return ResponseEntity.ok(SuccessResponseDto.builder()
                 .message("이미지 업로드 성공")
                 .data(imageUrls)

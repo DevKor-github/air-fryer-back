@@ -53,6 +53,8 @@ spring:
       credentials:
         access-key: ${AWS_ACCESS_KEY_ID}
         secret-key: ${AWS_SECRET_ACCESS_KEY}
+      cloudfront:
+        domain: ${AWS_CLOUDFRONT_DOMAIN}
 
 ## Spring Security 로그 설정
 logging:
