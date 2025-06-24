@@ -504,26 +504,14 @@ public class AppointmentService
             itemRepository.save(item);
         }
 
-        /// 약속 확정 및 약속 데이터 반환
+        /// 약속 확정
 
-        // 약속 확정
         appointment.confirmAppointment();
         appointmentRepository.save(appointment);
 
-        // 약속 데이터 반환
-        return AppointmentRes.builder()
-                .appointmentId(appointment.getId())
-                .postId(post.getId())
-                .ownerId(appointment.getOwner().getId())
-                .borrowerId(appointment.getRequester().getId())
-                .type(post.getPostType())
-                .rentalDate(appointment.getRentalDate())
-                .returnDate(appointment.getReturnDate())
-                .rentalLocation(appointment.getRentalLocation())
-                .returnLocation(appointment.getReturnLocation())
-                .price(appointment.getPrice())
-                .deposit(appointment.getDeposit())
-                .build();
+        /// 약속 데이터 반환
+
+        return AppointmentRes.from(appointment, post);
     }
 
     // 약속 취소
@@ -581,20 +569,7 @@ public class AppointmentService
 
         /// 약속 데이터 반환
 
-        // 약속 데이터 반환
-        return AppointmentRes.builder()
-                .appointmentId(appointment.getId())
-                .postId(post.getId())
-                .ownerId(appointment.getOwner().getId())
-                .borrowerId(appointment.getRequester().getId())
-                .type(post.getPostType())
-                .rentalDate(appointment.getRentalDate())
-                .returnDate(appointment.getReturnDate())
-                .rentalLocation(appointment.getRentalLocation())
-                .returnLocation(appointment.getReturnLocation())
-                .price(appointment.getPrice())
-                .deposit(appointment.getDeposit())
-                .build();
+        return AppointmentRes.from(appointment, post);
     }
 
     /// 공통 로직
