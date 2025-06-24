@@ -2,9 +2,7 @@ package com.airfryer.repicka.common.aws.s3;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class S3Service {
     
-    private final AmazonS3 amazonS3;
+    private final S3Template s3Template;
     
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
@@ -27,8 +25,15 @@ public class S3Service {
     @Value("${spring.cloud.aws.cloudfront.domain}")
     private String cloudfrontDomain;
     
-    private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "gif", "webp");
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    @Value("${file.upload.max-size}")
+    private long maxFileSize;
+    
+    @Value("${file.upload.allowed-extensions}")
+    private String allowedExtensionsString;
+    
+    private List<String> getAllowedExtensions() {
+        return Arrays.asList(allowedExtensionsString.split(","));
+    }
     
     // 단일 이미지 업로드
     public String uploadImage(MultipartFile file, String directory) {
@@ -36,23 +41,13 @@ public class S3Service {
             validateFile(file);
             
             String fileName = directory + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
             
-            // S3에 파일 업로드
-            PutObjectRequest putObjectRequest = new PutObjectRequest(
-                bucket, 
-                fileName, 
-                file.getInputStream(), 
-                metadata
-            );
-            amazonS3.putObject(putObjectRequest);
+            // S3Template을 사용한 파일 업로드
+            s3Template.upload(bucket, fileName, file.getInputStream());
             return cloudfrontDomain + "/" + fileName;
             
         } catch (IOException e) {
             throw new CustomException(CustomExceptionCode.FILE_UPLOAD_FAILED, file.getOriginalFilename());
-            
         }
     }
     
@@ -75,22 +70,22 @@ public class S3Service {
         }
         
         // 파일 크기 확인
-        if (file.getSize() > MAX_FILE_SIZE) {
+        if (file.getSize() > maxFileSize) {
             throw new CustomException(CustomExceptionCode.FILE_SIZE_EXCEEDED, 
-                String.format("파일 크기: %d bytes, 최대 허용: %d bytes", file.getSize(), MAX_FILE_SIZE));
+                String.format("파일 크기: %d bytes, 최대 허용: %d bytes", file.getSize(), maxFileSize));
         }
         
         // 파일 확장자 확인
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || !isValidImageExtension(originalFilename)) {
             throw new CustomException(CustomExceptionCode.INVALID_FILE_FORMAT, 
-                "허용되는 이미지 형식: " + String.join(", ", ALLOWED_EXTENSIONS));
+                "허용되는 이미지 형식: " + String.join(", ", getAllowedExtensions()));
         }
     }
     
     // 이미지 파일 확장자 검사
     private boolean isValidImageExtension(String filename) {
         String extension = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
-        return ALLOWED_EXTENSIONS.contains(extension);
+        return getAllowedExtensions().contains(extension);
     }
 } 
