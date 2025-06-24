@@ -12,6 +12,13 @@ public enum CustomExceptionCode
     NOT_LOGIN(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     LOW_AUTHORITY(HttpStatus.UNAUTHORIZED, "권한이 부족합니다."),
 
+    // 토큰 관련 예외
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Refresh token이 존재하지 않습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Refresh token입니다."),
+
+    // 사용자 관련 예외
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 데이터를 찾을 수 없습니다."),
+
     // 제품(Item) 관련 예외
     DEAL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "가격 협의가 불가능한 제품입니다."),
     ALREADY_SALE_RESERVED(HttpStatus.CONFLICT, "이미 판매가 예정된 제품입니다."),
