@@ -3,7 +3,10 @@ package com.airfryer.repicka.domain.appointment.repository;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.post.entity.Post;
+import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,4 +44,36 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
+    // 대여자(구매자) ID, 검색 시작 날짜, 게시글 타입으로 (확정/대여중/완료) 상태인 약속 페이지 조회
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE a.requester.id = :requesterId AND
+            a.post.postType = :type AND
+            a.rentalDate >= :start AND (
+                (a.state = 'CONFIRMED') OR
+                (a.state = 'IN_PROGRESS') OR
+                (a.state = 'SUCCESS')
+            )
+    """)
+    Page<Appointment> findMyPickPageByRequesterId(Pageable pageable,
+                                                  @Param("requesterId") Long requesterId,
+                                                  @Param("type") PostType type,
+                                                  @Param("start") LocalDateTime start);
+
+    // 소유자 ID, 검색 시작 날짜, 게시글 타입으로 (확정/대여중/완료) 상태인 약속 페이지 조회
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE a.owner.id = :ownerId AND
+            a.post.postType = :type AND
+            a.rentalDate >= :start AND (
+                (a.state = 'CONFIRMED') OR
+                (a.state = 'IN_PROGRESS') OR
+                (a.state = 'SUCCESS')
+            )
+    """)
+    Page<Appointment> findMyPickPageByOwnerId(Pageable pageable,
+                                              @Param("ownerId") Long ownerId,
+                                              @Param("type") PostType type,
+                                              @Param("start") LocalDateTime start);
 }
