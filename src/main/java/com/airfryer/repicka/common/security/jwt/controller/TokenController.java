@@ -25,7 +25,7 @@ public class TokenController
     // Access token 재발급
     @PostMapping("/refresh-token")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponseDto> reissueAccessToken(@CookieValue(name = "refreshToken", required = false) String refreshToken,
+    public ResponseEntity<SuccessResponseDto> reissueAccessToken(@CookieValue(name = "refreshToken") String refreshToken,
                                                                  HttpServletResponse response)
     {
         ResponseCookie cookie = tokenService.reissueAccessToken(refreshToken);
