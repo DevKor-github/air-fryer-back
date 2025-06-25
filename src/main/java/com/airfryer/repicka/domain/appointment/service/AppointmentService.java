@@ -426,13 +426,13 @@ public class AppointmentService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
 
         /// 예외 처리
-        /// 1. 약속이 이미 확정되었는가?
+        /// 1. 약속이 제시 중인가?
         /// 2. 동의자와 약속 생성자가 다른 사용자인가?
         /// 3. 동의자가 약속 관계자인가?
 
         // 이미 확정된 약속인 경우, 예외 처리
-        if(appointment.getState() == AppointmentState.CONFIRMED) {
-            throw new CustomException(CustomExceptionCode.ALREADY_CONFIRMED_APPOINTMENT, null);
+        if(appointment.getState() != AppointmentState.PENDING) {
+            throw new CustomException(CustomExceptionCode.NOT_PENDING_APPOINTMENT, null);
         }
 
         // 동의자와 약속 생성자가 동일한 경우, 예외 처리

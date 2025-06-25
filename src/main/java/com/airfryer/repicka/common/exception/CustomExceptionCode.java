@@ -32,7 +32,7 @@ public enum CustomExceptionCode
     CREATOR_CANNOT_AGREE(HttpStatus.BAD_REQUEST, "본인이 제시한 약속을 본인이 확정할 수는 없습니다."),
     ALREADY_RENTAL_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 대여 약속이 예정되어 있습니다."),
     ALREADY_SALE_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 판매 약속이 예정되어 있습니다."),
-    ALREADY_CONFIRMED_APPOINTMENT(HttpStatus.CONFLICT, "이미 확정된 약속입니다."),
+    NOT_PENDING_APPOINTMENT(HttpStatus.CONFLICT, "제시 중인 약속이 아닙니다."),
     APPOINTMENT_CANNOT_CANCELLED(HttpStatus.CONFLICT, "취소할 수 없는 상태입니다."),
 
     // 내부 로직 오류 (발생하면 안됨!)
