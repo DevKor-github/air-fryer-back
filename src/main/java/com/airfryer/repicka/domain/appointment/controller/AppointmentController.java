@@ -2,11 +2,14 @@ package com.airfryer.repicka.domain.appointment.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
+import com.airfryer.repicka.domain.appointment.FindMyPickPeriod;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -116,6 +119,25 @@ public class AppointmentController
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("약속을 성공적으로 취소하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
+    // 나의 PICK 페이지 조회
+    // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
+    @GetMapping("/appointment/my-pick")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> findMyPick(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                         Pageable pageable,
+                                                         @RequestParam PostType type,
+                                                         @RequestParam FindMyPickPeriod period)
+    {
+        User requester = oAuth2User.getUser();
+        AppointmentPageRes data = appointmentService.findMyPick(requester, pageable, type, period);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("나의 PICK 페이지를 성공적으로 조회하였습니다.")
                         .data(data)
                         .build());
     }

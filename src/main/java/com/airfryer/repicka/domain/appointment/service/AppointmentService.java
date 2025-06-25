@@ -2,18 +2,22 @@ package com.airfryer.repicka.domain.appointment.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.domain.appointment.FindMyPickPeriod;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
-import com.airfryer.repicka.domain.item.entity.CurrentItemState;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
+import com.airfryer.repicka.domain.item_image.entity.ItemImage;
+import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +34,7 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final PostRepository postRepository;
     private final ItemRepository itemRepository;
+    private final ItemImageRepository itemImageRepository;
 
     /// 서비스
 
@@ -570,6 +576,60 @@ public class AppointmentService
         /// 약속 데이터 반환
 
         return AppointmentRes.from(appointment, post);
+    }
+
+    // (확정/대여중/완료) 상태인 약속 페이지 조회
+    public AppointmentPageRes findMyPick(User requester,
+                                         Pageable pageable,
+                                         PostType type,
+                                         FindMyPickPeriod period)
+    {
+        /// 검색 시작 날짜
+
+        LocalDateTime searchStartDate = period.calculateFromDate(LocalDateTime.now());
+
+        /// 약속 페이지 조회
+
+        Page<Appointment> appointmentPage = appointmentRepository.findMyPickPageByRequesterId(
+                pageable,
+                requester.getId(),
+                type,
+                searchStartDate
+        );
+
+        /// 약속 리스트 생성 및 정렬
+
+        // 약속 페이지 > 약속 리스트 변환
+        List<Appointment> appointmentList = new ArrayList<>(appointmentPage.getContent());
+
+        // 약속 리스트 정렬
+        // AppointmentState 기준 : CONFIRMED > IN_PROGRESS > SUCCESS
+        // 동일한 AppointmentState 내에서는 rentalDate 내림차순
+        appointmentList.sort(
+                Comparator
+                        .comparing((Appointment a) -> {
+                            return switch (a.getState()) {
+                                case CONFIRMED -> 1;
+                                case IN_PROGRESS -> 2;
+                                case SUCCESS -> 3;
+                                default -> 4;
+                            };
+                        })
+                        .thenComparing(Appointment::getRentalDate, Comparator.reverseOrder())
+        );
+
+        /// 약속, 대표 이미지 key-pair 정보 생성
+
+        // Map(약속, 대표 이미지) 생성
+        Map<Appointment, Optional<ItemImage>> map = appointmentList.stream()
+                .collect(Collectors.toMap(
+                        appointment -> appointment,
+                        appointment -> itemImageRepository.findByDisplayOrderAndItemId(1, appointment.getPost().getItem().getId())
+                ));
+
+        /// 데이터 반환
+
+        return AppointmentPageRes.of(map, type, pageable.getPageNumber(), appointmentPage.getTotalPages());
     }
 
     /// 공통 로직
