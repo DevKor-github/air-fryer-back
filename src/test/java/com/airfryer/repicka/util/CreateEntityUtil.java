@@ -72,7 +72,6 @@ public class CreateEntityUtil
                 .location("location")
                 .tradeMethod(TradeMethod.DIRECT)
                 .canDeal(true)
-                .state(CurrentItemState.AVAILABLE)
                 .repostDate(LocalDateTime.now())
                 .build();
 
@@ -122,13 +121,13 @@ public class CreateEntityUtil
     public Appointment createAppointment()
     {
         User owner = createUser();
-        User borrower = createUser();
+        User requester = createUser();
 
         Appointment appointment = Appointment.builder()
                 .post(createPost())
                 .creator(owner)
                 .owner(owner)
-                .borrower(borrower)
+                .requester(requester)
                 .rentalLocation("rentalLocation")
                 .returnLocation("returnLocation")
                 .rentalDate(LocalDateTime.now())

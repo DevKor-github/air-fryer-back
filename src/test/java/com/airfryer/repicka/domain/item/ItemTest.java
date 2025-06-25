@@ -48,7 +48,6 @@ public class ItemTest
         assertThat(findItem.getLocation()).isEqualTo(item.getLocation());
         assertThat(findItem.getTradeMethod()).isEqualTo(item.getTradeMethod());
         assertThat(findItem.getCanDeal()).isEqualTo(item.getCanDeal());
-        assertThat(findItem.getState()).isEqualTo(item.getState());
         assertThat(findItem.getRepostDate()).isEqualTo(item.getRepostDate());
     }
 }
