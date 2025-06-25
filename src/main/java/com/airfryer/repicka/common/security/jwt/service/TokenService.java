@@ -20,7 +20,7 @@ public class TokenService
 
     // Access token 재발급
     @Transactional(readOnly = true)
-    public ResponseCookie refreshToken(String refreshToken)
+    public ResponseCookie reissueAccessToken(String refreshToken)
     {
         /// Refresh token 유효성 체크
         /// 1. Refresh token이 존재하는가?
