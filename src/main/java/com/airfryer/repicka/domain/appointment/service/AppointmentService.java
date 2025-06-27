@@ -621,7 +621,9 @@ public class AppointmentService
 
         /// 대표 이미지 리스트 조회
 
-        List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentList.stream().map(Appointment::getId).toList());
+        List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentList.stream().map(appointment -> {
+            return appointment.getPost().getItem().getId();
+        }).toList());
 
         /// 제품 ID, 대표 이미지 pair 정보 생성
 
