@@ -619,13 +619,26 @@ public class AppointmentService
                         .thenComparing(Appointment::getRentalDate, Comparator.reverseOrder())
         );
 
-        /// 약속, 대표 이미지 key-pair 정보 생성
+        /// 대표 이미지 리스트 조회
+
+        List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentList.stream().map(Appointment::getId).toList());
+
+        /// 제품 ID, 대표 이미지 pair 정보 생성
+
+        // Map(제품 id, 대표 이미지) 생성
+        Map<Long, ItemImage> thumbnailMap = thumbnailList.stream()
+                .collect(Collectors.toMap(
+                        itemImage -> itemImage.getItem().getId(),
+                        itemImage -> itemImage
+                ));
+
+        /// 약속, 대표 이미지 pair 정보 생성
 
         // Map(약속, 대표 이미지) 생성
         Map<Appointment, Optional<ItemImage>> map = appointmentList.stream()
                 .collect(Collectors.toMap(
                         appointment -> appointment,
-                        appointment -> itemImageRepository.findByDisplayOrderAndItemId(1, appointment.getPost().getItem().getId())
+                        appointment -> Optional.ofNullable(thumbnailMap.get(appointment.getPost().getItem().getId()))
                 ));
 
         /// 데이터 반환
