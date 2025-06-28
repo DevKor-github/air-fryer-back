@@ -34,6 +34,6 @@ public class ItemImageTest
 
         assertThat(findItemImage).isNotNull();
         assertThat(findItemImage.getItem()).isEqualTo(itemImage.getItem());
-        assertThat(findItemImage.getImageUrl()).isEqualTo(itemImage.getImageUrl());
+        assertThat(findItemImage.getFileKey()).isEqualTo(itemImage.getFileKey());
     }
 }
