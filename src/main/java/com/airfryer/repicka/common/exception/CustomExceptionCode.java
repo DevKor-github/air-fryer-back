@@ -12,6 +12,13 @@ public enum CustomExceptionCode
     NOT_LOGIN(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     LOW_AUTHORITY(HttpStatus.UNAUTHORIZED, "권한이 부족합니다."),
 
+    // 토큰 관련 예외
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Refresh token이 존재하지 않습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Refresh token입니다."),
+
+    // 사용자 관련 예외
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 데이터를 찾을 수 없습니다."),
+
     // 제품(Item) 관련 예외
     DEAL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "가격 협의가 불가능한 제품입니다."),
     ALREADY_SALE_RESERVED(HttpStatus.CONFLICT, "이미 판매가 예정된 제품입니다."),
@@ -34,6 +41,12 @@ public enum CustomExceptionCode
     ALREADY_SALE_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 판매 약속이 예정되어 있습니다."),
     NOT_PENDING_APPOINTMENT(HttpStatus.CONFLICT, "제시 중인 약속이 아닙니다."),
     APPOINTMENT_CANNOT_CANCELLED(HttpStatus.CONFLICT, "취소할 수 없는 상태입니다."),
+
+    // 파일 관련 예외
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
+    INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다."),
+    FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 너무 큽니다."),
+    FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "파일을 찾을 수 없습니다."),
 
     // 내부 로직 오류 (발생하면 안됨!)
     SALE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "제품은 판매 예정인데, 판매 게시글 데이터를 찾을 수 없습니다. (내부 로직 오류)"),
