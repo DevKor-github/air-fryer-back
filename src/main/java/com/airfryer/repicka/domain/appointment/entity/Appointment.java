@@ -47,7 +47,7 @@ public class Appointment extends BaseEntity
     // 대여자(구매자)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "borrower")
+    @JoinColumn(name = "requester")
     private User requester;
 
     // 대여(구매) 일시

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,8 @@ public class ItemImageService {
     }
 
     public ItemImage getThumbnail(Item item) {
-        return itemImageRepository.findByDisplayOrderAndItemId(1, item.getId());
+        Optional<ItemImage> itemImageOptional = itemImageRepository.findByDisplayOrderAndItemId(1, item.getId());
+        return itemImageOptional.orElse(null);
     }
 
     public List<ItemImage> getItemImages(Item item) {

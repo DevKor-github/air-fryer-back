@@ -2,18 +2,22 @@ package com.airfryer.repicka.domain.appointment.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.domain.appointment.FindMyPickPeriod;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
-import com.airfryer.repicka.domain.item.entity.CurrentItemState;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
+import com.airfryer.repicka.domain.item_image.entity.ItemImage;
+import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +34,7 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final PostRepository postRepository;
     private final ItemRepository itemRepository;
+    private final ItemImageRepository itemImageRepository;
 
     /// 서비스
 
@@ -420,13 +426,13 @@ public class AppointmentService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
 
         /// 예외 처리
-        /// 1. 약속이 이미 확정되었는가?
+        /// 1. 약속이 제시 중인가?
         /// 2. 동의자와 약속 생성자가 다른 사용자인가?
         /// 3. 동의자가 약속 관계자인가?
 
         // 이미 확정된 약속인 경우, 예외 처리
-        if(appointment.getState() == AppointmentState.CONFIRMED) {
-            throw new CustomException(CustomExceptionCode.ALREADY_CONFIRMED_APPOINTMENT, null);
+        if(appointment.getState() != AppointmentState.PENDING) {
+            throw new CustomException(CustomExceptionCode.NOT_PENDING_APPOINTMENT, null);
         }
 
         // 동의자와 약속 생성자가 동일한 경우, 예외 처리
@@ -504,26 +510,14 @@ public class AppointmentService
             itemRepository.save(item);
         }
 
-        /// 약속 확정 및 약속 데이터 반환
+        /// 약속 확정
 
-        // 약속 확정
         appointment.confirmAppointment();
         appointmentRepository.save(appointment);
 
-        // 약속 데이터 반환
-        return AppointmentRes.builder()
-                .appointmentId(appointment.getId())
-                .postId(post.getId())
-                .ownerId(appointment.getOwner().getId())
-                .borrowerId(appointment.getRequester().getId())
-                .type(post.getPostType())
-                .rentalDate(appointment.getRentalDate())
-                .returnDate(appointment.getReturnDate())
-                .rentalLocation(appointment.getRentalLocation())
-                .returnLocation(appointment.getReturnLocation())
-                .price(appointment.getPrice())
-                .deposit(appointment.getDeposit())
-                .build();
+        /// 약속 데이터 반환
+
+        return AppointmentRes.from(appointment, post);
     }
 
     // 약속 취소
@@ -581,20 +575,77 @@ public class AppointmentService
 
         /// 약속 데이터 반환
 
-        // 약속 데이터 반환
-        return AppointmentRes.builder()
-                .appointmentId(appointment.getId())
-                .postId(post.getId())
-                .ownerId(appointment.getOwner().getId())
-                .borrowerId(appointment.getRequester().getId())
-                .type(post.getPostType())
-                .rentalDate(appointment.getRentalDate())
-                .returnDate(appointment.getReturnDate())
-                .rentalLocation(appointment.getRentalLocation())
-                .returnLocation(appointment.getReturnLocation())
-                .price(appointment.getPrice())
-                .deposit(appointment.getDeposit())
-                .build();
+        return AppointmentRes.from(appointment, post);
+    }
+
+    // 나의 PICK 페이지 조회
+    // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
+    public AppointmentPageRes findMyPick(User requester,
+                                         Pageable pageable,
+                                         PostType type,
+                                         FindMyPickPeriod period)
+    {
+        /// 검색 시작 날짜
+
+        LocalDateTime searchStartDate = period.calculateFromDate(LocalDateTime.now());
+
+        /// 약속 페이지 조회
+
+        Page<Appointment> appointmentPage = appointmentRepository.findMyPickPageByRequesterId(
+                pageable,
+                requester.getId(),
+                type,
+                searchStartDate
+        );
+
+        /// 약속 리스트 생성 및 정렬
+
+        // 약속 페이지 > 약속 리스트 변환
+        List<Appointment> appointmentList = new ArrayList<>(appointmentPage.getContent());
+
+        // 약속 리스트 정렬
+        // AppointmentState 기준 : CONFIRMED > IN_PROGRESS > SUCCESS
+        // 동일한 AppointmentState 내에서는 rentalDate 내림차순
+        appointmentList.sort(
+                Comparator
+                        .comparing((Appointment a) -> {
+                            return switch (a.getState()) {
+                                case CONFIRMED -> 1;
+                                case IN_PROGRESS -> 2;
+                                case SUCCESS -> 3;
+                                default -> 4;
+                            };
+                        })
+                        .thenComparing(Appointment::getRentalDate, Comparator.reverseOrder())
+        );
+
+        /// 대표 이미지 리스트 조회
+
+        List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentList.stream().map(appointment -> {
+            return appointment.getPost().getItem().getId();
+        }).toList());
+
+        /// 제품 ID, 대표 이미지 pair 정보 생성
+
+        // Map(제품 id, 대표 이미지) 생성
+        Map<Long, ItemImage> thumbnailMap = thumbnailList.stream()
+                .collect(Collectors.toMap(
+                        itemImage -> itemImage.getItem().getId(),
+                        itemImage -> itemImage
+                ));
+
+        /// 약속, 대표 이미지 pair 정보 생성
+
+        // Map(약속, 대표 이미지) 생성
+        Map<Appointment, Optional<ItemImage>> map = appointmentList.stream()
+                .collect(Collectors.toMap(
+                        appointment -> appointment,
+                        appointment -> Optional.ofNullable(thumbnailMap.get(appointment.getPost().getItem().getId()))
+                ));
+
+        /// 데이터 반환
+
+        return AppointmentPageRes.of(map, type, pageable.getPageNumber(), appointmentPage.getTotalPages());
     }
 
     /// 공통 로직

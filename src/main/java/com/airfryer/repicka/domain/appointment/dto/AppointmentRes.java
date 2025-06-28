@@ -1,13 +1,16 @@
 package com.airfryer.repicka.domain.appointment.dto;
 
+import com.airfryer.repicka.domain.appointment.entity.Appointment;
+import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 public class AppointmentRes
 {
     private Long appointmentId;     // 약속 ID
@@ -22,4 +25,21 @@ public class AppointmentRes
     private String returnLocation;      // 반납 장소
     private int price;                  // 대여료(판매값)
     private int deposit;                // 보증금
+
+    public static AppointmentRes from(Appointment appointment, Post post)
+    {
+        return AppointmentRes.builder()
+                .appointmentId(appointment.getId())
+                .postId(post.getId())
+                .ownerId(appointment.getOwner().getId())
+                .borrowerId(appointment.getRequester().getId())
+                .type(post.getPostType())
+                .rentalDate(appointment.getRentalDate())
+                .returnDate(appointment.getReturnDate())
+                .rentalLocation(appointment.getRentalLocation())
+                .returnLocation(appointment.getReturnLocation())
+                .price(appointment.getPrice())
+                .deposit(appointment.getDeposit())
+                .build();
+    }
 }
