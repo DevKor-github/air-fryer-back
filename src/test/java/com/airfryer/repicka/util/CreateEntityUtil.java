@@ -84,7 +84,8 @@ public class CreateEntityUtil
     {
         ItemImage itemImage = ItemImage.builder()
                 .item(createItem())
-                .imageUrl("/이미지-경로")
+                .displayOrder(1)
+                .fileKey("test/이미지-경로.jpg")
                 .build();
 
         itemImage = itemImageRepository.save(itemImage);
