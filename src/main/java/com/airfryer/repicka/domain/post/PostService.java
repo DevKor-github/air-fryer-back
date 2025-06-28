@@ -1,12 +1,14 @@
 package com.airfryer.repicka.domain.post;
 
+import com.airfryer.repicka.common.aws.s3.S3Service;
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.item.ItemService;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
-import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.post.dto.CreatePostReq;
 import com.airfryer.repicka.domain.post.dto.PostDetailRes;
 import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
@@ -21,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,13 +32,14 @@ public class PostService {
     private final ItemService itemService;
     private final ItemImageService itemImageService;
     private final AppointmentService appointmentService;
+    private final S3Service s3Service;
 
     // 게시글 생성
     @Transactional
     public List<PostDetailRes> createPostWithItemAndImages(CreatePostReq postDetail, User user) {
         // 상품, 상품 이미지 저장
         Item item = itemService.createItem(postDetail.getItem());
-        List<ItemImage> itemImages = itemImageService.createItemImage(postDetail.getImages(), item);
+        itemImageService.createItemImage(postDetail.getImages(), item);
 
         // 게시글 타입에 따라 저장
         List<Post> posts = new ArrayList<>();
@@ -58,7 +60,7 @@ public class PostService {
 
         // 각 Post에 대해 PostDetailRes 생성
         List<PostDetailRes> postDetailResList = posts.stream()
-                .map(post -> { return PostDetailRes.from(post, itemImages); })
+                .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem())); })
                 .toList();
 
         return postDetailResList;
@@ -69,9 +71,9 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
 
-        List<ItemImage> itemImages = itemImageService.getItemImages(post.getItem());
+        List<String> imageUrls = itemImageService.getItemImages(post.getItem());
 
-        return PostDetailRes.from(post, itemImages);
+        return PostDetailRes.from(post, imageUrls);
     }
 
     // 게시글 목록 검색
@@ -84,12 +86,16 @@ public class PostService {
         List<PostPreviewRes> postPreviewResList = posts.stream()
                 .map(post -> {
                     boolean isAvailable = appointmentService.isPostAvailableOnDate(post.getId(), condition.getDate()); // 원하는 날짜에 대여나 구매 가능 여부
-                    ItemImage itemImage = itemImageService.getThumbnail(post.getItem()); // 대표 사진
-                    return PostPreviewRes.from(post, itemImage, isAvailable);
+                    String thumbnailUrl = itemImageService.getThumbnail(post.getItem()); // 대표 사진
+                    return PostPreviewRes.from(post, thumbnailUrl, isAvailable);
                 })
                 .toList();
 
         return postPreviewResList;
+    }
+
+    public PresignedUrlRes getPresignedUrl(PresignedUrlReq req, User user) {
+        return s3Service.generatePresignedUrl(req, "post");
     }
 
 }

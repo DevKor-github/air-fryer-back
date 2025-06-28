@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.item_image;
 
+import com.airfryer.repicka.common.aws.s3.S3Service;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
@@ -14,18 +15,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemImageService {
     private final ItemImageRepository itemImageRepository;
+    private final S3Service s3Service;
 
     // 다수의 상품 이미지 저장
     @Transactional
-    public List<ItemImage> createItemImage(String[] urls, Item item) {
+    public List<ItemImage> createItemImage(String[] fileKeys, Item item) {
         List<ItemImage> itemImages = new ArrayList<>();
-        // TODO: image to url로 변환을 여기에서 처리하거나 s3 서비스에서 처리
         int order = 1;
-        for (String url: urls) {
+        for (String fileKey: fileKeys) {
             ItemImage itemImage = ItemImage.builder()
                     .displayOrder(order++)
                     .item(item)
-                    .imageUrl(url)
+                    .fileKey(fileKey)
                     .build();
 
             itemImages.add(itemImage);
@@ -36,11 +37,24 @@ public class ItemImageService {
         return itemImages;
     }
 
-    public ItemImage getThumbnail(Item item) {
-        return itemImageRepository.findByDisplayOrderAndItemId(1, item.getId());
+    public String getThumbnail(Item item) {
+        ItemImage itemImage = itemImageRepository.findByDisplayOrderAndItemId(1, item.getId());
+        return getFullImageUrl(itemImage);
     }
 
-    public List<ItemImage> getItemImages(Item item) {
-        return itemImageRepository.findAllByItemId(item.getId());
+    public List<String> getItemImages(Item item) {
+        List<ItemImage> itemImages = itemImageRepository.findAllByItemId(item.getId());
+        List<String> imageUrls = itemImages.stream()
+                .map(this::getFullImageUrl)
+                .toList();
+        return imageUrls;
+    }
+    
+    // ItemImage 엔티티의 fileKey를 전체 URL로 변환
+    public String getFullImageUrl(ItemImage itemImage) {
+        if (itemImage == null) {
+            return null;
+        }
+        return s3Service.getFullImageUrl(itemImage.getFileKey());
     }
 }
