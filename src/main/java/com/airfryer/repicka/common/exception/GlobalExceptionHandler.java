@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler
     public ResponseEntity<ExceptionResponseDto> handleNotFoundException(Exception e)
     {
         log.warn("404 Not Found: {}", e.getMessage());
-        
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ExceptionResponseDto.builder()
                         .code("NOT_FOUND")
@@ -50,7 +51,7 @@ public class GlobalExceptionHandler
     public ResponseEntity<ExceptionResponseDto> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e)
     {
         log.warn("405 Method Not Allowed: {}", e.getMessage());
-        
+
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
                 .body(ExceptionResponseDto.builder()
                         .code("METHOD_NOT_ALLOWED")
@@ -97,10 +98,22 @@ public class GlobalExceptionHandler
     public ResponseEntity<ExceptionResponseDto> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e)
     {
         log.error("MethodArgumentTypeMismatchException occurred: ", e);
-        
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ExceptionResponseDto.builder()
                         .code("INVALID_INPUT")
+                        .message(e.getMessage())
+                        .data(null)
+                        .build());
+    }
+
+    // @CookieValue 쿠키 누락 예외 처리 핸들러
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<ExceptionResponseDto> handleMissingRequestCookieException(MissingRequestCookieException e)
+    {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ExceptionResponseDto.builder()
+                        .code("쿠키가 누락되었습니다.")
                         .message(e.getMessage())
                         .data(null)
                         .build());
@@ -111,7 +124,7 @@ public class GlobalExceptionHandler
     public ResponseEntity<ExceptionResponseDto> handleNullPointerException(NullPointerException e)
     {
         log.error("NullPointerException occurred: ", e);
-        
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ExceptionResponseDto.builder()
                         .code("NULL_POINTER_ERROR")
@@ -125,7 +138,7 @@ public class GlobalExceptionHandler
     public ResponseEntity<ExceptionResponseDto> handleIllegalArgumentException(IllegalArgumentException e)
     {
         log.error("IllegalArgumentException occurred: ", e);
-        
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ExceptionResponseDto.builder()
                         .code("ILLEGAL_ARGUMENT_ERROR")
@@ -142,7 +155,7 @@ public class GlobalExceptionHandler
     public ResponseEntity<ExceptionResponseDto> handleDatabaseException(Exception e)
     {
         log.error("Database Exception occurred: ", e);
-        
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ExceptionResponseDto.builder()
                         .code("DATABASE_ERROR")
@@ -156,7 +169,7 @@ public class GlobalExceptionHandler
     public ResponseEntity<ExceptionResponseDto> handleRuntimeException(RuntimeException e)
     {
         log.error("Runtime Exception occurred: ", e);
-        
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ExceptionResponseDto.builder()
                         .code("INTERNAL_SERVER_ERROR")
@@ -170,7 +183,7 @@ public class GlobalExceptionHandler
     public ResponseEntity<ExceptionResponseDto> handleException(Exception e)
     {
         log.error("Unexpected Exception occurred: ", e);
-        
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ExceptionResponseDto.builder()
                         .code("INTERNAL_SERVER_ERROR")
