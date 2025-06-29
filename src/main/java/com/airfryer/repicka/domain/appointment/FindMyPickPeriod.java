@@ -11,6 +11,7 @@ import java.time.Period;
 @AllArgsConstructor
 public enum FindMyPickPeriod
 {
+    ALL("ALL", "전체", Period.ofYears(100)),
     YEAR("YEAR", "1년", Period.ofYears(1)),
     SIX_MONTH("SIX_MONTH", "6개월", Period.ofMonths(6)),
     WEEK("WEEK", "일주일", Period.ofWeeks(1));
