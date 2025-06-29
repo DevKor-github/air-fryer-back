@@ -10,6 +10,7 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
+import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.post.entity.Post;
@@ -36,6 +37,7 @@ public class AppointmentService
     private final PostRepository postRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
+    private final ItemImageService itemImageService;
 
     /// 서비스
 
@@ -627,22 +629,22 @@ public class AppointmentService
             return appointment.getPost().getItem().getId();
         }).toList());
 
-        /// 제품 ID, 대표 이미지 pair 정보 생성
+        /// 제품 ID, 대표 이미지 URL pair 정보 생성
 
-        // Map(제품 id, 대표 이미지) 생성
-        Map<Long, ItemImage> thumbnailMap = thumbnailList.stream()
+        // Map(제품 id, 대표 이미지 URL) 생성
+        Map<Long, String> thumbnailUrlMap = thumbnailList.stream()
                 .collect(Collectors.toMap(
                         itemImage -> itemImage.getItem().getId(),
-                        itemImage -> itemImage
+                        itemImage -> itemImageService.getFullImageUrl(itemImage)
                 ));
 
-        /// 약속, 대표 이미지 pair 정보 생성
+        /// 약속, 대표 이미지 URL pair 정보 생성
 
-        // Map(약속, 대표 이미지) 생성
-        Map<Appointment, Optional<ItemImage>> map = appointmentList.stream()
+        // Map(약속, 대표 이미지 URL) 생성
+        Map<Appointment, Optional<String>> map = appointmentList.stream()
                 .collect(Collectors.toMap(
                         appointment -> appointment,
-                        appointment -> Optional.ofNullable(thumbnailMap.get(appointment.getPost().getItem().getId()))
+                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getPost().getItem().getId()))
                 ));
 
         /// 데이터 반환

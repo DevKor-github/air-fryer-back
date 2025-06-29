@@ -4,7 +4,6 @@ import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.entity.ProductType;
-import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import lombok.AccessLevel;
@@ -26,7 +25,7 @@ public class AppointmentPageRes
     private int currentPage;    // 현재 페이지 번호
     private int totalPages;     // 전체 페이지 개수
 
-    public static AppointmentPageRes of(Map<Appointment, Optional<ItemImage>> map,
+    public static AppointmentPageRes of(Map<Appointment, Optional<String>> map,
                                         PostType postType,
                                         int currentPage,
                                         int totalPages)
@@ -63,7 +62,7 @@ public class AppointmentPageRes
         private int deposit;                // 보증금
         private AppointmentState state;     // 약속 상태
 
-        private static AppointmentInfo from(Appointment appointment, Optional<ItemImage> itemImage)
+        private static AppointmentInfo from(Appointment appointment, Optional<String> imageUrl)
         {
             Post post = appointment.getPost();
             Item item = post.getItem();
@@ -74,7 +73,7 @@ public class AppointmentPageRes
                     .itemId(item.getId())
                     .requesterId(appointment.getRequester().getId())
                     .ownerId(appointment.getOwner().getId())
-                    .fileKey(itemImage.map(ItemImage::getFileKey).orElse(null))
+                    .fileKey(imageUrl.orElse(null))
                     .title(item.getTitle())
                     .description(item.getDescription())
                     .productTypes(item.getProductTypes())
