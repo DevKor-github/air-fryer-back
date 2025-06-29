@@ -9,7 +9,6 @@ import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.item.ItemService;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
-import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.post.dto.CreatePostReq;
 import com.airfryer.repicka.domain.post.dto.PostDetailRes;
 import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
@@ -96,14 +95,13 @@ public class PostService {
         List<Item> items = posts.stream()
             .map(Post::getItem)
             .toList();
-        Map<Long, ItemImage> thumbnailMap = itemImageService.getThumbnailsForItems(items);
+        Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(items);
 
         // 게시글 정보 PostPreviewRes로 정제
         List<PostPreviewRes> postPreviewResList = posts.stream()
             .map(post -> {
                 boolean isAvailable = appointmentService.isPostAvailableOnDate(post.getId(), condition.getDate());
-                ItemImage itemImage = thumbnailMap.get(post.getItem().getId());
-                String thumbnailUrl = itemImageService.getFullImageUrl(itemImage);
+                String thumbnailUrl = thumbnailMap.get(post.getItem().getId());
                 return PostPreviewRes.from(post, thumbnailUrl, isAvailable);
             })
             .toList();

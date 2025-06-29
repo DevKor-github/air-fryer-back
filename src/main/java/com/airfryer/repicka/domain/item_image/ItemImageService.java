@@ -63,7 +63,7 @@ public class ItemImageService {
     }
 
     // 여러 Item의 썸네일을 한 번에 조회
-    public Map<Long, ItemImage> getThumbnailsForItems(List<Item> items) {
+    public Map<Long, String> getThumbnailsForItems(List<Item> items) {
         List<Long> itemIds = items.stream()
                 .map(Item::getId)
                 .collect(Collectors.toList());
@@ -73,7 +73,7 @@ public class ItemImageService {
         return thumbnails.stream()
                 .collect(Collectors.toMap(
                     itemImage -> itemImage.getItem().getId(),
-                    itemImage -> itemImage
+                    itemImage -> getFullImageUrl(itemImage)
                 ));
     }
 }
