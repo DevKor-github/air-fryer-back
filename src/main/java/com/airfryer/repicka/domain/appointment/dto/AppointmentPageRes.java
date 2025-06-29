@@ -51,7 +51,7 @@ public class AppointmentPageRes
         private Long requesterId;       // 대여자(구매자) ID
         private Long ownerId;           // 소유자 ID
 
-        private String imageUrl;            // 이미지 URL
+        private String fileKey;             // 파일 키
         private String title;               // 게시글 제목
         private String description;         // 게시글 설명
         private ProductType[] productTypes; // 제품 타입
@@ -74,7 +74,7 @@ public class AppointmentPageRes
                     .itemId(item.getId())
                     .requesterId(appointment.getRequester().getId())
                     .ownerId(appointment.getOwner().getId())
-                    .imageUrl(itemImage.map(ItemImage::getFileKey).orElse(null))
+                    .fileKey(itemImage.map(ItemImage::getFileKey).orElse(null))
                     .title(item.getTitle())
                     .description(item.getDescription())
                     .productTypes(item.getProductTypes())
