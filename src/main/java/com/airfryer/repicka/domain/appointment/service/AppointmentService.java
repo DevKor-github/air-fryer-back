@@ -761,8 +761,8 @@ public class AppointmentService
         /// 새로운 약속 데이터 생성
 
         // 새로운 약속 데이터 생성
-        Appointment newAppointment = appointment.clone(user);
-        newAppointment.updateAppointment(dto, post.getPostType() == PostType.RENTAL);
+        Appointment newAppointment = appointment.clone();
+        newAppointment.updateAppointment(user, dto, post.getPostType() == PostType.RENTAL);
 
         // 약속 데이터 저장
         appointmentRepository.save(newAppointment);
@@ -829,12 +829,33 @@ public class AppointmentService
 
         /// 대여중 변경 요청 상태의 약속 데이터 생성
 
-        // 약속 데이터 생성
-        Appointment newAppointment = appointment.clone(user);
-        newAppointment.updateAppointment(dto);
+        Appointment newAppointment;
 
-        // 약속 데이터 저장
-        appointmentRepository.save(newAppointment);
+        // 기존의 대여중 변경 요청 조회
+        Optional<Appointment> appointmentOptional = appointmentRepository.findByPostIdAndOwnerAndRequesterAndState(
+                post.getId(),
+                appointment.getOwner(),
+                appointment.getRequester(),
+                AppointmentState.UPDATE_REQUESTED_IN_PROGRESS
+        );
+
+        // 기존의 대여중 변경 요청이 존재하는 경우, 해당 약속 데이터를 변경
+        // 기존의 대여중 변경 요청이 존재하지 않는 경우, 새로운 약속 데이터 생성
+        if(appointmentOptional.isPresent())
+        {
+            // 약속 데이터 변경
+            newAppointment = appointmentOptional.get();
+            newAppointment.updateAppointment(user, dto);
+        }
+        else
+        {
+            // 약속 데이터 생성
+            newAppointment = appointment.clone();
+            newAppointment.updateAppointment(user, dto);
+
+            // 약속 데이터 저장
+            appointmentRepository.save(newAppointment);
+        }
 
         /// 약속 데이터 반환
 

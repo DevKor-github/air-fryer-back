@@ -103,8 +103,9 @@ public class Appointment extends BaseEntity
         this.deposit = 0;
     }
 
-    public void updateAppointment(OfferToUpdateConfirmedAppointmentReq dto, boolean isRental)
+    public void updateAppointment(User user, OfferToUpdateConfirmedAppointmentReq dto, boolean isRental)
     {
+        this.creator = user;
         this.rentalLocation = dto.getRentalLocation();
         this.returnLocation = isRental ? dto.getReturnLocation() : null;
         this.rentalDate = dto.getRentalDate();
@@ -114,8 +115,9 @@ public class Appointment extends BaseEntity
         this.state = AppointmentState.PENDING;
     }
 
-    public void updateAppointment(OfferToUpdateInProgressAppointmentReq dto)
+    public void updateAppointment(User user, OfferToUpdateInProgressAppointmentReq dto)
     {
+        this.creator = user;
         this.returnLocation = dto.getReturnLocation();
         this.returnDate = dto.getReturnDate();
         this.state = AppointmentState.UPDATE_REQUESTED_IN_PROGRESS;
@@ -135,11 +137,11 @@ public class Appointment extends BaseEntity
 
     /// 약속 데이터 복사
 
-    public Appointment clone(User creator)
+    public Appointment clone()
     {
         return Appointment.builder()
                 .post(this.post)
-                .creator(creator)
+                .creator(this.creator)
                 .owner(this.owner)
                 .requester(this.requester)
                 .rentalDate(this.rentalDate)
