@@ -178,7 +178,7 @@ public class AppointmentController
     @PatchMapping("/confirmed-appointment")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerToUpdateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                                @RequestBody OfferToUpdateAppointmentReq dto)
+                                                                                @RequestBody OfferToUpdateConfirmedAppointmentReq dto)
     {
         User user = oAuth2User.getUser();
         AppointmentRes data = appointmentService.offerToUpdateConfirmedAppointment(user, dto);

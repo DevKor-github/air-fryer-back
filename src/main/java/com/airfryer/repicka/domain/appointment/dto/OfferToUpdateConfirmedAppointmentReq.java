@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class OfferToUpdateAppointmentReq
+public class OfferToUpdateConfirmedAppointmentReq
 {
     @NotNull(message = "약속 ID를 입력해주세요.")
     private Long appointmentId;

@@ -655,7 +655,7 @@ public class AppointmentService
 
     // 대여 게시글에서 약속 제시
     @Transactional
-    public AppointmentRes offerToUpdateConfirmedAppointment(User user, OfferToUpdateAppointmentReq dto)
+    public AppointmentRes offerToUpdateConfirmedAppointment(User user, OfferToUpdateConfirmedAppointmentReq dto)
     {
         /// 약속 데이터 조회
 
