@@ -173,4 +173,20 @@ public class AppointmentController
                         .data(data)
                         .build());
     }
+
+    // 확정된 약속 변경 제시
+    @PatchMapping("/confirmed-appointment")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> offerToUpdateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                                @RequestBody OfferToUpdateAppointmentReq dto)
+    {
+        User user = oAuth2User.getUser();
+        AppointmentRes data = appointmentService.offerToUpdateConfirmedAppointment(user, dto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("확정된 약속의 변경을 성공적으로 제시하였습니다.")
+                        .data(data)
+                        .build());
+    }
 }
