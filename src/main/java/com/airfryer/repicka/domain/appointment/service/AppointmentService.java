@@ -3,6 +3,7 @@ package com.airfryer.repicka.domain.appointment.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentPeriod;
+import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
@@ -578,12 +579,12 @@ public class AppointmentService
         return AppointmentRes.from(appointment, post);
     }
 
-    // 내가 requester인 약속 페이지 조회 (나의 PICK 조회)
-    // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
-    public AppointmentPageRes findMyAppointmentPageAsRequester(User requester,
-                                                               Pageable pageable,
-                                                               PostType type,
-                                                               FindMyAppointmentPeriod period)
+    // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
+    public AppointmentPageRes findMyAppointmentPage(User user,
+                                                    Pageable pageable,
+                                                    PostType type,
+                                                    FindMyAppointmentSubject subject,
+                                                    FindMyAppointmentPeriod period)
     {
         /// 검색 시작 날짜
 
@@ -591,9 +592,10 @@ public class AppointmentService
 
         /// 약속 페이지 조회
 
-        Page<Appointment> appointmentPage = appointmentRepository.findMyPickPageByRequesterId(
+        Page<Appointment> appointmentPage = subject.findAppointmentPage(
+                appointmentRepository,
                 pageable,
-                requester.getId(),
+                user,
                 type,
                 searchStartDate
         );

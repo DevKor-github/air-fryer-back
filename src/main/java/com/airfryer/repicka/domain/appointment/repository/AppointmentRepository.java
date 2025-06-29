@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.appointment.repository;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.user.entity.User;
 import org.springframework.data.domain.Page;
@@ -62,10 +61,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                   AND a.state IN ('CONFIRMED', 'IN_PROGRESS', 'SUCCESS')
             """
     )
-    Page<Appointment> findMyPickPageByRequesterId(Pageable pageable,
-                                                  @Param("requesterId") Long requesterId,
-                                                  @Param("type") PostType type,
-                                                  @Param("start") LocalDateTime start);
+    Page<Appointment> findMyAppointmentPageAsRequester(Pageable pageable,
+                                                       @Param("requesterId") Long requesterId,
+                                                       @Param("type") PostType type,
+                                                       @Param("start") LocalDateTime start);
 
     // 소유자 ID, 검색 시작 날짜, 게시글 타입으로 (확정/대여중/완료) 상태인 약속 페이지 조회
     @Query(
@@ -84,8 +83,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                   AND a.state IN ('CONFIRMED', 'IN_PROGRESS', 'SUCCESS')
             """
     )
-    Page<Appointment> findMyPickPageByOwnerId(Pageable pageable,
-                                              @Param("ownerId") Long ownerId,
-                                              @Param("type") PostType type,
-                                              @Param("start") LocalDateTime start);
+    Page<Appointment> findMyAppointmentPageAsOwner(Pageable pageable,
+                                                   @Param("ownerId") Long ownerId,
+                                                   @Param("type") PostType type,
+                                                   @Param("start") LocalDateTime start);
 }

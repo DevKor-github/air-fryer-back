@@ -3,6 +3,7 @@ package com.airfryer.repicka.domain.appointment.controller;
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentPeriod;
+import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.post.entity.PostType;
@@ -133,7 +134,13 @@ public class AppointmentController
                                                                                @RequestParam FindMyAppointmentPeriod period)
     {
         User requester = oAuth2User.getUser();
-        AppointmentPageRes data = appointmentService.findMyAppointmentPageAsRequester(requester, pageable, type, period);
+        AppointmentPageRes data = appointmentService.findMyAppointmentPage(
+                requester,
+                pageable,
+                type,
+                FindMyAppointmentSubject.REQUESTER,
+                period
+        );
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
