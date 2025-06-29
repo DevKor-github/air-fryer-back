@@ -74,7 +74,7 @@ public class AppointmentPageRes
                     .itemId(item.getId())
                     .requesterId(appointment.getRequester().getId())
                     .ownerId(appointment.getOwner().getId())
-                    .imageUrl(itemImage.map(ItemImage::getImageUrl).orElse(null))
+                    .imageUrl(itemImage.map(ItemImage::getFileKey).orElse(null))
                     .title(item.getTitle())
                     .description(item.getDescription())
                     .productTypes(item.getProductTypes())
