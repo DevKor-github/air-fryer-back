@@ -123,21 +123,21 @@ public class AppointmentController
                         .build());
     }
 
-    // 나의 PICK 페이지 조회
+    // 내가 requester인 약속 페이지 조회 (나의 PICK 조회)
     // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
-    @GetMapping("/appointment/my-pick")
+    @GetMapping("/appointment/requester")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public ResponseEntity<SuccessResponseDto> findMyPick(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                         Pageable pageable,
-                                                         @RequestParam PostType type,
-                                                         @RequestParam FindMyAppointmentPeriod period)
+    public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsRequester(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                               Pageable pageable,
+                                                                               @RequestParam PostType type,
+                                                                               @RequestParam FindMyAppointmentPeriod period)
     {
         User requester = oAuth2User.getUser();
-        AppointmentPageRes data = appointmentService.findMyPick(requester, pageable, type, period);
+        AppointmentPageRes data = appointmentService.findMyAppointmentPageAsRequester(requester, pageable, type, period);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
-                        .message("나의 PICK 페이지를 성공적으로 조회하였습니다.")
+                        .message("내가 requester인 약속 페이지를 성공적으로 조회하였습니다.")
                         .data(data)
                         .build());
     }

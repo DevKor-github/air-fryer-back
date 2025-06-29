@@ -578,12 +578,12 @@ public class AppointmentService
         return AppointmentRes.from(appointment, post);
     }
 
-    // 나의 PICK 페이지 조회
+    // 내가 requester인 약속 페이지 조회 (나의 PICK 조회)
     // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
-    public AppointmentPageRes findMyPick(User requester,
-                                         Pageable pageable,
-                                         PostType type,
-                                         FindMyAppointmentPeriod period)
+    public AppointmentPageRes findMyAppointmentPageAsRequester(User requester,
+                                                               Pageable pageable,
+                                                               PostType type,
+                                                               FindMyAppointmentPeriod period)
     {
         /// 검색 시작 날짜
 
