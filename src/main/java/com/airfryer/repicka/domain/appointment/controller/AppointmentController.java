@@ -189,4 +189,20 @@ public class AppointmentController
                         .data(data)
                         .build());
     }
+
+    // 대여 중인 약속 변경 제시
+    @PatchMapping("/in-progress-appointment")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> offerToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                                 @RequestBody OfferToUpdateInProgressAppointmentReq dto)
+    {
+        User user = oAuth2User.getUser();
+        AppointmentRes data = appointmentService.offerToUpdateInProgressAppointment(user, dto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("대여 중인 약속의 변경을 성공적으로 제시하였습니다.")
+                        .data(data)
+                        .build());
+    }
 }

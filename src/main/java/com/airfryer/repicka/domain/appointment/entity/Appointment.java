@@ -4,6 +4,7 @@ import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInRentalPostReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInSalePostReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateConfirmedAppointmentReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateInProgressAppointmentReq;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -111,6 +112,13 @@ public class Appointment extends BaseEntity
         this.price = dto.getPrice();
         this.deposit = isRental ? dto.getDeposit() : 0;
         this.state = AppointmentState.PENDING;
+    }
+
+    public void updateAppointment(OfferToUpdateInProgressAppointmentReq dto)
+    {
+        this.returnLocation = dto.getReturnLocation();
+        this.returnDate = dto.getReturnDate();
+        this.state = AppointmentState.IN_PROGRESS;
     }
 
     /// 약속 확정
