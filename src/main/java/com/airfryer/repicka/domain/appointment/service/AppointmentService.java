@@ -2,7 +2,7 @@ package com.airfryer.repicka.domain.appointment.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.domain.appointment.FindMyPickPeriod;
+import com.airfryer.repicka.domain.appointment.FindMyAppointmentPeriod;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
@@ -583,7 +583,7 @@ public class AppointmentService
     public AppointmentPageRes findMyPick(User requester,
                                          Pageable pageable,
                                          PostType type,
-                                         FindMyPickPeriod period)
+                                         FindMyAppointmentPeriod period)
     {
         /// 검색 시작 날짜
 

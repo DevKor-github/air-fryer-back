@@ -2,7 +2,7 @@ package com.airfryer.repicka.domain.appointment.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.appointment.FindMyPickPeriod;
+import com.airfryer.repicka.domain.appointment.FindMyAppointmentPeriod;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.post.entity.PostType;
@@ -130,7 +130,7 @@ public class AppointmentController
     public ResponseEntity<SuccessResponseDto> findMyPick(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                          Pageable pageable,
                                                          @RequestParam PostType type,
-                                                         @RequestParam FindMyPickPeriod period)
+                                                         @RequestParam FindMyAppointmentPeriod period)
     {
         User requester = oAuth2User.getUser();
         AppointmentPageRes data = appointmentService.findMyPick(requester, pageable, type, period);

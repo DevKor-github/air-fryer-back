@@ -3,13 +3,12 @@ package com.airfryer.repicka.domain.appointment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 
 @Getter
 @AllArgsConstructor
-public enum FindMyPickPeriod
+public enum FindMyAppointmentPeriod
 {
     ALL("ALL", "전체", Period.ofYears(100)),
     YEAR("YEAR", "1년", Period.ofYears(1)),
