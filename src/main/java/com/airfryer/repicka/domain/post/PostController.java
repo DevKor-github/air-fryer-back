@@ -1,5 +1,7 @@
 package com.airfryer.repicka.domain.post;
 
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.post.dto.CreatePostReq;
@@ -8,7 +10,6 @@ import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
 import com.airfryer.repicka.domain.post.dto.SearchPostReq;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +24,19 @@ import java.util.List;
 @RequestMapping("/api/v1/post")
 public class PostController {
     private final PostService postService;
+
+    @GetMapping("/presigned-url")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> getPresignedUrl(@AuthenticationPrincipal CustomOAuth2User user,
+                                                              @Valid @RequestBody PresignedUrlReq req) {
+        PresignedUrlRes presignedUrlRes = postService.getPresignedUrl(req, user.getUser());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("Presigned URL을 성공적으로 생성하였습니다.")
+                        .data(presignedUrlRes)
+                        .build());
+    }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")

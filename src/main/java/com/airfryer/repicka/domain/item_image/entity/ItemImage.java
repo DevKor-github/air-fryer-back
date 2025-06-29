@@ -31,8 +31,8 @@ public class ItemImage extends BaseEntity
     @JoinColumn(name = "item")
     private Item item;
 
-    // 이미지 URL
+    // 이미지 파일 키 (S3 내부 경로)
     @NotNull
-    @Column(length = 2100)
-    private String imageUrl;
+    @Column(length = 500)
+    private String fileKey;
 }

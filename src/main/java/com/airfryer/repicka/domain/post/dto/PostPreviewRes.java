@@ -1,7 +1,6 @@
 package com.airfryer.repicka.domain.post.dto;
 
 import com.airfryer.repicka.domain.item.entity.ProductType;
-import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import lombok.Builder;
@@ -29,13 +28,13 @@ public class PostPreviewRes {
 
     private boolean isAvailable;
 
-    public static PostPreviewRes from(Post post, ItemImage itemImage, boolean isAvailable) {
+    public static PostPreviewRes from(Post post, String thumbnailUrl, boolean isAvailable) {
         return PostPreviewRes.builder()
                 .id(post.getId())
                 .postType(post.getPostType())
                 .title(post.getItem().getTitle())
                 .productTypes(post.getItem().getProductTypes())
-                .thumbnail(itemImage.getImageUrl())
+                .thumbnail(thumbnailUrl)
                 .price(post.getPrice())
                 .likeCount(post.getLikeCount())
                 .chatRoomCount(post.getChatRoomCount())

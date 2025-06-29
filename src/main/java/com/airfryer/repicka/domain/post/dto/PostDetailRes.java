@@ -1,12 +1,9 @@
 package com.airfryer.repicka.domain.post.dto;
 
 import com.airfryer.repicka.domain.item.dto.BaseItemDto;
-import com.airfryer.repicka.domain.item.entity.*;
-import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.user.dto.BaseUserDto;
-import com.airfryer.repicka.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -34,11 +31,7 @@ public class PostDetailRes {
     private List<String> images = new ArrayList<>();
 
     // user, item, post, imageUrl로 PostDetailRes 반환하는 정적 팩토리 메서드
-    public static PostDetailRes from(Post post, List<ItemImage> itemImages) {
-        List<String> urls = new ArrayList<>();
-        for (ItemImage image : itemImages) {
-            urls.add(image.getImageUrl());
-        }
+    public static PostDetailRes from(Post post, List<String> imageUrls) {
 
         return PostDetailRes.builder()
                 .id(post.getId())
@@ -47,7 +40,7 @@ public class PostDetailRes {
                 .postType(post.getPostType())
                 .price(post.getPrice())
                 .deposit(post.getDeposit())
-                .images(urls)
+                .images(imageUrls)
                 .build();
     }
 }
