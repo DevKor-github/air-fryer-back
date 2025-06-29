@@ -118,7 +118,7 @@ public class Appointment extends BaseEntity
     {
         this.returnLocation = dto.getReturnLocation();
         this.returnDate = dto.getReturnDate();
-        this.state = AppointmentState.IN_PROGRESS;
+        this.state = AppointmentState.UPDATE_REQUESTED_IN_PROGRESS;
     }
 
     /// 약속 확정

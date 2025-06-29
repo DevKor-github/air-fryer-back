@@ -827,16 +827,17 @@ public class AppointmentService
             }
         }
 
-        // TODO: 대여 중인 약속 변경 요청을 저장해야 함.
+        /// 대여중 변경 요청 상태의 약속 데이터 생성
 
-        /// 약속 데이터 반환
-
-        // 반환할 약속 데이터 생성
-        // * 확정된 변경 요청이 아니므로 저장하지 않습니다!
+        // 약속 데이터 생성
         Appointment newAppointment = appointment.clone(user);
         newAppointment.updateAppointment(dto);
 
-        // 약속 데이터 반환
+        // 약속 데이터 저장
+        appointmentRepository.save(newAppointment);
+
+        /// 약속 데이터 반환
+
         return AppointmentRes.from(newAppointment, post);
     }
 
