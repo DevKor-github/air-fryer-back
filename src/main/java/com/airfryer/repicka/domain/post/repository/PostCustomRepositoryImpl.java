@@ -1,6 +1,5 @@
 package com.airfryer.repicka.domain.post.repository;
 
-import com.airfryer.repicka.domain.item.entity.ProductType;
 import com.airfryer.repicka.domain.item.entity.QItem;
 import com.airfryer.repicka.domain.post.dto.PostOrder;
 import com.airfryer.repicka.domain.post.dto.SearchPostReq;
@@ -10,7 +9,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -38,9 +36,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
             builder.and(item.title.containsIgnoreCase(condition.getKeyword()));
         }
 
-        if (condition.getProductTypes() != null) {
-            // TODO: ProductType에 따라서 필터링 진행
-        }
+        // 제품 타입 필터링은 Service에서 별도 처리
 
         if (condition.getSize() != null) {
             builder.and(item.size.eq(condition.getSize()));

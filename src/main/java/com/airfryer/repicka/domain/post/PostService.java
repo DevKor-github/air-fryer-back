@@ -20,8 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -75,19 +76,32 @@ public class PostService {
     }
 
     // 게시글 목록 검색
-    @Transactional(readOnly = true)
     public List<PostPreviewRes> searchPostList(SearchPostReq condition) {
         // 태그로 게시글 리스트 찾기
         List<Post> posts = postRepository.findPostsByCondition(condition);
 
+        // ProductType 필터링
+        if (condition.getProductType() != null) {
+            posts = posts.stream()
+                .filter(post -> Arrays.stream(post.getItem().getProductTypes())
+                    .anyMatch(productType -> productType == condition.getProductType()))
+                .toList();
+        }
+
+        // 모든 Item의 썸네일 배치 조회
+        List<Item> items = posts.stream()
+            .map(Post::getItem)
+            .toList();
+        Map<Long, ItemImage> thumbnailMap = itemImageService.getThumbnailsForItems(items);
+
         // 게시글 정보 PostPreviewRes로 정제
         List<PostPreviewRes> postPreviewResList = posts.stream()
-                .map(post -> {
-                    boolean isAvailable = appointmentService.isPostAvailableOnDate(post.getId(), condition.getDate()); // 원하는 날짜에 대여나 구매 가능 여부
-                    ItemImage itemImage = itemImageService.getThumbnail(post.getItem()); // 대표 사진
-                    return PostPreviewRes.from(post, itemImage, isAvailable);
-                })
-                .toList();
+            .map(post -> {
+                boolean isAvailable = appointmentService.isPostAvailableOnDate(post.getId(), condition.getDate());
+                ItemImage itemImage = thumbnailMap.get(post.getItem().getId());
+                return PostPreviewRes.from(post, itemImage, isAvailable);
+            })
+            .toList();
 
         return postPreviewResList;
     }
