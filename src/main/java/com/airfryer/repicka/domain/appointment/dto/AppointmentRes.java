@@ -1,6 +1,7 @@
 package com.airfryer.repicka.domain.appointment.dto;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
+import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import lombok.AccessLevel;
@@ -40,6 +41,23 @@ public class AppointmentRes
                 .returnLocation(appointment.getReturnLocation())
                 .price(appointment.getPrice())
                 .deposit(appointment.getDeposit())
+                .build();
+    }
+
+    public static AppointmentRes from(UpdateInProgressAppointment updateInProgressAppointment, Post post)
+    {
+        return AppointmentRes.builder()
+                .appointmentId(updateInProgressAppointment.getAppointment().getId())
+                .postId(post.getId())
+                .ownerId(updateInProgressAppointment.getAppointment().getOwner().getId())
+                .borrowerId(updateInProgressAppointment.getAppointment().getRequester().getId())
+                .type(post.getPostType())
+                .rentalDate(updateInProgressAppointment.getAppointment().getRentalDate())
+                .returnDate(updateInProgressAppointment.getReturnDate())
+                .rentalLocation(updateInProgressAppointment.getAppointment().getRentalLocation())
+                .returnLocation(updateInProgressAppointment.getReturnLocation())
+                .price(updateInProgressAppointment.getAppointment().getPrice())
+                .deposit(updateInProgressAppointment.getAppointment().getDeposit())
                 .build();
     }
 }

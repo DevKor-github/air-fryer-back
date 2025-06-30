@@ -35,12 +35,15 @@ public enum CustomExceptionCode
     APPOINTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "약속 데이터를 찾을 수 없습니다."),
     RETURN_DATE_NOT_FOUND(HttpStatus.NOT_FOUND, "대여 약속 제시에서 반납 일시는 필수적입니다."),
     RENTAL_DATE_IS_LATER_THAN_RETURN_DATE(HttpStatus.BAD_REQUEST, "대여 일시는 반납 일시보다 이전이어야 합니다."),
+    CURRENT_DATE_IS_LATER_THAN_RETURN_DATE(HttpStatus.BAD_REQUEST, "반납 일시는 현재 이후여야 합니다."),
     INVALID_LOCATION(HttpStatus.BAD_REQUEST, "입력한 장소 형식이 올바르지 않습니다."),
     PRICE_IS_NEGATIVE(HttpStatus.BAD_REQUEST, "가격은 0 또는 양수여야 합니다."),
     CREATOR_CANNOT_AGREE(HttpStatus.BAD_REQUEST, "본인이 제시한 약속을 본인이 확정할 수는 없습니다."),
     ALREADY_RENTAL_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 대여 약속이 예정되어 있습니다."),
     ALREADY_SALE_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 판매 약속이 예정되어 있습니다."),
     NOT_PENDING_APPOINTMENT(HttpStatus.CONFLICT, "제시 중인 약속이 아닙니다."),
+    NOT_CONFIRMED_APPOINTMENT(HttpStatus.CONFLICT, "확정된 약속이 아닙니다."),
+    NOT_IN_PROGRESS_APPOINTMENT(HttpStatus.CONFLICT, "대여 중인 약속이 아닙니다."),
     APPOINTMENT_CANNOT_CANCELLED(HttpStatus.CONFLICT, "취소할 수 없는 상태입니다."),
 
     // 파일 관련 예외

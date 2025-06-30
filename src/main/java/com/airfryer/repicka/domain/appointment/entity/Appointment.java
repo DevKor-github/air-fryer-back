@@ -3,6 +3,8 @@ package com.airfryer.repicka.domain.appointment.entity;
 import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInRentalPostReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInSalePostReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateConfirmedAppointmentReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateInProgressAppointmentReq;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -21,7 +23,6 @@ import java.time.LocalDateTime;
 @Builder
 public class Appointment extends BaseEntity
 {
-    // 약속 식별자
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -101,6 +102,18 @@ public class Appointment extends BaseEntity
         this.deposit = 0;
     }
 
+    public void updateAppointment(User user, OfferToUpdateConfirmedAppointmentReq dto, boolean isRental)
+    {
+        this.creator = user;
+        this.rentalLocation = dto.getRentalLocation();
+        this.returnLocation = isRental ? dto.getReturnLocation() : null;
+        this.rentalDate = dto.getRentalDate();
+        this.returnDate = isRental ? dto.getReturnDate() : null;
+        this.price = dto.getPrice();
+        this.deposit = isRental ? dto.getDeposit() : 0;
+        this.state = AppointmentState.PENDING;
+    }
+
     /// 약속 확정
 
     public void confirmAppointment() {
@@ -111,5 +124,24 @@ public class Appointment extends BaseEntity
 
     public void cancelAppointment() {
         this.state = AppointmentState.CANCELLED;
+    }
+
+    /// 약속 데이터 복사
+
+    public Appointment clone()
+    {
+        return Appointment.builder()
+                .post(this.post)
+                .creator(this.creator)
+                .owner(this.owner)
+                .requester(this.requester)
+                .rentalDate(this.rentalDate)
+                .returnDate(this.returnDate)
+                .rentalLocation(this.rentalLocation)
+                .returnLocation(this.returnLocation)
+                .price(this.price)
+                .deposit(this.deposit)
+                .state(this.state)
+                .build();
     }
 }
