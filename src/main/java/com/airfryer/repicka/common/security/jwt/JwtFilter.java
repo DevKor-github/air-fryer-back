@@ -6,6 +6,7 @@ import com.airfryer.repicka.domain.user.entity.User;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,29 +31,40 @@ public class JwtFilter extends OncePerRequestFilter
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException
     {
-        String authorizationHeader = request.getHeader("Authorization");
+        // 모든 쿠키 가져오기
+        Cookie[] cookies = request.getCookies();
 
-        // 헤더에 토큰이 존재하는지 체크
-        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer "))
+        if(cookies != null)
         {
-            String accessToken = authorizationHeader.substring(7);
-
-            // 토큰이 유효한지 체크
-            if(jwtUtil.checkToken(accessToken))
+            // 쿠키 순회
+            for (Cookie cookie : cookies)
             {
-                Long id = jwtUtil.getUserIdFromToken(accessToken);
-                User user = userRepository.findById(id).orElse(null);
+                // 쿠키 이름 조회
+                String name = cookie.getName();
 
-                // 존재하는 계정인지 체크
-                if(user != null)
+                if (name.equals("accessToken"))
                 {
-                    OAuth2User oAuth2User = new CustomOAuth2User(user);
+                    // 쿠키 값 조회
+                    String accessToken = cookie.getValue();
 
-                    // 접근 권한 인증 토큰 생성
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(oAuth2User, null, oAuth2User.getAuthorities());
+                    // 토큰이 유효한지 체크
+                    if(jwtUtil.checkToken(accessToken))
+                    {
+                        Long id = jwtUtil.getUserIdFromToken(accessToken);
+                        User user = userRepository.findById(id).orElse(null);
 
-                    // 현재 요청의 security context에 접근 권한 부여
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                        // 존재하는 계정인지 체크
+                        if(user != null)
+                        {
+                            OAuth2User oAuth2User = new CustomOAuth2User(user);
+
+                            // 접근 권한 인증 토큰 생성
+                            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(oAuth2User, null, oAuth2User.getAuthorities());
+
+                            // 현재 요청의 security context에 접근 권한 부여
+                            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                        }
+                    }
                 }
             }
         }
