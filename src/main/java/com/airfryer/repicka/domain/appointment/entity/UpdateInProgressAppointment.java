@@ -38,4 +38,11 @@ public class UpdateInProgressAppointment
     @NotNull
     @Column(length = 255)
     private String returnLocation;
+
+    /// 데이터 변경
+
+    public void update(LocalDateTime returnDate, String returnLocation) {
+        this.returnDate = returnDate;
+        this.returnLocation = returnLocation;
+    }
 }

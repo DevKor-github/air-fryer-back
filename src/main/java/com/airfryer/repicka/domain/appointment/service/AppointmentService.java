@@ -7,7 +7,9 @@ import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.appointment.repository.UpdateInProgressAppointmentRepository;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 public class AppointmentService
 {
     private final AppointmentRepository appointmentRepository;
+    private final UpdateInProgressAppointmentRepository updateInProgressAppointmentRepository;
     private final PostRepository postRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
@@ -827,39 +830,41 @@ public class AppointmentService
             }
         }
 
-        /// 대여중 변경 요청 상태의 약속 데이터 생성
+        /// 대여중 약속 변경 요청 데이터 생성
 
-        Appointment newAppointment;
+        UpdateInProgressAppointment updateInProgressAppointment;
 
-        // 기존의 대여중 변경 요청 조회
-        List<Appointment> appointmentOptional = appointmentRepository.findByPostIdAndOwnerIdAndRequesterIdAndState(
-                post.getId(),
-                appointment.getOwner().getId(),
-                appointment.getRequester().getId(),
-                AppointmentState.UPDATE_REQUESTED_IN_PROGRESS
+        // 대여중 약속 변경 요청 데이터 조회
+        Optional<UpdateInProgressAppointment> updateInProgressAppointmentOptional = updateInProgressAppointmentRepository.findByAppointmentIdAndCreatorId(
+                appointment.getId(),
+                user.getId()
         );
 
-        // 기존의 대여중 변경 요청이 존재하는 경우, 해당 약속 데이터를 변경
-        // 기존의 대여중 변경 요청이 존재하지 않는 경우, 새로운 약속 데이터 생성
-        if(!appointmentOptional.isEmpty())
+        // 기존의 대여중 변경 요청이 존재하는 경우, 해당 데이터를 변경
+        // 기존의 대여중 변경 요청이 존재하지 않는 경우, 새로운 데이터 생성
+        if(!updateInProgressAppointmentOptional.isEmpty())
         {
-            // 약속 데이터 변경
-            newAppointment = appointmentOptional.getFirst();
-            newAppointment.updateAppointment(user, dto);
+            // 대여중 약속 변경 요청 데이터 변경
+            updateInProgressAppointment = updateInProgressAppointmentOptional.get();
+            updateInProgressAppointment.update(dto.getReturnDate(), dto.getReturnLocation());
         }
         else
         {
-            // 약속 데이터 생성
-            newAppointment = appointment.clone();
-            newAppointment.updateAppointment(user, dto);
+            // 대여중 약속 변경 요청 데이터 생성
+            updateInProgressAppointment = UpdateInProgressAppointment.builder()
+                    .appointment(appointment)
+                    .creator(user)
+                    .returnDate(dto.getReturnDate())
+                    .returnLocation(dto.getReturnLocation())
+                    .build();
 
-            // 약속 데이터 저장
-            appointmentRepository.save(newAppointment);
+            // 대여중 약속 변경 요청 데이터 저장
+            updateInProgressAppointmentRepository.save(updateInProgressAppointment);
         }
 
         /// 약속 데이터 반환
 
-        return AppointmentRes.from(newAppointment, post);
+        return AppointmentRes.from(updateInProgressAppointment, post);
     }
 
     /// 공통 로직

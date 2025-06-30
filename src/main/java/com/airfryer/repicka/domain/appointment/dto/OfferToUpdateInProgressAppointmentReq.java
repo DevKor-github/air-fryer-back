@@ -14,6 +14,7 @@ public class OfferToUpdateInProgressAppointmentReq
     @NotNull(message = "약속 ID를 입력해주세요.")
     private Long appointmentId;
 
+    @NotNull(message = "반납 장소를 입력해주세요.")
     @Size(max = 255, message = "반납 장소는 최대 255자까지 입력할 수 있습니다.")
     private String returnLocation;
 
