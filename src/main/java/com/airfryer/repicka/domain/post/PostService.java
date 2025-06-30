@@ -113,4 +113,41 @@ public class PostService {
         return s3Service.generatePresignedUrl(req, "post");
     }
 
+    public List<PostDetailRes> updatePost(Long postId, CreatePostReq req, User user) {
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
+
+        // 게시글 작성자 권한 확인
+        if (!post.getWriter().getId().equals(user.getId())) {
+            throw new CustomException(CustomExceptionCode.ACCESS_DENIED, "해당 게시글의 수정 권한이 없습니다.");
+        }
+
+        // 제품 수정
+        Item updatedItem = itemService.updateItem(post.getItem().getId(), req.getItem());
+
+        // 같은 제품의 게시글 모두 수정
+        List<Post> postsWithSameItem = postRepository.findByItemId(post.getItem().getId());
+        for (Post postWithSameItem : postsWithSameItem) {
+            postWithSameItem.updatePriceAndDeposit(postWithSameItem.getPostType() == PostType.RENTAL ? req.getRentalFee() : req.getSalePrice(),
+                postWithSameItem.getPostType() == PostType.RENTAL ? req.getDeposit() : 0);
+        }
+
+        return postsWithSameItem.stream()
+            .map(postWithSameItem -> PostDetailRes.from(postWithSameItem, itemImageService.getItemImages(updatedItem)))
+            .toList();
+    }   
+
+    public void deletePost(Long postId, User user) {
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
+        
+        // 게시글 작성자 권한 확인
+        if (!post.getWriter().getId().equals(user.getId())) {
+            throw new CustomException(CustomExceptionCode.ACCESS_DENIED, "해당 게시글의 삭제 권한이 없습니다.");
+        }
+
+        postRepository.delete(post);
+    }
 }

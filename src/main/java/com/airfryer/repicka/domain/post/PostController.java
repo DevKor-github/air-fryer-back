@@ -51,6 +51,32 @@ public class PostController {
                         .build());
     }
 
+    @PutMapping("/{postId}")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> updatePost(@AuthenticationPrincipal CustomOAuth2User user,
+                                                          @PathVariable(value="postId") Long postId,
+                                                          @Valid @RequestBody CreatePostReq req) {
+        List<PostDetailRes> postDetailResList = postService.updatePost(postId, req, user.getUser());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("게시글을 성공적으로 수정하였습니다.")
+                        .data(postDetailResList)
+                        .build());
+    }
+
+    @DeleteMapping("/{postId}")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> deletePost(@AuthenticationPrincipal CustomOAuth2User user,
+                                                          @PathVariable(value="postId") Long postId) {
+        postService.deletePost(postId, user.getUser());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("게시글을 성공적으로 삭제하였습니다.")
+                        .build());
+    }
+
     @GetMapping("/{postId}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId) {
