@@ -1,72 +1,91 @@
 package com.airfryer.repicka.domain.post.repository;
 
-import com.airfryer.repicka.domain.item.entity.QItem;
 import com.airfryer.repicka.domain.post.dto.PostOrder;
 import com.airfryer.repicka.domain.post.dto.SearchPostReq;
 import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.entity.QPost;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class PostCustomRepositoryImpl implements PostCustomRepository {
 
-    private final JPAQueryFactory queryFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    public PostCustomRepositoryImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
-
-    // 태그 기반 게시글 검색
+    // 태그 기반 게시글 검색 - 네이티브 쿼리 방식
     @Override
     public List<Post> findPostsByCondition(SearchPostReq condition) {
-        QPost post = QPost.post;
-        QItem item = QItem.item;
-        int offset = condition.getPage() * 10;
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT p.* FROM post p ")
+                   .append("JOIN item i ON p.item = i.id ")
+                   .append("WHERE 1=1 ");
 
-        BooleanBuilder builder = new BooleanBuilder();
+        List<Object> parameters = new ArrayList<>();
+        int paramIndex = 1;
 
+        // 키워드 조건
         if (StringUtils.hasText(condition.getKeyword())) {
-            builder.and(item.title.containsIgnoreCase(condition.getKeyword()));
+            queryBuilder.append("AND LOWER(i.title) LIKE ?").append(paramIndex).append(" ");
+            parameters.add("%" + condition.getKeyword().toLowerCase() + "%");
+            paramIndex++;
         }
 
-        // 제품 타입 필터링은 Service에서 별도 처리
+        // 제품 타입 필터링 - PostgreSQL 배열 연산자 사용
+        if (condition.getProductType() != null) {
+            queryBuilder.append("AND ?").append(paramIndex).append(" = ANY(i.product_type) ");
+            parameters.add(condition.getProductType().name());
+            paramIndex++;
+        }
 
+        // 사이즈 조건
         if (condition.getSize() != null) {
-            builder.and(item.size.eq(condition.getSize()));
+            queryBuilder.append("AND i.size = ?").append(paramIndex).append(" ");
+            parameters.add(condition.getSize().name());
+            paramIndex++;
         }
 
+        // 색상 조건
         if (condition.getColor() != null) {
-            builder.and(item.color.eq(condition.getColor()));
+            queryBuilder.append("AND i.color = ?").append(paramIndex).append(" ");
+            parameters.add(condition.getColor().name());
+            paramIndex++;
         }
 
+        // 게시글 타입 조건
         if (condition.getPostType() != null) {
-            builder.and(post.postType.eq(condition.getPostType()));
+            queryBuilder.append("AND p.post_type = ?").append(paramIndex).append(" ");
+            parameters.add(condition.getPostType().name());
+            paramIndex++;
         }
 
-        OrderSpecifier<?>[] orderSpecifiers = getOrderSpecifiers(condition.getPostOrder(), post, item);
+        // 정렬 조건
+        queryBuilder.append(getOrderByClause(condition.getPostOrder()));
+        
+        // 페이징
+        queryBuilder.append("LIMIT 10 OFFSET ?").append(paramIndex);
+        parameters.add(condition.getPage() * 10);
 
-        return queryFactory
-                .selectFrom(post)
-                .join(post.item, item).fetchJoin()
-                .where(builder)
-                .orderBy(orderSpecifiers)
-                .offset(offset)
-                .limit(10)
-                .fetch();
+        Query query = entityManager.createNativeQuery(queryBuilder.toString(), Post.class);
+        
+        // 파라미터 바인딩
+        for (int i = 0; i < parameters.size(); i++) {
+            query.setParameter(i + 1, parameters.get(i));
+        }
+
+        return query.getResultList();
     }
 
-    private OrderSpecifier<?>[] getOrderSpecifiers(PostOrder postOrder, QPost post, QItem item) {
+    private String getOrderByClause(PostOrder postOrder) {
         return switch (postOrder) {
-            case PostOrder.RECENT -> new OrderSpecifier[]{item.repostDate.desc()};
-            case PostOrder.LIKE -> new OrderSpecifier[]{post.likeCount.desc()};
-            case PostOrder.PRICE -> new OrderSpecifier[]{post.price.asc()};
+            case PostOrder.RECENT -> "ORDER BY i.repost_date DESC ";
+            case PostOrder.LIKE -> "ORDER BY p.like_count DESC ";
+            case PostOrder.PRICE -> "ORDER BY p.price ASC ";
         };
     }
 }
