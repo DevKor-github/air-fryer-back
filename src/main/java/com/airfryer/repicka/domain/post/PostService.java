@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -146,6 +147,11 @@ public class PostService {
         // 게시글 작성자 권한 확인
         if (!post.getWriter().getId().equals(user.getId())) {
             throw new CustomException(CustomExceptionCode.ACCESS_DENIED, "해당 게시글의 삭제 권한이 없습니다.");
+        }
+
+        // 게시글 삭제 전 확정된 약속이 있는지 확인
+        if (appointmentService.isPostAvailableOnInterval(postId, LocalDateTime.now())) {
+            throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_POST, null);
         }
 
         postRepository.delete(post);

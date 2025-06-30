@@ -894,6 +894,15 @@ public class AppointmentService
         ).isEmpty();
     }
 
+    public boolean isPostAvailableOnInterval(Long postId, LocalDateTime startDate)
+    {
+        return appointmentRepository.findListOverlappingWithPeriod(
+                postId,
+                AppointmentState.CONFIRMED,
+                startDate
+        ).isEmpty();
+    }
+
     // 제품 구매가 가능한 첫 날짜 조회
     public LocalDate getFirstSaleAvailableDate(Long itemId)
     {
