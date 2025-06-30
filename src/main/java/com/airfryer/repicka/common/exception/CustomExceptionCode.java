@@ -21,6 +21,7 @@ public enum CustomExceptionCode
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 데이터를 찾을 수 없습니다."),
 
     // 제품(Item) 관련 예외
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "제품 데이터를 찾을 수 없습니다."),
     DEAL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "가격 협의가 불가능한 제품입니다."),
     ALREADY_SALE_RESERVED(HttpStatus.CONFLICT, "이미 판매가 예정된 제품입니다."),
 
