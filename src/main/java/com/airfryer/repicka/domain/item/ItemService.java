@@ -3,6 +3,9 @@ package com.airfryer.repicka.domain.item;
 import com.airfryer.repicka.domain.item.dto.CreateItemReq;
 import com.airfryer.repicka.domain.item.entity.*;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
+import com.airfryer.repicka.common.exception.CustomException;
+import com.airfryer.repicka.common.exception.CustomExceptionCode;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,17 @@ public class ItemService {
                 .repostDate(LocalDateTime.now())
                 .build();
 
+        item = itemRepository.save(item);
+
+        return item;
+    }
+
+    @Transactional
+    public Item updateItem(Long itemId, CreateItemReq itemDetail) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        item.updateItem(itemDetail);
         item = itemRepository.save(item);
 
         return item;
