@@ -11,6 +11,7 @@ public enum CustomExceptionCode
     // 권한 관련 예외
     NOT_LOGIN(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     LOW_AUTHORITY(HttpStatus.UNAUTHORIZED, "권한이 부족합니다."),
+    ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "접근 인가에 실패하였습니다."),
 
     // 토큰 관련 예외
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Refresh token이 존재하지 않습니다."),

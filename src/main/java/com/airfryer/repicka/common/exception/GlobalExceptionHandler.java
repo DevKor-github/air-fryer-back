@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -30,6 +33,45 @@ public class GlobalExceptionHandler
                         .code(e.getCode().name())
                         .message(e.getCode().getMessage())
                         .data(e.getData())
+                        .build());
+    }
+
+    // 권한이 없는 요청 예외 처리
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ExceptionResponseDto> handleAuthenticationException(AuthenticationException e) {
+        log.error("접근 권한 누락: ", e);
+
+        return ResponseEntity.status(CustomExceptionCode.NOT_LOGIN.getHttpStatus())
+                .body(ExceptionResponseDto.builder()
+                        .code(CustomExceptionCode.NOT_LOGIN.name())
+                        .message(CustomExceptionCode.NOT_LOGIN.getMessage())
+                        .data(null)
+                        .build());
+    }
+
+    // 권한이 부족한 요청 예외 처리
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionResponseDto> handleAccessDeniedException(AccessDeniedException e) {
+        log.error("접근 권한 부족: ", e);
+
+        return ResponseEntity.status(CustomExceptionCode.LOW_AUTHORITY.getHttpStatus())
+                .body(ExceptionResponseDto.builder()
+                        .code(CustomExceptionCode.LOW_AUTHORITY.name())
+                        .message(CustomExceptionCode.LOW_AUTHORITY.getMessage())
+                        .data(null)
+                        .build());
+    }
+
+    // 접근 인가 실패
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ExceptionResponseDto> handleAuthorizationDenied(AuthorizationDeniedException e) {
+        log.error("접근 인가 실패: ", e);
+
+        return ResponseEntity.status(CustomExceptionCode.ACCESS_DENIED.getHttpStatus())
+                .body(ExceptionResponseDto.builder()
+                        .code(CustomExceptionCode.ACCESS_DENIED.name())
+                        .message(CustomExceptionCode.ACCESS_DENIED.getMessage())
+                        .data(null)
                         .build());
     }
 
