@@ -3,6 +3,9 @@ package com.airfryer.repicka.domain.post;
 import com.airfryer.repicka.common.aws.s3.S3Service;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
+import com.airfryer.repicka.common.aws.s3.S3Service;
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
@@ -24,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Map;
 
 @Service
@@ -36,12 +41,14 @@ public class PostService {
     private final ItemImageService itemImageService;
     private final AppointmentService appointmentService;
     private final S3Service s3Service;
+    private final S3Service s3Service;
 
     // 게시글 생성
     @Transactional
     public List<PostDetailRes> createPostWithItemAndImages(CreatePostReq postDetail, User user) {
         // 상품, 상품 이미지 저장
         Item item = itemService.createItem(postDetail.getItem());
+        itemImageService.createItemImage(postDetail.getImages(), item);
         itemImageService.createItemImage(postDetail.getImages(), item);
 
         // 게시글 타입에 따라 저장
@@ -64,6 +71,7 @@ public class PostService {
         // 각 Post에 대해 PostDetailRes 생성
         List<PostDetailRes> postDetailResList = posts.stream()
                 .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem())); })
+                .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem())); })
                 .toList();
 
         return postDetailResList;
@@ -75,7 +83,9 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
 
         List<String> imageUrls = itemImageService.getItemImages(post.getItem());
+        List<String> imageUrls = itemImageService.getItemImages(post.getItem());
 
+        return PostDetailRes.from(post, imageUrls);
         return PostDetailRes.from(post, imageUrls);
     }
 
@@ -83,6 +93,20 @@ public class PostService {
     public List<PostPreviewRes> searchPostList(SearchPostReq condition) {
         // 태그로 게시글 리스트 찾기
         List<Post> posts = postRepository.findPostsByCondition(condition);
+
+        // ProductType 필터링
+        if (condition.getProductType() != null) {
+            posts = posts.stream()
+                .filter(post -> Arrays.stream(post.getItem().getProductTypes())
+                    .anyMatch(productType -> productType == condition.getProductType()))
+                .toList();
+        }
+
+        // 모든 Item의 썸네일 배치 조회
+        List<Item> items = posts.stream()
+            .map(Post::getItem)
+            .toList();
+        Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(items);
 
         // ProductType 필터링
         if (condition.getProductType() != null) {
