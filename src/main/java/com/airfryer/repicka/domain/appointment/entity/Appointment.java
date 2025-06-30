@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 @Builder
 public class Appointment extends BaseEntity
 {
-    // 약속 식별자
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
