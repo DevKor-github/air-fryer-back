@@ -115,18 +115,18 @@ public class AppointmentService
         /// 게시글 작성자와 대여자 간의 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 약속 데이터를 생성
 
         // 게시글 작성자와 대여자 간의 협의 중인 약속 데이터 조회
-        Optional<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerAndRequesterAndState(
+        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerIdAndRequesterIdAndState(
                 post.getId(),
-                post.getWriter(),
-                borrower,
+                post.getWriter().getId(),
+                borrower.getId(),
                 AppointmentState.PENDING
         );
 
         // 협의 중인 약속 데이터가 존재하는 경우, 기존 약속 데이터를 수정
-        if(pendingAppointmentOptional.isPresent())
+        if(!pendingAppointmentOptional.isEmpty())
         {
             // 기존에 존재하던 약속 데이터
-            Appointment pendingAppointment = pendingAppointmentOptional.get();
+            Appointment pendingAppointment = pendingAppointmentOptional.getFirst();
 
             // 약속 데이터 수정
             pendingAppointment.updateAppointment(dto);
@@ -218,18 +218,18 @@ public class AppointmentService
         /// 게시글 작성자와 구매자 간의 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 약속 데이터를 생성
 
         // 게시글 작성자와 구매자 간의 협의 중인 약속 데이터 조회
-        Optional<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerAndRequesterAndState(
+        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerIdAndRequesterIdAndState(
                 post.getId(),
-                post.getWriter(),
-                buyer,
+                post.getWriter().getId(),
+                buyer.getId(),
                 AppointmentState.PENDING
         );
 
         // 협의 중인 약속 데이터가 존재하는 경우, 기존 약속 데이터를 수정
-        if(pendingAppointmentOptional.isPresent())
+        if(!pendingAppointmentOptional.isEmpty())
         {
             // 기존에 존재하던 약속 데이터
-            Appointment pendingAppointment = pendingAppointmentOptional.get();
+            Appointment pendingAppointment = pendingAppointmentOptional.getFirst();
 
             // 약속 데이터 수정
             pendingAppointment.updateAppointment(dto);
@@ -832,19 +832,19 @@ public class AppointmentService
         Appointment newAppointment;
 
         // 기존의 대여중 변경 요청 조회
-        Optional<Appointment> appointmentOptional = appointmentRepository.findByPostIdAndOwnerAndRequesterAndState(
+        List<Appointment> appointmentOptional = appointmentRepository.findByPostIdAndOwnerIdAndRequesterIdAndState(
                 post.getId(),
-                appointment.getOwner(),
-                appointment.getRequester(),
+                appointment.getOwner().getId(),
+                appointment.getRequester().getId(),
                 AppointmentState.UPDATE_REQUESTED_IN_PROGRESS
         );
 
         // 기존의 대여중 변경 요청이 존재하는 경우, 해당 약속 데이터를 변경
         // 기존의 대여중 변경 요청이 존재하지 않는 경우, 새로운 약속 데이터 생성
-        if(appointmentOptional.isPresent())
+        if(!appointmentOptional.isEmpty())
         {
             // 약속 데이터 변경
-            newAppointment = appointmentOptional.get();
+            newAppointment = appointmentOptional.getFirst();
             newAppointment.updateAppointment(user, dto);
         }
         else
