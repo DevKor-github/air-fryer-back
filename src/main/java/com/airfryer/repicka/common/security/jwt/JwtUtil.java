@@ -49,6 +49,7 @@ public class JwtUtil
     {
         return ResponseCookie.from(tokenType.getName(), token)
                 .httpOnly(tokenType.isHttpOnly())
+                .domain("devkor-github.github.io/repicka-web")
                 .sameSite("None")
                 .secure(true)
                 .path("/")
