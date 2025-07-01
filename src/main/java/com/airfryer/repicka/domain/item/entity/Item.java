@@ -1,8 +1,9 @@
 package com.airfryer.repicka.domain.item.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
+import com.airfryer.repicka.domain.item.dto.CreateItemReq;
+
 import io.hypersistence.utils.hibernate.type.array.EnumArrayType;
-import io.hypersistence.utils.hibernate.type.array.StringArrayType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -83,14 +84,26 @@ public class Item extends BaseEntity
     @NotNull
     private LocalDateTime repostDate;
 
-    /// 제품 판매 확정
-
+    // 제품 판매 확정
     public void confirmSale(LocalDateTime saleDate) {
         this.saleDate = saleDate;
     }
 
-    /// 제품 판매 취소
+    // 제품 판매 취소
     public void cancelSale() {
         this.saleDate = null;
+    }
+
+    // 제품 수정
+    public void updateItem(CreateItemReq itemDetail) {
+        this.productTypes = itemDetail.getProductTypes();
+        this.size = itemDetail.getSize();
+        this.title = itemDetail.getTitle();
+        this.description = itemDetail.getDescription();
+        this.color = itemDetail.getColor();
+        this.quality = itemDetail.getQuality();
+        this.location = itemDetail.getLocation();
+        this.tradeMethod = itemDetail.getTradeMethod();
+        this.canDeal = itemDetail.getCanDeal();
     }
 }

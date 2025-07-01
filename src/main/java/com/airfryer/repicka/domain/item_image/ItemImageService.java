@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,5 +60,20 @@ public class ItemImageService {
             return null;
         }
         return s3Service.getFullImageUrl(itemImage.getFileKey());
+    }
+
+    // 여러 Item의 썸네일을 한 번에 조회
+    public Map<Long, String> getThumbnailsForItems(List<Item> items) {
+        List<Long> itemIds = items.stream()
+                .map(Item::getId)
+                .collect(Collectors.toList());
+        
+        List<ItemImage> thumbnails = itemImageRepository.findThumbnailListByItemIdList(itemIds);
+        
+        return thumbnails.stream()
+                .collect(Collectors.toMap(
+                    itemImage -> itemImage.getItem().getId(),
+                    itemImage -> getFullImageUrl(itemImage)
+                ));
     }
 }

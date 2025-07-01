@@ -2,6 +2,7 @@ package com.airfryer.repicka.domain.post.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.item.entity.Item;
+import com.airfryer.repicka.domain.post.dto.CreatePostReq;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -57,4 +58,31 @@ public class Post extends BaseEntity
     @NotNull
     @Builder.Default
     private int chatRoomCount = 0;
+
+    // 게시글 가격 및 보증금 수정
+    public void updatePriceAndDeposit(int price, int deposit) {
+        this.price = price;
+        this.deposit = deposit;
+    }
+
+    // 좋아요 개수 증가
+    public void addLikeCount() {
+        this.likeCount++;
+    }
+
+    // 좋아요 개수 감소
+    public void removeLikeCount() {
+        this.likeCount--;
+    }
+
+    // 채팅방 개수 증가
+    public void addChatRoomCount() {
+        this.chatRoomCount++;
+    }
+
+    // 채팅방 개수 감소
+    public void removeChatRoomCount() {
+        this.chatRoomCount--;
+    }
+    
 }

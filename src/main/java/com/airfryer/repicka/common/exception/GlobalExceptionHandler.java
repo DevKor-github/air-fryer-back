@@ -213,8 +213,8 @@ public class GlobalExceptionHandler
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ExceptionResponseDto.builder()
-                        .code("DATABASE_ERROR")
-                        .message("데이터베이스 처리 중 오류가 발생했습니다.")
+                        .code("INTERNAL_SERVER_ERROR")
+                        .message("예상치 못한 서버 오류가 발생했습니다.")
                         .data(null)
                         .build());
     }
@@ -228,7 +228,7 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ExceptionResponseDto.builder()
                         .code("INTERNAL_SERVER_ERROR")
-                        .message("서버 내부 오류가 발생했습니다.")
+                        .message("예상치 못한 서버 오류가 발생했습니다.")
                         .data(null)
                         .build());
     }

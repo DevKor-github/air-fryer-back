@@ -44,6 +44,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("end") LocalDateTime end
     );
 
+    // 어떤 게시글의 특정 구간 동안 존재하는 모든 특정 상태의 약속 조회
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE a.post.id = :postId AND a.state = :state AND (
+           (a.returnDate >= :start)
+        )
+    """)
+    List<Appointment> findListOverlappingWithPeriod(
+            @Param("postId") Long postId,
+            @Param("state") AppointmentState state,
+            @Param("start") LocalDateTime start
+    );
+
     // 대여자(구매자) ID, 검색 시작 날짜, 게시글 타입으로 (확정/대여중/완료) 상태인 약속 페이지 조회
     @Query(
             value = """
