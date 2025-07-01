@@ -3,9 +3,6 @@ package com.airfryer.repicka.domain.post;
 import com.airfryer.repicka.common.aws.s3.S3Service;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
-import com.airfryer.repicka.common.aws.s3.S3Service;
-import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
-import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
@@ -27,9 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Map;
 
 @Service
@@ -41,7 +36,11 @@ public class PostService {
     private final ItemImageService itemImageService;
     private final AppointmentService appointmentService;
     private final S3Service s3Service;
-    private final S3Service s3Service;
+
+    // 게시글 이미지 업로드 위해 presigned url 발급
+    public PresignedUrlRes getPresignedUrl(PresignedUrlReq req, User user) {
+        return s3Service.generatePresignedUrl(req, "post");
+    }
 
     // 게시글 생성
     @Transactional
@@ -71,7 +70,6 @@ public class PostService {
         // 각 Post에 대해 PostDetailRes 생성
         List<PostDetailRes> postDetailResList = posts.stream()
                 .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem())); })
-                .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem())); })
                 .toList();
 
         return postDetailResList;
@@ -83,9 +81,7 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
 
         List<String> imageUrls = itemImageService.getItemImages(post.getItem());
-        List<String> imageUrls = itemImageService.getItemImages(post.getItem());
 
-        return PostDetailRes.from(post, imageUrls);
         return PostDetailRes.from(post, imageUrls);
     }
 
@@ -93,20 +89,6 @@ public class PostService {
     public List<PostPreviewRes> searchPostList(SearchPostReq condition) {
         // 태그로 게시글 리스트 찾기
         List<Post> posts = postRepository.findPostsByCondition(condition);
-
-        // ProductType 필터링
-        if (condition.getProductType() != null) {
-            posts = posts.stream()
-                .filter(post -> Arrays.stream(post.getItem().getProductTypes())
-                    .anyMatch(productType -> productType == condition.getProductType()))
-                .toList();
-        }
-
-        // 모든 Item의 썸네일 배치 조회
-        List<Item> items = posts.stream()
-            .map(Post::getItem)
-            .toList();
-        Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(items);
 
         // ProductType 필터링
         if (condition.getProductType() != null) {
@@ -134,10 +116,8 @@ public class PostService {
         return postPreviewResList;
     }
 
-    public PresignedUrlRes getPresignedUrl(PresignedUrlReq req, User user) {
-        return s3Service.generatePresignedUrl(req, "post");
-    }
-
+    // 게시글 수정
+    @Transactional
     public List<PostDetailRes> updatePost(Long postId, CreatePostReq req, User user) {
         // 게시글 조회
         Post post = postRepository.findById(postId)
@@ -163,6 +143,8 @@ public class PostService {
             .toList();
     }   
 
+    // 게시글 삭제
+    @Transactional
     public void deletePost(Long postId, User user) {
         // 게시글 조회
         Post post = postRepository.findById(postId)
@@ -173,11 +155,15 @@ public class PostService {
             throw new CustomException(CustomExceptionCode.ACCESS_DENIED, "해당 게시글의 삭제 권한이 없습니다.");
         }
 
-        // 게시글 삭제 전 확정된 약속이 있는지 확인
-        if (appointmentService.isPostAvailableOnInterval(postId, LocalDateTime.now())) {
-            throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_POST, null);
+        // 같은 제품의 게시글 모두 삭제 가능한지 확인
+        List<Post> postsWithSameItem = postRepository.findByItemId(post.getItem().getId());
+        for (Post postWithSameItem : postsWithSameItem) {
+            if (!appointmentService.isPostAvailableOnInterval(postWithSameItem.getId(), LocalDateTime.now())) {
+                throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_POST, null);
+            }
         }
 
-        postRepository.delete(post);
+        // 게시글 모두 삭제
+        postRepository.deleteAll(postsWithSameItem);
     }
 }
