@@ -207,7 +207,7 @@ public class AppointmentController
     }
 
     // 대여 중인 약속 변경 제시 데이터 조회
-    @GetMapping("/in-progress-appointment/update")
+    @GetMapping("/update-in-progress-appointment")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> findOfferToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                      @RequestParam Long appointmentId,
