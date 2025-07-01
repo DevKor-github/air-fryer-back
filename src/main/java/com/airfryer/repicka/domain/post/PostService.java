@@ -90,14 +90,6 @@ public class PostService {
         // 태그로 게시글 리스트 찾기
         List<Post> posts = postRepository.findPostsByCondition(condition);
 
-        // ProductType 필터링
-        if (condition.getProductType() != null) {
-            posts = posts.stream()
-                .filter(post -> Arrays.stream(post.getItem().getProductTypes())
-                    .anyMatch(productType -> productType == condition.getProductType()))
-                .toList();
-        }
-
         // 모든 Item의 썸네일 배치 조회
         List<Item> items = posts.stream()
             .map(Post::getItem)
