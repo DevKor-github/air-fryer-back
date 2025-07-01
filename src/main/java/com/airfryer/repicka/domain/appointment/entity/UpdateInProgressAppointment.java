@@ -39,10 +39,6 @@ public class UpdateInProgressAppointment
     @Column(length = 255)
     private String returnLocation;
 
-    // 수락 여부
-    @Builder.Default
-    private Boolean isAccepted = null;
-
     /// 데이터 변경
 
     public void update(LocalDateTime returnDate, String returnLocation) {
