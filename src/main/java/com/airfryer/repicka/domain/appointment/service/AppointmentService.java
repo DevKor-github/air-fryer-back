@@ -857,6 +857,7 @@ public class AppointmentService
                     .creator(user)
                     .returnDate(dto.getReturnDate())
                     .returnLocation(dto.getReturnLocation())
+                    .isAccepted(null)
                     .build();
 
             // 대여중 약속 변경 요청 데이터 저장
