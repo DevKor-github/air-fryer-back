@@ -239,4 +239,20 @@ public class AppointmentController
                         .data(null)
                         .build());
     }
+
+    // 대여 중인 약속 변경 제시 취소
+    @DeleteMapping("/update-in-progress-appointment/{updateInProgressAppointmentId}")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> deleteOfferToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                                       @PathVariable Long updateInProgressAppointmentId)
+    {
+        User user = oAuth2User.getUser();
+        appointmentService.deleteOfferToUpdateInProgressAppointment(user, updateInProgressAppointmentId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("대여 중인 약속 변경 제시를 성공적으로 취소하였습니다.")
+                        .data(null)
+                        .build());
+    }
 }

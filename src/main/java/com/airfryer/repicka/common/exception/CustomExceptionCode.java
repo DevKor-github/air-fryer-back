@@ -41,6 +41,7 @@ public enum CustomExceptionCode
     PRICE_IS_NEGATIVE(HttpStatus.BAD_REQUEST, "가격은 0 또는 양수여야 합니다."),
     CANNOT_CONFIRM_APPOINTMENT_MYSELF(HttpStatus.BAD_REQUEST, "본인이 제시한 약속을 본인이 확정할 수는 없습니다."),
     CANNOT_RESPONSE_UPDATE_IN_PROGRESS_APPOINTMENT_MYSELF(HttpStatus.BAD_REQUEST, "본인이 제시한 대여중 약속 변경 제시를 본인이 수락 또는 거절할 수는 없습니다."),
+    CANNOT_DELETE_OTHERS_UPDATE_IN_PROGRESS_APPOINTMENT_MYSELF(HttpStatus.BAD_REQUEST, "타인이 제시한 대여중 약속 변경 제시를 본인이 취소할 수는 없습니다."),
     ALREADY_RENTAL_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 대여 약속이 예정되어 있습니다."),
     ALREADY_SALE_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 판매 약속이 예정되어 있습니다."),
     NOT_PENDING_APPOINTMENT(HttpStatus.CONFLICT, "제시 중인 약속이 아닙니다."),
