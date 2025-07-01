@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 public class UpdateInProgressAppointmentRes
 {
     private Long appointmentId;                 // 약속 ID
+    private Long updateInProgressAppointmentId; // 대여중 약속 변경 제시 데이터 ID
+
     private LocalDateTime originalReturnDate;   // 기존의 반납 일시
     private String originalReturnLocation;      // 기존의 반납 장소
     private LocalDateTime newReturnDate;        // 새로운 반납 일시
@@ -22,6 +24,7 @@ public class UpdateInProgressAppointmentRes
     {
         return UpdateInProgressAppointmentRes.builder()
                 .appointmentId(appointment.getId())
+                .updateInProgressAppointmentId(updateInProgressAppointment.getId())
                 .originalReturnDate(appointment.getReturnDate())
                 .originalReturnLocation(appointment.getReturnLocation())
                 .newReturnDate(updateInProgressAppointment.getReturnDate())
