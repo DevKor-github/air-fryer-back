@@ -178,7 +178,7 @@ public class AppointmentController
     @PatchMapping("/confirmed-appointment")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerToUpdateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                                @RequestBody OfferToUpdateConfirmedAppointmentReq dto)
+                                                                                @RequestBody @Valid OfferToUpdateConfirmedAppointmentReq dto)
     {
         User user = oAuth2User.getUser();
         AppointmentRes data = appointmentService.offerToUpdateConfirmedAppointment(user, dto);
@@ -194,7 +194,7 @@ public class AppointmentController
     @PostMapping("/in-progress-appointment")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                                 @RequestBody OfferToUpdateInProgressAppointmentReq dto)
+                                                                                 @RequestBody @Valid OfferToUpdateInProgressAppointmentReq dto)
     {
         User user = oAuth2User.getUser();
         AppointmentRes data = appointmentService.offerToUpdateInProgressAppointment(user, dto);
@@ -220,6 +220,23 @@ public class AppointmentController
                 .body(SuccessResponseDto.builder()
                         .message("대여 중인 약속 변경 제시 데이터를 성공적으로 조회하였습니다.")
                         .data(data)
+                        .build());
+    }
+
+    // 대여 중인 약속 변경 제시 수락 및 거절
+    @PatchMapping("/update-in-progress-appointment/{updateInProgressAppointmentId}")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> acceptOfferToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                                       @PathVariable Long updateInProgressAppointmentId,
+                                                                                       @RequestParam Boolean isAccepted)
+    {
+        User user = oAuth2User.getUser();
+        appointmentService.responseOfferToUpdateInProgressAppointment(user, updateInProgressAppointmentId, isAccepted);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("대여 중인 약속 변경 제시를 성공적으로 " + (isAccepted ? "수락" : "거절") + "하였습니다.")
+                        .data(null)
                         .build());
     }
 }

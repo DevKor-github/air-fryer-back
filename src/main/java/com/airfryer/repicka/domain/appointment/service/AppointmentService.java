@@ -869,6 +869,7 @@ public class AppointmentService
     }
 
     // 대여 중인 약속 변경 제시 데이터 조회
+    @Transactional(readOnly = true)
     public UpdateInProgressAppointmentRes findOfferToUpdateInProgressAppointment(User user, Long appointmentId, Boolean isMine)
     {
         /// 약속 데이터 조회
@@ -905,7 +906,82 @@ public class AppointmentService
         return UpdateInProgressAppointmentRes.from(appointment, updateInProgressAppointment);
     }
 
-    /// 공통 로직
+    // 대여 중인 약속 변경 제시 수락 및 거절
+    @Transactional
+    public void responseOfferToUpdateInProgressAppointment(User user, Long updateInProgressAppointmentId, Boolean isAccepted)
+    {
+        /// 대여 중인 약속 변경 제시 데이터 조회
+
+        UpdateInProgressAppointment updateInProgressAppointment = updateInProgressAppointmentRepository.findById(updateInProgressAppointmentId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.UPDATE_IN_PROGRESS_APPOINTMENT_NOT_FOUND, updateInProgressAppointmentId));
+
+        /// 본인이 본인의 대여 중인 약속 변경 제시를 수락하는 경우, 예외 처리
+
+        if(Objects.equals(user.getId(), updateInProgressAppointment.getCreator().getId())) {
+            throw new CustomException(CustomExceptionCode.CREATOR_CANNOT_ACCEPT, null);
+        }
+
+        /// 약속 데이터 조회
+
+        Appointment appointment = updateInProgressAppointment.getAppointment();
+
+        /// 예외 처리
+        /// 1. 대여 중인 약속인가?
+        /// 2. 요청을 보낸 사용자가 약속 관계자인가?
+
+        // 1. 대여 중인 약속이 아닌 경우, 예외 처리
+        if(appointment.getState() != AppointmentState.IN_PROGRESS) {
+            throw new CustomException(CustomExceptionCode.NOT_IN_PROGRESS_APPOINTMENT, appointment.getState());
+        }
+
+        // 2. 요청을 보낸 사용자가 약속 관계자가 아닌 경우, 예외 처리
+        if(!Objects.equals(user.getId(), appointment.getOwner().getId()) && !Objects.equals(user.getId(), appointment.getRequester().getId())) {
+            throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
+        }
+
+        /// 수락하는 경우, 반납 일시가 가능한 시간인지 확인하고 약속 데이터 수정
+
+        if(isAccepted)
+        {
+            // 게시글 데이터 조회
+            Post post = appointment.getPost();
+
+            // 제품 데이터 조회
+            Item item = post.getItem();
+
+            // 예외 처리
+            // 1. 반납 일시가 현재 이후인가?
+            // 2. 반납 일시까지 예정된 대여 약속이 하나도 존재하지 않는가?
+            // 3. 반납 일시가 제품 판매 날짜 이전인가?
+
+            // 1. 반납 일시가 현재 이전인 경우, 예외 처리
+            if(!updateInProgressAppointment.getReturnDate().isAfter(LocalDateTime.now())) {
+                throw new CustomException(CustomExceptionCode.CURRENT_DATE_IS_LATER_THAN_RETURN_DATE, updateInProgressAppointment.getReturnDate());
+            }
+
+            // 2. 반납 일시까지 예정된 대여 약속이 하나라도 존재하는 경우, 예외 처리
+            if(!isPostAvailableOnInterval(post.getId(), appointment.getReturnDate(), updateInProgressAppointment.getReturnDate())) {
+                throw new CustomException(CustomExceptionCode.ALREADY_RENTAL_RESERVED_PERIOD, updateInProgressAppointment.getReturnDate());
+            }
+
+            // 제품이 판매 예정 혹은 판매된 경우
+            if(item.getSaleDate() != null)
+            {
+                // 3. 반납 일시가 제품 판매 날짜 이후인 경우, 예외 처리
+                if(!updateInProgressAppointment.getReturnDate().isBefore(item.getSaleDate())) {
+                    throw new CustomException(CustomExceptionCode.ALREADY_SALE_RESERVED_PERIOD, updateInProgressAppointment.getReturnDate());
+                }
+            }
+
+            // 약속 데이터 변경
+            appointment.updateAppointment(updateInProgressAppointment.getReturnDate(), updateInProgressAppointment.getReturnLocation());
+        }
+
+        /// 대여 중인 약속 변경 제시 데이터 삭제
+        updateInProgressAppointmentRepository.delete(updateInProgressAppointment);
+    }
+
+    /// ============================ 공통 로직 ============================
 
     // 해당 날짜에 예정된 대여 약속이 하나도 없는지 판별
     public boolean isPostAvailableOnDate(Long postId, LocalDateTime date) {
