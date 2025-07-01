@@ -119,14 +119,8 @@ public class PostService {
     // 게시글 수정
     @Transactional
     public List<PostDetailRes> updatePost(Long postId, CreatePostReq req, User user) {
-        // 게시글 조회
-        Post post = postRepository.findById(postId)
-            .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
-
-        // 게시글 작성자 권한 확인
-        if (!post.getWriter().getId().equals(user.getId())) {
-            throw new CustomException(CustomExceptionCode.ACCESS_DENIED, "해당 게시글의 수정 권한이 없습니다.");
-        }
+        // 게시글 조회 및 작성자 권한 확인
+        Post post = validatePostOwnership(postId, user, "수정");
 
         // 제품 수정
         Item updatedItem = itemService.updateItem(post.getItem().getId(), req.getItem());
@@ -146,14 +140,8 @@ public class PostService {
     // 게시글 삭제
     @Transactional
     public void deletePost(Long postId, User user) {
-        // 게시글 조회
-        Post post = postRepository.findById(postId)
-            .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
-        
-        // 게시글 작성자 권한 확인
-        if (!post.getWriter().getId().equals(user.getId())) {
-            throw new CustomException(CustomExceptionCode.ACCESS_DENIED, "해당 게시글의 삭제 권한이 없습니다.");
-        }
+        // 게시글 조회 및 작성자 권한 확인
+        Post post = validatePostOwnership(postId, user, "삭제");
 
         // 같은 제품의 게시글 모두 삭제 가능한지 확인
         List<Post> postsWithSameItem = postRepository.findByItemId(post.getItem().getId());
@@ -165,5 +153,20 @@ public class PostService {
 
         // 게시글 모두 삭제
         postRepository.deleteAll(postsWithSameItem);
+    }
+
+    // 게시글 조회 및 작성자 권한을 확인하여 에러를 반환
+    private Post validatePostOwnership(Long postId, User user, String action) {
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
+
+        // 게시글 작성자 권한 확인
+        if (!post.getWriter().getId().equals(user.getId())) {
+            throw new CustomException(CustomExceptionCode.ACCESS_DENIED, 
+                String.format("해당 게시글의 %s 권한이 없습니다.", action));
+        }
+
+        return post;
     }
 }
