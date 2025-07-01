@@ -40,6 +40,7 @@ public class AppointmentService
     private final PostRepository postRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
+
     private final ItemImageService itemImageService;
 
     /// 서비스

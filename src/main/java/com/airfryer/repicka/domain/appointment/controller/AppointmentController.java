@@ -191,7 +191,7 @@ public class AppointmentController
     }
 
     // 대여 중인 약속 변경 제시
-    @PatchMapping("/in-progress-appointment")
+    @PostMapping("/in-progress-appointment")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                  @RequestBody OfferToUpdateInProgressAppointmentReq dto)
