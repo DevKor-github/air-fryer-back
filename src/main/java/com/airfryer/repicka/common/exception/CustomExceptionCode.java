@@ -33,6 +33,7 @@ public enum CustomExceptionCode
     // 약속(Appointment) 관련 예외
     NOT_APPOINTMENT_PARTICIPANT(HttpStatus.FORBIDDEN, "약속 관계자가 아닙니다."),
     APPOINTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "약속 데이터를 찾을 수 없습니다."),
+    UPDATE_IN_PROGRESS_APPOINTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "대여 중인 약속 변경 제시 데이터를 찾을 수 없습니다."),
     RETURN_DATE_NOT_FOUND(HttpStatus.NOT_FOUND, "대여 약속 제시에서 반납 일시는 필수적입니다."),
     RENTAL_DATE_IS_LATER_THAN_RETURN_DATE(HttpStatus.BAD_REQUEST, "대여 일시는 반납 일시보다 이전이어야 합니다."),
     CURRENT_DATE_IS_LATER_THAN_RETURN_DATE(HttpStatus.BAD_REQUEST, "반납 일시는 현재 이후여야 합니다."),

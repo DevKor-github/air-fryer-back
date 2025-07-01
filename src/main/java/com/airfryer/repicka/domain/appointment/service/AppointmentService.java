@@ -868,6 +868,43 @@ public class AppointmentService
         return AppointmentRes.from(updateInProgressAppointment, post);
     }
 
+    // 대여 중인 약속 변경 제시 데이터 조회
+    public UpdateInProgressAppointmentRes findOfferToUpdateInProgressAppointment(User user, Long appointmentId, Boolean isMine)
+    {
+        /// 약속 데이터 조회
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
+
+        /// 예외 처리
+        /// 1. 대여 중인 약속인가?
+        /// 2. 요청을 보낸 사용자가 약속 관계자인가?
+
+        // 대여 중인 약속이 아닌 경우, 예외 처리
+        if(appointment.getState() != AppointmentState.IN_PROGRESS) {
+            throw new CustomException(CustomExceptionCode.NOT_IN_PROGRESS_APPOINTMENT, appointment.getState());
+        }
+
+        // 요청을 보낸 사용자가 약속 관계자가 아닌 경우, 예외 처리
+        if(!Objects.equals(user.getId(), appointment.getOwner().getId()) && !Objects.equals(user.getId(), appointment.getRequester().getId())) {
+            throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
+        }
+
+        /// 대여 중인 약속 변경 제시 데이터 조회
+
+        // isMine == true : 내가 제시한 정보
+        // isMine == false : 상대방이 제시한 정보
+        UpdateInProgressAppointment updateInProgressAppointment = isMine ?
+                updateInProgressAppointmentRepository.findByAppointmentIdAndCreatorId(appointmentId, user.getId())
+                        .orElseThrow(() -> new CustomException(CustomExceptionCode.UPDATE_IN_PROGRESS_APPOINTMENT_NOT_FOUND, null)) :
+                updateInProgressAppointmentRepository.findByAppointmentIdAndCreatorId(appointmentId, Objects.equals(appointment.getRequester().getId(), user.getId()) ? appointment.getOwner().getId() : appointment.getRequester().getId())
+                        .orElseThrow(() -> new CustomException(CustomExceptionCode.UPDATE_IN_PROGRESS_APPOINTMENT_NOT_FOUND, null));
+
+        /// 데이터 반환
+
+        return UpdateInProgressAppointmentRes.from(appointment, updateInProgressAppointment);
+    }
+
     /// 공통 로직
 
     // 해당 날짜에 예정된 대여 약속이 하나도 없는지 판별
