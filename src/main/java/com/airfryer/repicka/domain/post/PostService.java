@@ -48,8 +48,7 @@ public class PostService {
         // 상품, 상품 이미지 저장
         Item item = itemService.createItem(postDetail.getItem());
         itemImageService.createItemImage(postDetail.getImages(), item);
-        itemImageService.createItemImage(postDetail.getImages(), item);
-
+        
         // 게시글 타입에 따라 저장
         List<Post> posts = new ArrayList<>();
 
