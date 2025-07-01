@@ -369,7 +369,7 @@ public class AppointmentService
 
         // 동의하는 사용자가 약속을 생성한 사용자와 다른지 체크
         if(Objects.equals(user.getId(), appointment.getCreator().getId())) {
-            throw new CustomException(CustomExceptionCode.CREATOR_CANNOT_AGREE, null);
+            throw new CustomException(CustomExceptionCode.CANNOT_CONFIRM_APPOINTMENT_MYSELF, null);
         }
 
         // 동의자가 약속 관계자인지 체크
@@ -713,10 +713,10 @@ public class AppointmentService
         UpdateInProgressAppointment updateInProgressAppointment = updateInProgressAppointmentRepository.findById(updateInProgressAppointmentId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.UPDATE_IN_PROGRESS_APPOINTMENT_NOT_FOUND, updateInProgressAppointmentId));
 
-        /// 본인이 본인의 대여 중인 약속 변경 제시를 수락하는 경우, 예외 처리
+        /// 본인이 본인의 대여 중인 약속 변경 제시를 수락 또는 거절하는 경우, 예외 처리
 
         if(Objects.equals(user.getId(), updateInProgressAppointment.getCreator().getId())) {
-            throw new CustomException(CustomExceptionCode.CREATOR_CANNOT_ACCEPT, null);
+            throw new CustomException(CustomExceptionCode.CANNOT_RESPONSE_UPDATE_IN_PROGRESS_APPOINTMENT_MYSELF, null);
         }
 
         /// 약속 데이터 조회
