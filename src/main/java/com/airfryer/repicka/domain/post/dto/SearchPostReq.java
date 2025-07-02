@@ -12,7 +12,7 @@ public class SearchPostReq {
 
     private String keyword; // 검색 키워드
 
-    private ProductType[] productTypes; // 제품 타입
+    private ProductType productType; // 제품 타입
 
     private ItemSize size; // 제품 사이즈
 
