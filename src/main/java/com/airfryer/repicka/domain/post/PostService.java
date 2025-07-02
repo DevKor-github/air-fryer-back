@@ -134,16 +134,13 @@ public class PostService {
         // 게시글 조회 및 작성자 권한 확인
         Post post = validatePostOwnership(postId, user, "삭제");
 
-        // 같은 제품의 게시글 모두 삭제 가능한지 확인
-        List<Post> postsWithSameItem = postRepository.findByItemId(post.getItem().getId());
-        for (Post postWithSameItem : postsWithSameItem) {
-            if (!appointmentService.isPostAvailableOnInterval(postWithSameItem.getId(), LocalDateTime.now())) {
-                throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_POST, null);
-            }
+        // 게시글에 대한 약속이 존재하면 삭제 불가
+        if (!appointmentService.isPostAvailableOnInterval(post.getId(), LocalDateTime.now())) {
+            throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_POST, null);
         }
 
-        // 게시글 모두 삭제
-        postRepository.deleteAll(postsWithSameItem);
+        // 게시글 삭제
+        postRepository.delete(post);
     }
 
     // 게시글 조회 및 작성자 권한을 확인하여 에러를 반환
