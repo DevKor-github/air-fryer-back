@@ -1,11 +1,3 @@
----
-name: Feature request
-about: New feature
-title: ''
-labels: ''
-assignees: ''
-
----
 
 ### 💼 작업 설명
 <!-- 진행할 작업에 대해 간단하게 설명해주세요 -->
