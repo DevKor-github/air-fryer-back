@@ -628,7 +628,8 @@ public class AppointmentService
         checkRentalPeriodPossibility(
                 LocalDateTime.now(),
                 dto.getReturnDate(),
-                post
+                post,
+                post.getItem()
         );
 
         /// 대여 중인 약속 변경 요청 데이터 생성
@@ -745,7 +746,8 @@ public class AppointmentService
             checkRentalPeriodPossibility(
                     LocalDateTime.now(),
                     updateInProgressAppointment.getReturnDate(),
-                    post
+                    post,
+                    post.getItem()
             );
 
             // 약속 데이터 변경
@@ -885,13 +887,6 @@ public class AppointmentService
                 ));
             }
         }
-    }
-
-    public void checkRentalPeriodPossibility(LocalDateTime startDate,
-                                             LocalDateTime endDate,
-                                             Post post)
-    {
-        checkRentalPeriodPossibility(startDate, endDate, post, post.getItem());
     }
 
     /// 구매 날짜 가능 여부 체크
