@@ -5,6 +5,10 @@ import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
+import com.airfryer.repicka.domain.appointment.entity.Appointment;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.item.ItemService;
 import com.airfryer.repicka.domain.item.entity.Item;
@@ -21,11 +25,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.YearMonth;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +37,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final ItemService itemService;
     private final ItemImageService itemImageService;
+    private final AppointmentRepository appointmentRepository;
     private final AppointmentService appointmentService;
     private final S3Service s3Service;
 
@@ -159,5 +163,152 @@ public class PostService {
         }
 
         return post;
+    }
+
+    // 월 단위로 날짜별 제품 대여 가능 여부 조회
+    @Transactional(readOnly = true)
+    public GetItemAvailabilityRes getItemRentalAvailability(Long rentalPostId, int year, int month)
+    {
+        // 해당 월의 길이
+        int lastDayOfMonth = YearMonth.of(year, month).lengthOfMonth();
+
+        /// 게시글 데이터 조회
+
+        // 게시글 데이터 조회
+        Post rentalPost = postRepository.findById(rentalPostId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, rentalPostId));
+
+        // 대여 게시글인지 체크
+        if (rentalPost.getPostType() != PostType.RENTAL) {
+            throw new CustomException(CustomExceptionCode.NOT_RENTAL_POST, rentalPost.getPostType());
+        }
+
+        /// 제품 데이터 조회
+
+        // 제품 데이터 조회
+        Item item = rentalPost.getItem();
+
+        /// 반환할 날짜별 제품 대여 가능 여부 해시맵 생성 및 초기화
+
+        // 반환할 날짜별 제품 대여 가능 여부 해시맵
+        Map<LocalDate, Boolean> map = new LinkedHashMap<>();
+
+        // 일단, 모든 날짜에 대여가 가능한 것으로 초기화
+        for (int i = 1; i <= lastDayOfMonth; i++) {
+            map.put(LocalDate.of(year, month, i), true);
+        }
+
+        /// 불가능 처리
+        /// 1. 현재 이전의 날짜들은 전부 불가능 처리
+        /// 2. 제품 판매 날짜부터는 전부 대여 불가능 처리
+        /// 3. 해당 월 동안 예정된 모든 대여 약속들에 대해, 각 구간마다 대여 불가능 처리
+
+        // 현재 이전의 날짜들은 전부 불가능 처리
+        for(int i = 1; i <= lastDayOfMonth && LocalDate.of(year, month, i).isBefore(LocalDate.now()); i++) {
+            map.put(LocalDate.of(year, month, i), false);
+        }
+
+        // 제품이 판매 예정 혹은 판매된 경우, 이후의 날짜들은 전부 대여 불가능 처리
+        if(item.getSaleDate() != null)
+        {
+            LocalDate saleDate = item.getSaleDate().toLocalDate();  // 제품 판매 예정 날짜
+
+            // 해당 월 이전에 이미 판매된 경우
+            if(saleDate.isBefore(LocalDate.of(year, month, 1))) {
+                for(int i = 1; i <= lastDayOfMonth; i++) {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+            // 해당 월 동안 판매되는 경우
+            else if(
+                    !saleDate.isBefore(LocalDate.of(year, month, 1)) &&
+                            !saleDate.isAfter(LocalDate.of(year, month, lastDayOfMonth))
+            ) {
+                for(int i = saleDate.getDayOfMonth(); i <= lastDayOfMonth; i++) {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+        }
+
+        // 해당 월 동안 존재하는 모든 대여 약속 조회
+        List<Appointment> appointmentList = appointmentRepository.findListOverlappingWithPeriod(
+                rentalPostId,
+                AppointmentState.CONFIRMED,
+                LocalDateTime.of(year, month, 1, 0, 0, 0),
+                LocalDateTime.of(year, month, YearMonth.of(year, month).lengthOfMonth(), 23, 59, 59, 0)
+        );
+
+        // 모든 대여 약속 구간에 대해, 대여 불가능 처리
+        for(Appointment appointment : appointmentList)
+        {
+            // 대여 시작 날짜가 해당 월 이전이고, 대여 종료 날짜가 해당 월 이후인 경우
+            if(appointment.getRentalDate().getMonthValue() < month && appointment.getReturnDate().getMonthValue() > month)
+            {
+                map.replaceAll((key, value) -> false);
+                break;
+            }
+            // 대여 시작 날짜가 해당 월에 속하고, 대여 종료 날짜가 해당 월 이후인 경우
+            else if(appointment.getRentalDate().getMonthValue() == month && appointment.getReturnDate().getMonthValue() > month)
+            {
+                for(int i = appointment.getRentalDate().getDayOfMonth(); i <= lastDayOfMonth; i++)
+                {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+            // 대여 시작 날짜가 해당 월 이전이고, 대여 종료 날짜가 해당 월에 속하는 경우
+            else if(appointment.getRentalDate().getMonthValue() < month && appointment.getReturnDate().getMonthValue() == month)
+            {
+                for(int i = 1; i <= appointment.getReturnDate().getDayOfMonth(); i++)
+                {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+            // 대여 시작 날짜 및 대여 종료 날짜가 둘 다 해당 월에 속하는 경우
+            else
+            {
+                for(int i = appointment.getRentalDate().getDayOfMonth(); i <= appointment.getReturnDate().getDayOfMonth(); i++)
+                {
+                    map.put(LocalDate.of(year, month, i), false);
+                }
+            }
+        }
+
+        return GetItemAvailabilityRes.builder()
+                .itemId(item.getId())
+                .postId(rentalPost.getId())
+                .year(year)
+                .month(month)
+                .availability(map)
+                .build();
+    }
+
+    // 제품 구매가 가능한 첫 날짜 조회
+    @Transactional(readOnly = true)
+    public LocalDate getItemSaleAvailability(Long salePostId)
+    {
+        /// 게시글 데이터 조회
+
+        // 판매 게시글 데이터 조회
+        Post salePost = postRepository.findById(salePostId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, salePostId));
+
+        // 판매 게시글인지 체크
+        if(salePost.getPostType() != PostType.SALE) {
+            throw new CustomException(CustomExceptionCode.NOT_SALE_POST, salePost.getPostType());
+        }
+
+        /// 제품 데이터 조회
+
+        // 제품 데이터 조회
+        Item item = salePost.getItem();
+
+        // 판매 예정이거나 판매된 제품이 아닌지 체크
+        if(item.getSaleDate() != null) {
+            throw new CustomException(CustomExceptionCode.ALREADY_SALE_RESERVED, item.getId());
+        }
+
+        /// 제품 구매가 가능한 첫 날짜 반환
+
+        return appointmentService.getFirstSaleAvailableDate(item.getId());
     }
 }
