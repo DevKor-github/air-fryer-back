@@ -26,14 +26,15 @@ public class PostController {
 
     @GetMapping("/presigned-url")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public SuccessResponseDto getPresignedUrl(@AuthenticationPrincipal CustomOAuth2User user,
+    public ResponseEntity<SuccessResponseDto> getPresignedUrl(@AuthenticationPrincipal CustomOAuth2User user,
                                                               @Valid PresignedUrlReq req) {
         PresignedUrlRes presignedUrlRes = postService.getPresignedUrl(req, user.getUser());
 
-        return SuccessResponseDto.builder()
-                .message("Presigned URL을 성공적으로 생성하였습니다.")
-                .data(presignedUrlRes)
-                .build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("Presigned URL을 성공적으로 생성하였습니다.")
+                        .data(presignedUrlRes)
+                        .build());
     }
 
     @PostMapping
@@ -51,48 +52,52 @@ public class PostController {
 
     @PutMapping("/{postId}")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public SuccessResponseDto updatePost(@AuthenticationPrincipal CustomOAuth2User user,
+    public ResponseEntity<SuccessResponseDto> updatePost(@AuthenticationPrincipal CustomOAuth2User user,
                                                           @PathVariable(value="postId") Long postId,
                                                           @Valid @RequestBody CreatePostReq req) {
         List<PostDetailRes> postDetailResList = postService.updatePost(postId, req, user.getUser());
 
-        return SuccessResponseDto.builder()
-                .message("게시글을 성공적으로 수정하였습니다.")
-                .data(postDetailResList)
-                .build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("게시글을 성공적으로 수정하였습니다.")
+                        .data(postDetailResList)
+                        .build());
     }
 
     @DeleteMapping("/{postId}")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public SuccessResponseDto deletePost(@AuthenticationPrincipal CustomOAuth2User user,
+    public ResponseEntity<SuccessResponseDto> deletePost(@AuthenticationPrincipal CustomOAuth2User user,
                                                           @PathVariable(value="postId") Long postId) {
         postService.deletePost(postId, user.getUser());
 
-        return SuccessResponseDto.builder()
-                .message("게시글을 성공적으로 삭제하였습니다.")
-                .build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("게시글을 성공적으로 삭제하였습니다.")
+                        .build());
     }
 
     @GetMapping("/{postId}")
     @PreAuthorize("permitAll()")
-    public SuccessResponseDto getPostDetail(@PathVariable(value="postId") Long postId) {
+    public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId) {
         PostDetailRes postDetailRes = postService.getPostDetail(postId);
 
-        return SuccessResponseDto.builder()
-                .message("게시글 상세 내용을 성공적으로 조회하였습니다.")
-                .data(postDetailRes)
-                .build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("게시글 상세 내용을 성공적으로 조회하였습니다.")
+                        .data(postDetailRes)
+                        .build());
     }
 
     @GetMapping("/search")
     @PreAuthorize("permitAll()")
-    public SuccessResponseDto searchPostList(@Valid SearchPostReq req) {
+    public ResponseEntity<SuccessResponseDto> searchPostList(@Valid SearchPostReq req) {
         List<PostPreviewRes> postPreviewResList = postService.searchPostList(req);
 
-        return SuccessResponseDto.builder()
-                .message("조건에 따른 게시글 목록을 성공적으로 조회하였습니다.")
-                .data(postPreviewResList)
-                .build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("조건에 따른 게시글 목록을 성공적으로 조회하였습니다.")
+                        .data(postPreviewResList)
+                        .build());
     }
 
 }
