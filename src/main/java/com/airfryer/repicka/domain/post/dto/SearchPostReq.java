@@ -2,11 +2,14 @@ package com.airfryer.repicka.domain.post.dto;
 
 import com.airfryer.repicka.domain.item.entity.*;
 import com.airfryer.repicka.domain.post.entity.PostType;
+
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Builder
 public class SearchPostReq {
     private int page = 0; // 페이지 번호 (0부터 시작)
 

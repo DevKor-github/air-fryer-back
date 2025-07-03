@@ -9,7 +9,15 @@ import com.airfryer.repicka.domain.post.dto.PostDetailRes;
 import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
 import com.airfryer.repicka.domain.post.dto.SearchPostReq;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.airfryer.repicka.domain.item.entity.*;
+import com.airfryer.repicka.domain.post.dto.PostOrder;
+import com.airfryer.repicka.domain.post.entity.PostType;
+import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,15 +35,23 @@ public class PostController {
 
     @GetMapping("/presigned-url")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public ResponseEntity<SuccessResponseDto> getPresignedUrl(@AuthenticationPrincipal CustomOAuth2User user,
-                                                              @Valid @RequestBody PresignedUrlReq req) {
+    public SuccessResponseDto getPresignedUrl(@AuthenticationPrincipal CustomOAuth2User user,
+                                                              @RequestParam @NotBlank String fileName,
+                                                              @RequestParam @NotBlank String contentType,
+                                                              @RequestParam @NotNull @Positive Long fileSize) {
+
+        PresignedUrlReq req = PresignedUrlReq.builder()
+                .fileName(fileName)
+                .contentType(contentType)
+                .fileSize(fileSize)     
+                .build();
+
         PresignedUrlRes presignedUrlRes = postService.getPresignedUrl(req, user.getUser());
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("Presigned URL을 성공적으로 생성하였습니다.")
-                        .data(presignedUrlRes)
-                        .build());
+        return SuccessResponseDto.builder()
+                .message("Presigned URL을 성공적으로 생성하였습니다.")
+                .data(presignedUrlRes)
+                .build();
     }
 
     @PostMapping
@@ -53,52 +69,67 @@ public class PostController {
 
     @PutMapping("/{postId}")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public ResponseEntity<SuccessResponseDto> updatePost(@AuthenticationPrincipal CustomOAuth2User user,
+    public SuccessResponseDto updatePost(@AuthenticationPrincipal CustomOAuth2User user,
                                                           @PathVariable(value="postId") Long postId,
                                                           @Valid @RequestBody CreatePostReq req) {
         List<PostDetailRes> postDetailResList = postService.updatePost(postId, req, user.getUser());
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("게시글을 성공적으로 수정하였습니다.")
-                        .data(postDetailResList)
-                        .build());
+        return SuccessResponseDto.builder()
+                .message("게시글을 성공적으로 수정하였습니다.")
+                .data(postDetailResList)
+                .build();
     }
 
     @DeleteMapping("/{postId}")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public ResponseEntity<SuccessResponseDto> deletePost(@AuthenticationPrincipal CustomOAuth2User user,
+    public SuccessResponseDto deletePost(@AuthenticationPrincipal CustomOAuth2User user,
                                                           @PathVariable(value="postId") Long postId) {
         postService.deletePost(postId, user.getUser());
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("게시글을 성공적으로 삭제하였습니다.")
-                        .build());
+        return SuccessResponseDto.builder()
+                .message("게시글을 성공적으로 삭제하였습니다.")
+                .build();
     }
 
     @GetMapping("/{postId}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId) {
+    public SuccessResponseDto getPostDetail(@PathVariable(value="postId") Long postId) {
         PostDetailRes postDetailRes = postService.getPostDetail(postId);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("게시글 상세 내용을 성공적으로 조회하였습니다.")
-                        .data(postDetailRes)
-                        .build());
+        return SuccessResponseDto.builder()
+                .message("게시글 상세 내용을 성공적으로 조회하였습니다.")
+                .data(postDetailRes)
+                .build();
     }
 
     @GetMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponseDto> searchPostList(@Valid @RequestBody SearchPostReq req) {
+    public SuccessResponseDto searchPostList(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(required = false) String keyword,
+                                                             @RequestParam(required = false) ProductType productType,
+                                                             @RequestParam(required = false) ItemSize size,
+                                                             @RequestParam(required = false) ItemColor color,
+                                                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date,
+                                                             @RequestParam(defaultValue = "RECENT") PostOrder postOrder,
+                                                             @RequestParam(required = false) PostType postType) {
+
+        SearchPostReq req = SearchPostReq.builder()
+                .page(page)
+                .keyword(keyword)
+                .productType(productType)
+                .size(size)
+                .color(color)
+                .date(date)
+                .postOrder(postOrder)
+                .postType(postType)
+                .build();
+                
         List<PostPreviewRes> postPreviewResList = postService.searchPostList(req);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("조건에 따른 게시글 목록을 성공적으로 조회하였습니다.")
-                        .data(postPreviewResList)
-                        .build());
+        return SuccessResponseDto.builder()
+                .message("조건에 따른 게시글 목록을 성공적으로 조회하였습니다.")
+                .data(postPreviewResList)
+                .build();
     }
 
 }
