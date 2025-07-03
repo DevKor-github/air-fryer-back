@@ -9,25 +9,16 @@ import com.airfryer.repicka.domain.post.dto.PostDetailRes;
 import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
 import com.airfryer.repicka.domain.post.dto.SearchPostReq;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.airfryer.repicka.domain.item.entity.*;
-import com.airfryer.repicka.domain.post.dto.PostOrder;
-import com.airfryer.repicka.domain.post.entity.PostType;
-import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/post")
 public class PostController {
@@ -36,16 +27,7 @@ public class PostController {
     @GetMapping("/presigned-url")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public SuccessResponseDto getPresignedUrl(@AuthenticationPrincipal CustomOAuth2User user,
-                                                              @RequestParam @NotBlank String fileName,
-                                                              @RequestParam @NotBlank String contentType,
-                                                              @RequestParam @NotNull @Positive Long fileSize) {
-
-        PresignedUrlReq req = PresignedUrlReq.builder()
-                .fileName(fileName)
-                .contentType(contentType)
-                .fileSize(fileSize)     
-                .build();
-
+                                                              @Valid PresignedUrlReq req) {
         PresignedUrlRes presignedUrlRes = postService.getPresignedUrl(req, user.getUser());
 
         return SuccessResponseDto.builder()
@@ -104,26 +86,7 @@ public class PostController {
 
     @GetMapping("/search")
     @PreAuthorize("permitAll()")
-    public SuccessResponseDto searchPostList(@RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(required = false) String keyword,
-                                                             @RequestParam(required = false) ProductType productType,
-                                                             @RequestParam(required = false) ItemSize size,
-                                                             @RequestParam(required = false) ItemColor color,
-                                                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date,
-                                                             @RequestParam(defaultValue = "RECENT") PostOrder postOrder,
-                                                             @RequestParam(required = false) PostType postType) {
-
-        SearchPostReq req = SearchPostReq.builder()
-                .page(page)
-                .keyword(keyword)
-                .productType(productType)
-                .size(size)
-                .color(color)
-                .date(date)
-                .postOrder(postOrder)
-                .postType(postType)
-                .build();
-                
+    public SuccessResponseDto searchPostList(@Valid SearchPostReq req) {
         List<PostPreviewRes> postPreviewResList = postService.searchPostList(req);
 
         return SuccessResponseDto.builder()

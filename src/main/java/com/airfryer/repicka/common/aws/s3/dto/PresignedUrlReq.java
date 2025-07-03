@@ -3,11 +3,14 @@ package com.airfryer.repicka.common.aws.s3.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
-@Builder
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  
 public class PresignedUrlReq {
     
     @NotBlank(message = "파일명을 입력해주세요")
