@@ -10,23 +10,20 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: repicka_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+
     env:
-      TEST_DB_URL: ${{ secrets.TEST_DB_URL }}
-      TEST_DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
-      TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      GOOGLE_REDIRECT_URI: ${{ secrets.GOOGLE_REDIRECT_URI }}
-      KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
-      KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
-      KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
-      FRONTEND_URI: ${{ secrets.FRONTEND_URI }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
-      AWS_CLOUDFRONT_DOMAIN: ${{ secrets.AWS_CLOUDFRONT_DOMAIN }}
+      TEST_DB_URL: jdbc:postgresql://localhost:5432/repicka_test
+      TEST_DB_USERNAME: postgres
+      TEST_DB_PASSWORD: password
 
     steps:
       - name: Checkout Source Code
