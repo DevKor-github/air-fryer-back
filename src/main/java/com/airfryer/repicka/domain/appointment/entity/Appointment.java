@@ -114,6 +114,12 @@ public class Appointment extends BaseEntity
         this.state = AppointmentState.PENDING;
     }
 
+    public void updateAppointment(LocalDateTime returnDate, String returnLocation)
+    {
+        this.returnDate = returnDate;
+        this.returnLocation = returnLocation;
+    }
+
     /// 약속 확정
 
     public void confirmAppointment() {
