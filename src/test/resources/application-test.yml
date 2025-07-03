@@ -64,14 +64,6 @@ file:
     max-size: 1048576
     allowed-extensions: jpg,jpeg,png,webp
 
-## 테스트용 JWT 설정
-jwt:
-  secret: test-jwt-secret-key-for-testing-purposes-only
-
-## 테스트용 프론트엔드 URI
-frontend:
-  uri: http://localhost:3000
-
 ## 테스트 로그 레벨 설정
 logging:
   level:

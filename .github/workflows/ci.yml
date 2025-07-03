@@ -24,6 +24,8 @@ jobs:
       TEST_DB_URL: jdbc:postgresql://localhost:5432/repicka_test
       TEST_DB_USERNAME: postgres
       TEST_DB_PASSWORD: password
+      JWT_SECRET: test-jwt-secret-key-for-testing-purposes-only
+      FRONTEND_URI: http://localhost:3000
 
     steps:
       - name: Checkout Source Code
