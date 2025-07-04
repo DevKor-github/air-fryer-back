@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/appointment")
 @RequiredArgsConstructor
 public class AppointmentController
 {
     private final AppointmentService appointmentService;
 
     // 대여 게시글에서 약속 제시
-    @PostMapping("/appointment/in-rental-post")
+    @PostMapping("/in-rental-post")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerAppointmentInRentalPost(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                            @RequestBody @Valid OfferAppointmentInRentalPostReq dto)
@@ -44,7 +44,7 @@ public class AppointmentController
     }
 
     // 판매 게시글에서 약속 제시
-    @PostMapping("/appointment/in-sale-post")
+    @PostMapping("/in-sale-post")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerAppointmentInSalePost(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                          @RequestBody @Valid OfferAppointmentInSalePostReq dto)
@@ -62,38 +62,8 @@ public class AppointmentController
 
     // TODO: 채팅방이 구현되면, 채팅방에서 대여 약속 및 판매 약속 제시 API 구현
 
-    // 월 단위로 날짜별 제품 대여 가능 여부 조회
-    @GetMapping("/post/{postId}/rental-availability")
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponseDto> getItemRentalAvailability(@PathVariable Long postId,
-                                                                        @RequestParam int year,
-                                                                        @RequestParam int month)
-    {
-        GetItemAvailabilityRes data = appointmentService.getItemRentalAvailability(postId, year, month);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("날짜별 제품 대여 가능 여부를 성공적으로 조회하였습니다.")
-                        .data(data)
-                        .build());
-    }
-
-    // 제품 구매가 가능한 첫 날짜 조회
-    @GetMapping("/post/{postId}/sale-availability")
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponseDto> getItemSaleAvailability(@PathVariable Long postId)
-    {
-        LocalDate data = appointmentService.getItemSaleAvailability(postId);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("제품 구매가 가능한 첫 날짜를 성공적으로 조회하였습니다.")
-                        .data(data)
-                        .build());
-    }
-
     // 약속 확정
-    @PatchMapping("/appointment/{appointmentId}/confirm")
+    @PatchMapping("/{appointmentId}/confirm")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> confirmAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                  @PathVariable Long appointmentId)
@@ -109,7 +79,7 @@ public class AppointmentController
     }
 
     // 약속 취소
-    @PatchMapping("/appointment/{appointmentId}/cancel")
+    @PatchMapping("/{appointmentId}/cancel")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> cancelAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                 @PathVariable Long appointmentId)
@@ -126,7 +96,7 @@ public class AppointmentController
 
     // 내가 requester인 약속 페이지 조회 (나의 PICK 조회)
     // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
-    @GetMapping("/appointment/requester")
+    @GetMapping("/requester")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsRequester(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                Pageable pageable,
@@ -151,7 +121,7 @@ public class AppointmentController
 
     // 내가 owner인 약속 페이지 조회
     // 요청자가 owner인 (확정/대여중/완료) 상태의 약속 페이지 조회
-    @GetMapping("/appointment/owner")
+    @GetMapping("/owner")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsOwner(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                            Pageable pageable,
@@ -175,10 +145,10 @@ public class AppointmentController
     }
 
     // 확정된 약속 변경 제시
-    @PatchMapping("/confirmed-appointment")
+    @PatchMapping("/confirmed")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerToUpdateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                                @RequestBody OfferToUpdateConfirmedAppointmentReq dto)
+                                                                                @RequestBody @Valid OfferToUpdateConfirmedAppointmentReq dto)
     {
         User user = oAuth2User.getUser();
         AppointmentRes data = appointmentService.offerToUpdateConfirmedAppointment(user, dto);
@@ -186,22 +156,6 @@ public class AppointmentController
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("확정된 약속의 변경을 성공적으로 제시하였습니다.")
-                        .data(data)
-                        .build());
-    }
-
-    // 대여 중인 약속 변경 제시
-    @PatchMapping("/in-progress-appointment")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public ResponseEntity<SuccessResponseDto> offerToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                                 @RequestBody OfferToUpdateInProgressAppointmentReq dto)
-    {
-        User user = oAuth2User.getUser();
-        AppointmentRes data = appointmentService.offerToUpdateInProgressAppointment(user, dto);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("대여 중인 약속의 변경을 성공적으로 제시하였습니다.")
                         .data(data)
                         .build());
     }

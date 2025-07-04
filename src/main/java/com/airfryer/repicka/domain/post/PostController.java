@@ -4,6 +4,7 @@ import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
+import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
 import com.airfryer.repicka.domain.post.dto.CreatePostReq;
 import com.airfryer.repicka.domain.post.dto.PostDetailRes;
 import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
@@ -16,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -97,6 +99,36 @@ public class PostController {
                 .body(SuccessResponseDto.builder()
                         .message("조건에 따른 게시글 목록을 성공적으로 조회하였습니다.")
                         .data(postPreviewResList)
+                        .build());
+    }
+
+    // 월 단위로 날짜별 제품 대여 가능 여부 조회
+    @GetMapping("/{postId}/rental-availability")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<SuccessResponseDto> getItemRentalAvailability(@PathVariable Long postId,
+                                                                        @RequestParam int year,
+                                                                        @RequestParam int month)
+    {
+        GetItemAvailabilityRes data = postService.getItemRentalAvailability(postId, year, month);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("날짜별 제품 대여 가능 여부를 성공적으로 조회하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
+    // 제품 구매가 가능한 첫 날짜 조회
+    @GetMapping("/{postId}/sale-availability")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<SuccessResponseDto> getItemSaleAvailability(@PathVariable Long postId)
+    {
+        LocalDate data = postService.getItemSaleAvailability(postId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("제품 구매가 가능한 첫 날짜를 성공적으로 조회하였습니다.")
+                        .data(data)
                         .build());
     }
 
