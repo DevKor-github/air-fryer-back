@@ -27,6 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.time.YearMonth;
 import java.util.*;
 
@@ -115,7 +118,7 @@ public class PostService {
     @Transactional
     public List<PostDetailRes> updatePost(Long postId, CreatePostReq req, User user) {
         // 게시글 조회 및 작성자 권한 확인
-        Post post = validatePostOwnership(postId, user, "수정");
+        Post post = validatePostOwnership(postId, user);
 
         // 제품 수정
         Item updatedItem = itemService.updateItem(post.getItem().getId(), req.getItem());
@@ -136,30 +139,26 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId, User user) {
         // 게시글 조회 및 작성자 권한 확인
-        Post post = validatePostOwnership(postId, user, "삭제");
+        Post post = validatePostOwnership(postId, user);
 
-        // 같은 제품의 게시글 모두 삭제 가능한지 확인
-        List<Post> postsWithSameItem = postRepository.findByItemId(post.getItem().getId());
-        for (Post postWithSameItem : postsWithSameItem) {
-            if (!appointmentService.isPostAvailableOnInterval(postWithSameItem.getId(), LocalDateTime.now())) {
-                throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_POST, null);
-            }
+        // 게시글에 대한 약속이 존재하면 삭제 불가
+        if (!appointmentService.isPostAvailableOnInterval(post.getId(), LocalDateTime.now())) {
+            throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_POST, null);
         }
 
-        // 게시글 모두 삭제
-        postRepository.deleteAll(postsWithSameItem);
+        // 게시글 삭제
+        postRepository.delete(post);
     }
 
     // 게시글 조회 및 작성자 권한을 확인하여 에러를 반환
-    private Post validatePostOwnership(Long postId, User user, String action) {
+    private Post validatePostOwnership(Long postId, User user) {
         // 게시글 조회
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
 
         // 게시글 작성자 권한 확인
         if (!post.getWriter().getId().equals(user.getId())) {
-            throw new CustomException(CustomExceptionCode.ACCESS_DENIED, 
-                String.format("해당 게시글의 %s 권한이 없습니다.", action));
+            throw new CustomException(CustomExceptionCode.POST_ACCESS_FORBIDDEN, null);
         }
 
         return post;

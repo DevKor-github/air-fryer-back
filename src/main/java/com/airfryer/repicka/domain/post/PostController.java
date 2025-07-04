@@ -15,13 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/post")
 public class PostController {
@@ -30,7 +29,7 @@ public class PostController {
     @GetMapping("/presigned-url")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> getPresignedUrl(@AuthenticationPrincipal CustomOAuth2User user,
-                                                              @Valid @RequestBody PresignedUrlReq req) {
+                                                              @Valid PresignedUrlReq req) {
         PresignedUrlRes presignedUrlRes = postService.getPresignedUrl(req, user.getUser());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -93,7 +92,7 @@ public class PostController {
 
     @GetMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponseDto> searchPostList(@Valid @RequestBody SearchPostReq req) {
+    public ResponseEntity<SuccessResponseDto> searchPostList(@Valid SearchPostReq req) {
         List<PostPreviewRes> postPreviewResList = postService.searchPostList(req);
 
         return ResponseEntity.status(HttpStatus.OK)
