@@ -2,7 +2,7 @@ name: CI/CD with github actions & docker
 
 on:
   push:
-    branches: [ refactor/#39/infra ]
+    branches: [ develop ]
   pull_request:
     branches: [ develop ]
 
