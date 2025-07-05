@@ -55,7 +55,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     # develop 브랜치에 push될 때만 실행
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    if: github.event_name == 'push'
     
     steps:
       - name: Checkout Source Code
