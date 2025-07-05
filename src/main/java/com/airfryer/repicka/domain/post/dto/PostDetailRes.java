@@ -9,6 +9,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -28,7 +29,15 @@ public class PostDetailRes {
     private int deposit = 0; // 보증급
 
     @Builder.Default
-    private List<String> images = new ArrayList<>();
+    private List<String> images = new ArrayList<>(); // 이미지 리스트
+
+    private LocalDateTime repostDate; // 끌올 날짜
+
+    private int likeCount; // 좋아요 개수
+
+    private int chatRoomCount; // 채팅방 개수
+
+    private boolean isMine; // 내 게시글 여부
 
     // user, item, post, imageUrl로 PostDetailRes 반환하는 정적 팩토리 메서드
     public static PostDetailRes from(Post post, List<String> imageUrls) {
@@ -41,6 +50,10 @@ public class PostDetailRes {
                 .price(post.getPrice())
                 .deposit(post.getDeposit())
                 .images(imageUrls)
+                .repostDate(post.getItem().getRepostDate())
+                .likeCount(post.getLikeCount())
+                .chatRoomCount(post.getChatRoomCount())
+                .isMine(false) // TODO: 내 게시글 여부 추가
                 .build();
     }
 }
