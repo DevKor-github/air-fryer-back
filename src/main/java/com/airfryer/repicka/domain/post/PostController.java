@@ -80,8 +80,9 @@ public class PostController {
 
     @GetMapping("/{postId}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId) {
-        PostDetailRes postDetailRes = postService.getPostDetail(postId);
+    public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId,
+                                                           @AuthenticationPrincipal CustomOAuth2User user) {
+        PostDetailRes postDetailRes = postService.getPostDetail(postId, user);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()

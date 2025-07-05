@@ -5,6 +5,7 @@ import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
@@ -75,23 +76,28 @@ public class PostService {
 
         // 각 Post에 대해 PostDetailRes 생성
         List<PostDetailRes> postDetailResList = posts.stream()
-                .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem())); })
+                .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem()), user); })
                 .toList();
 
         return postDetailResList;
     }
 
-    public PostDetailRes getPostDetail(Long postId) {
+    // 게시글 상세 조회
+    @Transactional(readOnly = true)
+    public PostDetailRes getPostDetail(Long postId, CustomOAuth2User currentUser) {
         // 게시글, 상품, 이미지 등 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
 
         List<String> imageUrls = itemImageService.getItemImages(post.getItem());
 
-        return PostDetailRes.from(post, imageUrls);
+        // JWT 토큰이 있는 경우 User 정보 추출
+        User user = currentUser != null ? currentUser.getUser() : null;
+        return PostDetailRes.from(post, imageUrls, user);
     }
 
     // 게시글 목록 검색
+    @Transactional(readOnly = true)
     public List<PostPreviewRes> searchPostList(SearchPostReq condition) {
         // 태그로 게시글 리스트 찾기
         List<Post> posts = postRepository.findPostsByCondition(condition);
@@ -131,7 +137,7 @@ public class PostService {
         }
 
         return postsWithSameItem.stream()
-            .map(postWithSameItem -> PostDetailRes.from(postWithSameItem, itemImageService.getItemImages(updatedItem)))
+            .map(postWithSameItem -> PostDetailRes.from(postWithSameItem, itemImageService.getItemImages(updatedItem), user))
             .toList();
     }   
 
