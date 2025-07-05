@@ -1,11 +1,10 @@
-name: CD with github actions & docker
+name: CI/CD Pipeline
 
 on:
-  workflow_run:
-    workflows: ["Spring Boot Test CI"]
-    types:
-      - completed
-    branches: [ ** ]
+  push:
+    branches: [ refactor/#39/infra ]
+  pull_request:
+    branches: [ develop ]
 
 env:
   DOCKER_IMAGE: ghcr.io/kyeahxx19/repicka:latest
@@ -14,9 +13,50 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # PR이나 push일 때 모두 실행
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: repicka_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+
+    env:
+      TEST_DB_URL: jdbc:postgresql://localhost:5432/repicka_test
+      TEST_DB_USERNAME: postgres
+      TEST_DB_PASSWORD: password
+      JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItdGVzdGluZy1wdXJwb3Nlcy1vbmx5
+      FRONTEND_URI: http://localhost:3000
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Grant permission
+        run: chmod +x ./gradlew
+
+      - name: Build and run tests
+        run: ./gradlew clean test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    # develop 브랜치에 push될 때만 실행
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -45,6 +85,9 @@ jobs:
   deploy:
     needs: build
     runs-on: self-hosted
+    # develop 브랜치에 push될 때만 실행 (build가 성공했을 때만 실행됨)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    
     steps:
       - name: Create .env
         run: |
@@ -81,4 +124,4 @@ jobs:
           --network host \
           --env-file .env \
           --name repicka \
-          ${{ env.DOCKER_IMAGE }}
+          ${{ env.DOCKER_IMAGE }} 
