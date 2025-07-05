@@ -30,7 +30,7 @@ dependencies {
 	// 테스트
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
+	
 	// Spring Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -42,12 +42,6 @@ dependencies {
 
 	// Spring Data JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-	// Querydsl
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
 	// 데이터 검증
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -74,6 +68,21 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	
+	// 테스트 실행 시 test 프로필 활성화
+	systemProperty 'spring.profiles.active', 'test'
+	
+	// 테스트 실행 시 JVM 옵션 설정 (메모리 용량 부족으로 테스트 실행 방지)
+	jvmArgs '-Xmx512m'
+	
+	// 테스트 결과 출력 설정
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+		showCauses true
+		showExceptions true
+		showStackTraces true
+	}
 }
 
 // QueryDSL 관련 설정

@@ -1,0 +1,74 @@
+spring:
+
+  ## 테스트용 데이터베이스 설정
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${TEST_DB_URL}
+    username: ${TEST_DB_USERNAME}
+    password: ${TEST_DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # 테스트 시작시 테이블 생성 종료시 삭제
+    show-sql: false  # 테스트에서는 SQL 로그 비활성화
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  ## 테스트용 OAuth 설정 (더미 값)
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-google-client-id
+            client-secret: test-google-client-secret
+            redirect-uri: http://localhost:8080/test/oauth2/code/google
+            scope: profile, email
+
+          kakao:
+            client-id: test-kakao-client-id
+            client-secret: test-kakao-client-secret
+            redirect-uri: http://localhost:8080/test/oauth2/code/kakao
+            client-name: Kakao
+            scope:
+              - profile_nickname
+              - account_email
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize?prompt=login
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  ## 테스트용 AWS 설정 (더미 값)
+  cloud:
+    aws:
+      s3:
+        bucket: test-bucket
+      region:
+        static: us-east-1
+      credentials:
+        access-key: test-access-key
+        secret-key: test-secret-key
+      cloudfront:
+        domain: test-cloudfront-domain.com
+
+## 테스트용 파일 업로드 설정
+file:
+  upload:
+    max-size: 1048576
+    allowed-extensions: jpg,jpeg,png,webp
+
+## 테스트 로그 레벨 설정
+logging:
+  level:
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    com.airfryer.repicka: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE 

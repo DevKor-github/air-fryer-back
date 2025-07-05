@@ -34,6 +34,9 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ env.DOCKER_IMAGE }}
+          # 이전 빌드에서 캐시던 레이어 사용 및 현재 빌드 결과 캐시로 저장
+          cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}
+          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }},mode=max
 
   deploy:
     needs: build
