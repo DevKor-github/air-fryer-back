@@ -5,7 +5,7 @@ on:
     workflows: ["Spring Boot Test CI"]
     types:
       - completed
-    branches: [ develop ]
+    branches: [ ** ]
 
 env:
   DOCKER_IMAGE: ghcr.io/kyeahxx19/repicka:latest
