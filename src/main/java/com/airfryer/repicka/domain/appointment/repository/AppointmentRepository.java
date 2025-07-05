@@ -101,6 +101,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                                                    @Param("type") PostType type,
                                                    @Param("start") LocalDateTime start);
 
-    // 레코드 수정 날짜가 특정 시점 이전인 특정 상태의 약속 리스트 조회
-    List<Appointment> findByStateAndUpdatedAtBefore(AppointmentState state, LocalDateTime localDateTime);
+    // 레코드 수정 날짜가 특정 시점 이전인 특정 상태의 약속 페이지 조회
+    Page<Appointment> findByStateAndUpdatedAtBefore(AppointmentState state, LocalDateTime localDateTime, Pageable pageable);
 }
