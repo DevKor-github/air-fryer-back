@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum ItemColor
 {
     CRIMSON("CRIMSON", "크림슨"),
-    WHITE("CRIMSON", "하양"),
+    WHITE("WHITE", "하양"),
     BLACK("BLACK", "검정"),
     IVORY("IVORY", "아이보리"),
     OTHER("OTHER", "기타");
