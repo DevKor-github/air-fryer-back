@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD with github actions & docker
 
 on:
   push:
@@ -15,7 +15,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # PR이나 push일 때 모두 실행
+    # PR이나 push일 때 Test 실행
     if: github.event_name == 'pull_request' || github.event_name == 'push'
     
     services:
@@ -54,8 +54,8 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-    # develop 브랜치에 push될 때만 실행
-    if: github.event_name == 'push'
+    # develop 브랜치에 push될 때만 Docker Build 실행
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     
     steps:
       - name: Checkout Source Code
@@ -85,8 +85,8 @@ jobs:
   deploy:
     needs: build
     runs-on: self-hosted
-    # develop 브랜치에 push될 때만 실행 (build가 성공했을 때만 실행됨)
-    if: github.event_name == 'push'
+    # develop 브랜치에 push될 때만 Docker Deploy 실행
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     
     steps:
       - name: Create .env
