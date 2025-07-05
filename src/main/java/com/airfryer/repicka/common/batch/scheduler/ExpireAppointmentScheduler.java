@@ -4,14 +4,12 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
 @RequiredArgsConstructor
@@ -21,7 +19,7 @@ public class ExpireAppointmentScheduler
     private final Job expireAppointmentJob;
 
     // 매일 오전 4시에 실행
-    @Scheduled(cron = "* * 4 * * *")
+    @Scheduled(cron = "0 0 4 * * *")
     public void run()
     {
         try {
