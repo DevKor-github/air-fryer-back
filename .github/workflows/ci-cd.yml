@@ -86,7 +86,7 @@ jobs:
     needs: build
     runs-on: self-hosted
     # develop 브랜치에 push될 때만 실행 (build가 성공했을 때만 실행됨)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    if: github.event_name == 'push'
     
     steps:
       - name: Create .env
