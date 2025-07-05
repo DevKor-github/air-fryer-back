@@ -42,34 +42,35 @@ public class ExpireAppointmentConfig
 
     // 약속 만료 Job
     @Bean
-    public Job expireAppointmentJob()
+    public Job expireAppointmentJob(Step expireAppointmentStep)
     {
         return new JobBuilder("expireAppointmentJob", jobRepository)
-                .start(expireAppointmentStep())
+                .start(expireAppointmentStep)
                 .build();
     }
 
     // 약속 만료 Step
     @Bean
-    public Step expireAppointmentStep()
+    public Step expireAppointmentStep(ItemReader<Appointment> expireAppointmentReader,
+                                      ItemWriter<Appointment> expireAppointmentWriter)
     {
         return new StepBuilder("expireAppointmentStep", jobRepository)
                 .<Appointment, Appointment>chunk(100, transactionManager)
-                .reader(expireAppointmentReader())
-                .writer(expireAppointmentWriter())
+                .reader(expireAppointmentReader)
+                .writer(expireAppointmentWriter)
                 .build();
     }
 
     // 약속 만료 reader
     @Bean
     @StepScope
-    public ItemReader<Appointment> expireAppointmentReader()
+    public ItemReader<Appointment> expireAppointmentReader(@Value("#{jobParameters['now']}") String now)
     {
         // updatedAt 일시가 일주일 이전인 Appointment 조회
         return new RepositoryItemReaderBuilder<Appointment>()
                 .repository(appointmentRepository)
                 .methodName("findByStateAndUpdatedAtBefore")
-                .arguments(List.of(AppointmentState.PENDING, LocalDateTime.now().minusWeeks(1)))
+                .arguments(List.of(AppointmentState.PENDING, LocalDateTime.parse(now).minusWeeks(1)))
                 .pageSize(100)
                 .sorts(Map.of("updatedAt", Sort.Direction.ASC))
                 .name("expireAppointmentReader")
