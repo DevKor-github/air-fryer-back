@@ -150,4 +150,10 @@ public class Appointment extends BaseEntity
                 .state(this.state)
                 .build();
     }
+
+    /// 약속 만료
+
+    public void expire() {
+        this.state = AppointmentState.EXPIRED;
+    }
 }
