@@ -28,7 +28,7 @@ public class PostDetailRes {
     private int price; // 가격
 
     @Builder.Default
-    private int deposit = 0; // 보증급
+    private int deposit = 0; // 보증금
 
     @Builder.Default
     private List<String> images = new ArrayList<>(); // 이미지 리스트

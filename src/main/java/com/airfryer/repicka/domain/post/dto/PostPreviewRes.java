@@ -22,6 +22,8 @@ public class PostPreviewRes {
 
     private int price; // 대여료 / 판매값
 
+    private int deposit; // 보증금
+
     private int likeCount; // 좋아요 개수
 
     private int chatRoomCount; // 채팅방 개수
@@ -36,6 +38,7 @@ public class PostPreviewRes {
                 .productTypes(post.getItem().getProductTypes())
                 .thumbnail(thumbnailUrl)
                 .price(post.getPrice())
+                .deposit(post.getDeposit())
                 .likeCount(post.getLikeCount())
                 .chatRoomCount(post.getChatRoomCount())
                 .isAvailable(isAvailable)
