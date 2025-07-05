@@ -155,6 +155,18 @@ public class PostService {
         // 게시글 삭제
         postRepository.delete(post);
     }
+    
+    // 게시글 끌올
+    @Transactional
+    public LocalDateTime repostPost(Long postId, User user) {
+        // 게시글 조회 및 작성자 권한 확인
+        Post post = validatePostOwnership(postId, user);
+
+        // 제품 끌올
+        post.getItem().repostItem();
+
+        return post.getItem().getRepostDate();
+    }
 
     // 게시글 조회 및 작성자 권한을 확인하여 에러를 반환
     private Post validatePostOwnership(Long postId, User user) {
