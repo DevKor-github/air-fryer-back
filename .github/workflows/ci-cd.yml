@@ -108,10 +108,11 @@ jobs:
           echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}" >> .env
           echo "AWS_CLOUDFRONT_DOMAIN=${{ secrets.AWS_CLOUDFRONT_DOMAIN }}" >> .env
 
+      - name: Login to GitHub Container Registry
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u kyeahxx19 --password-stdin
+
       - name: Pull latest Docker image
-        run: |
-          echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u kyeahxx19 --password-stdin
-          docker pull ${{ env.DOCKER_IMAGE }}
+        run: docker pull ${{ env.DOCKER_IMAGE }}
 
       - name: Stop existing container (if any)
         run: |
