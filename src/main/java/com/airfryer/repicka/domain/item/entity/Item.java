@@ -106,4 +106,9 @@ public class Item extends BaseEntity
         this.tradeMethod = itemDetail.getTradeMethod();
         this.canDeal = itemDetail.getCanDeal();
     }
+
+    // 제품 끌올
+    public void repostItem() {
+        this.repostDate = LocalDateTime.now();
+    }
 }
