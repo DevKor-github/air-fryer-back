@@ -3,6 +3,7 @@ package com.airfryer.repicka.common.batch.scheduler;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ExpireAppointmentScheduler
 {
     private final JobLauncher jobLauncher;
@@ -27,7 +29,7 @@ public class ExpireAppointmentScheduler
                     .addString("now", LocalDateTime.now().toString())
                     .toJobParameters());
         } catch (Exception e) {
-            throw new CustomException(CustomExceptionCode.SPRING_SCHEDULER_ERROR, e.getMessage());
+            log.error(e.getMessage());
         }
     }
 }

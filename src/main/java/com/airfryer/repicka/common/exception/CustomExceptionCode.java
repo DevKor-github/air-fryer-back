@@ -61,8 +61,7 @@ public enum CustomExceptionCode
 
     // 내부 로직 오류 (발생하면 안됨!)
     SALE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "제품은 판매 예정인데, 판매 게시글 데이터를 찾을 수 없습니다. (내부 로직 오류)"),
-    SALE_APPOINTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "제품은 판매 예정인데, 판매 약속 데이터를 찾을 수 없습니다. (내부 로직 오류)"),
-    SPRING_SCHEDULER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Spring Scheduler 작동 중 에러가 발생하였습니다.");
+    SALE_APPOINTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "제품은 판매 예정인데, 판매 약속 데이터를 찾을 수 없습니다. (내부 로직 오류)");
 
     private final HttpStatus httpStatus;    // HTTP 상태 코드
     private final String message;           // 메시지
