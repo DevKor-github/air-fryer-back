@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // 일주일 지난 PENDING 상태의 약속을 만료시키는 Spring Batch 설정
 
@@ -79,28 +80,26 @@ public class ExpireAppointmentConfig
 
     // PENDING 약속 만료 writer
     @Bean
-    public ItemWriter<Appointment> expireAppointmentWriter() {
+    public ItemWriter<Appointment> expireAppointmentWriter()
+    {
         return appointments -> {
 
             /// 1. 약속 상태를 EXPIRED로 변경
             /// 2. 연관된 UpdateInProgressAppointment 데이터 삭제
 
-            // 삭제할 UpdateInProgressAppointment 데이터
-            List<UpdateInProgressAppointment> deleteList = new ArrayList<>();
-
-            // 각 약속 데이터 순회
-            for(Appointment appointment : appointments)
-            {
-                // 약속 만료
+            // 모든 약속 상태를 EXPIRED로 변경
+            for(Appointment appointment : appointments) {
                 appointment.expire();
-
-                // 해당 약속에 대한 UpdateInProgressAppointment 데이터 삭제
-                List<UpdateInProgressAppointment> data = updateInProgressAppointmentRepository.findByAppointmentId(appointment.getId());
-                deleteList.addAll(data);
             }
 
+            // 약속 ID 리스트
+            List<Long> appointmentIdList = appointments.getItems().stream()
+                    .map(Appointment::getId)
+                    .toList();
+
+            // 연관된 모든 UpdateInProgressAppointment 데이터 삭제
+            List<UpdateInProgressAppointment> deleteList = updateInProgressAppointmentRepository.findByAppointmentIdIn(appointmentIdList);
             updateInProgressAppointmentRepository.deleteAll(deleteList);
-            appointmentRepository.saveAll(appointments);
 
         };
     }
