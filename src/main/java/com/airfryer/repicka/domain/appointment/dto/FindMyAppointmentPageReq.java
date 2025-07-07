@@ -5,6 +5,7 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,4 +32,8 @@ public class FindMyAppointmentPageReq
 
     @NotNull(message = "커서(ID)를 입력해주세요.")
     private Long cursorId;
+
+    @NotNull(message = "페이지 크기를 입력해주세요.")
+    @Positive(message = "페이지 크기는 0보다 커야 합니다.")
+    private int pageSize;
 }
