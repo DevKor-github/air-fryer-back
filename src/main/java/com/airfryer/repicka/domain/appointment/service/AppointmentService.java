@@ -322,49 +322,35 @@ public class AppointmentService
     // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
     @Transactional(readOnly = true)
     public AppointmentPageRes findMyAppointmentPage(User user,
-                                                    Pageable pageable,
-                                                    PostType type,
                                                     FindMyAppointmentSubject subject,
-                                                    FindMyAppointmentPeriod period)
+                                                    FindMyAppointmentPageReq dto)
     {
-        /// 검색 시작 날짜
-
-        LocalDateTime searchStartDate = period.calculateFromDate(LocalDateTime.now());
-
         /// 약속 페이지 조회
 
-        Page<Appointment> appointmentPage = subject.findAppointmentPage(
+        List<Appointment> appointmentPage = subject.findAppointmentPage(
                 appointmentRepository,
-                pageable,
                 user,
-                type,
-                searchStartDate
+                dto
         );
 
-        /// 약속 리스트 생성 및 정렬
+        /// 페이지 정보 계산
 
-        // 약속 페이지 > 약속 리스트 변환
-        List<Appointment> appointmentList = new ArrayList<>(appointmentPage.getContent());
+        // 다음 페이지가 존재하는가?
+        Boolean hasNext = appointmentPage.size() > dto.getPageSize();
 
-        // 약속 리스트 정렬
-        // AppointmentState 기준 : CONFIRMED > IN_PROGRESS > SUCCESS
-        // 동일한 AppointmentState 내에서는 rentalDate 내림차순
-        appointmentList.sort(
-                Comparator
-                        .comparing((Appointment a) -> {
-                            return switch (a.getState()) {
-                                case CONFIRMED -> 1;
-                                case IN_PROGRESS -> 2;
-                                case SUCCESS -> 3;
-                                default -> 4;
-                            };
-                        })
-                        .thenComparing(Appointment::getRentalDate, Comparator.reverseOrder())
-        );
+        // 반환할 커서 데이터
+        AppointmentState cursorState = hasNext ? appointmentPage.getLast().getState() : null;
+        LocalDateTime cursorDate = hasNext ? appointmentPage.getLast().getRentalDate() : null;
+        Long cursorId = hasNext ? appointmentPage.getLast().getId() : null;
+
+        // 다음 페이지가 존재한다면, 마지막 아이템 제거
+        if(hasNext) {
+            appointmentPage = appointmentPage.subList(0, dto.getPageSize());
+        }
 
         /// 대표 이미지 리스트 조회
 
-        List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentList.stream().map(appointment -> {
+        List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentPage.stream().map(appointment -> {
             return appointment.getPost().getItem().getId();
         }).toList());
 
@@ -372,19 +358,28 @@ public class AppointmentService
         Map<Long, String> thumbnailUrlMap = thumbnailList.stream()
                 .collect(Collectors.toMap(
                         itemImage -> itemImage.getItem().getId(),
-                        itemImage -> itemImageService.getFullImageUrl(itemImage)
+                        itemImageService::getFullImageUrl
                 ));
 
         // Map(약속, 대표 이미지 URL) 생성
-        Map<Appointment, Optional<String>> map = appointmentList.stream()
+        Map<Appointment, Optional<String>> map = appointmentPage.stream()
                 .collect(Collectors.toMap(
                         appointment -> appointment,
-                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getPost().getItem().getId()))
+                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getPost().getItem().getId())),
+                        (a, b) -> b,
+                        LinkedHashMap::new
                 ));
 
         /// 데이터 반환
 
-        return AppointmentPageRes.of(map, type, pageable.getPageNumber(), appointmentPage.getTotalPages());
+        return AppointmentPageRes.of(
+                map,
+                dto.getType(),
+                cursorState,
+                cursorDate,
+                cursorId,
+                hasNext
+        );
     }
 
     // 확정된 약속 변경 제시

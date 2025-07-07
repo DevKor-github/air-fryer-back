@@ -6,6 +6,8 @@ import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.entity.ProductType;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,24 +21,29 @@ import java.util.Optional;
 @Builder(access = AccessLevel.PRIVATE)
 public class AppointmentPageRes
 {
-    private List<AppointmentInfo> appointmentInfoList;   // 약속 정보 리스트
-
     private PostType type;      // 타입 (대여/구매)
-    private int currentPage;    // 현재 페이지 번호
-    private int totalPages;     // 전체 페이지 개수
+
+    private List<AppointmentInfo> appointmentInfoList;  // 약속 정보 리스트
+    private PageInfo pageInfo;                          // 페이지 정보
 
     public static AppointmentPageRes of(Map<Appointment, Optional<String>> map,
                                         PostType postType,
-                                        int currentPage,
-                                        int totalPages)
+                                        AppointmentState cursorState,
+                                        LocalDateTime cursorDate,
+                                        Long cursorId,
+                                        Boolean hasNext)
     {
         return AppointmentPageRes.builder()
                 .appointmentInfoList(map.entrySet().stream().map(entry -> {
                     return AppointmentInfo.from(entry.getKey(), entry.getValue());
                 }).toList())
                 .type(postType)
-                .currentPage(currentPage)
-                .totalPages(totalPages)
+                .pageInfo(PageInfo.builder()
+                        .cursorState(cursorState)
+                        .cursorDate(cursorDate)
+                        .cursorId(cursorId)
+                        .hasNext(hasNext)
+                        .build())
                 .build();
     }
 
@@ -86,5 +93,17 @@ public class AppointmentPageRes
                     .state(appointment.getState())
                     .build();
         }
+    }
+
+    @Getter
+    @Builder(access = AccessLevel.PRIVATE)
+    private static class PageInfo
+    {
+        // 커서
+        private AppointmentState cursorState;   // 약속 상태
+        private LocalDateTime cursorDate;       // 대여(구매) 일시
+        private Long cursorId;                  // 약속 ID
+
+        private Boolean hasNext;    // 다음 페이지가 존재하는가?
     }
 }

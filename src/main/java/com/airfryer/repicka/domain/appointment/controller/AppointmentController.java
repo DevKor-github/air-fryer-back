@@ -99,17 +99,13 @@ public class AppointmentController
     @GetMapping("/requester")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsRequester(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                               Pageable pageable,
-                                                                               @RequestParam PostType type,
-                                                                               @RequestParam FindMyAppointmentPeriod period)
+                                                                               @Valid FindMyAppointmentPageReq dto)
     {
         User requester = oAuth2User.getUser();
         AppointmentPageRes data = appointmentService.findMyAppointmentPage(
                 requester,
-                pageable,
-                type,
                 FindMyAppointmentSubject.REQUESTER,
-                period
+                dto
         );
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -124,17 +120,13 @@ public class AppointmentController
     @GetMapping("/owner")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsOwner(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                           Pageable pageable,
-                                                                           @RequestParam PostType type,
-                                                                           @RequestParam FindMyAppointmentPeriod period)
+                                                                           @Valid FindMyAppointmentPageReq dto)
     {
         User requester = oAuth2User.getUser();
         AppointmentPageRes data = appointmentService.findMyAppointmentPage(
                 requester,
-                pageable,
-                type,
                 FindMyAppointmentSubject.OWNER,
-                period
+                dto
         );
 
         return ResponseEntity.status(HttpStatus.OK)
