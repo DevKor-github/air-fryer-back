@@ -94,8 +94,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                             ELSE 4
                         END
                         AND (
-                            a.rental_date < :cursorRentalDate
-                            OR (a.rental_date = :cursorRentalDate AND a.id < :cursorId)
+                            a.rental_date < :cursorDate
+                            OR (a.rental_date = :cursorDate AND a.id < :cursorId)
                         )
                     )
                 )
@@ -116,7 +116,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("type") String type,
             @Param("start") LocalDateTime start,
             @Param("cursorState") AppointmentState cursorState,
-            @Param("cursorRentalDate") LocalDateTime cursorRentalDate,
+            @Param("cursorDate") LocalDateTime cursorDate,
             @Param("cursorId") Long cursorId,
             @Param("limit") int limit
     );
@@ -158,8 +158,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                             ELSE 4
                         END
                         AND (
-                            a.rental_date < :cursorRentalDate
-                            OR (a.rental_date = :cursorRentalDate AND a.id < :cursorId)
+                            a.rental_date < :cursorDate
+                            OR (a.rental_date = :cursorDate AND a.id < :cursorId)
                         )
                     )
                 )
@@ -180,7 +180,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("type") String type,
             @Param("start") LocalDateTime start,
             @Param("cursorState") AppointmentState cursorState,
-            @Param("cursorRentalDate") LocalDateTime cursorRentalDate,
+            @Param("cursorDate") LocalDateTime cursorDate,
             @Param("cursorId") Long cursorId,
             @Param("limit") int limit
     );
