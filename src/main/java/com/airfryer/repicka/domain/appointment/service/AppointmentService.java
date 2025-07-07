@@ -365,7 +365,9 @@ public class AppointmentService
         Map<Appointment, Optional<String>> map = appointmentPage.stream()
                 .collect(Collectors.toMap(
                         appointment -> appointment,
-                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getPost().getItem().getId()))
+                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getPost().getItem().getId())),
+                        (a, b) -> b,
+                        LinkedHashMap::new
                 ));
 
         /// 데이터 반환
