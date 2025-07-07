@@ -57,7 +57,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("start") LocalDateTime start
     );
 
-    // 대여자 ID, 검색 시작 날짜, 게시글 타입으로 (확정/대여중/완료) 상태인 약속 리스트 조회
+    /// 대여자 ID, 검색 시작 날짜, 게시글 타입으로 (확정/대여중/완료) 상태인 약속 리스트 조회
+
     // 커서 기반 페이지네이션 (cursor: appointmentState, rentalDate, id)
     // AppointmentState 기준 : CONFIRMED > IN_PROGRESS > SUCCESS
     // 동일한 AppointmentState 내에서는 rentalDate 내림차순
@@ -121,7 +122,35 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("limit") int limit
     );
 
-    // 소유자 ID, 검색 시작 날짜, 게시글 타입으로 (확정/대여중/완료) 상태인 약속 리스트 조회
+    // 첫 페이지 조회
+    @Query(
+            value = """
+            SELECT a.* FROM appointment a JOIN post p ON a.post = p.id JOIN item i ON p.item = i.id
+            WHERE a.requester = :requesterId
+                AND p.post_type = :type
+                AND a.rental_date >= :start
+                AND a.state IN ('CONFIRMED', 'IN_PROGRESS', 'SUCCESS')
+            ORDER BY
+                CASE a.state
+                    WHEN 'CONFIRMED' THEN 1
+                    WHEN 'IN_PROGRESS' THEN 2
+                    WHEN 'SUCCESS' THEN 3
+                    ELSE 4
+                END ASC,
+                a.rental_date DESC,
+                a.id DESC
+            LIMIT :limit
+        """, nativeQuery = true
+    )
+    List<Appointment> findMyAppointmentFirstPageAsRequester(
+            @Param("requesterId") Long requesterId,
+            @Param("type") PostType type,
+            @Param("start") LocalDateTime start,
+            @Param("limit") int limit
+    );
+
+    /// 소유자 ID, 검색 시작 날짜, 게시글 타입으로 (확정/대여중/완료) 상태인 약속 리스트 조회
+
     // 커서 기반 페이지네이션 (cursor: appointmentState, rentalDate, id)
     // AppointmentState 기준 : CONFIRMED > IN_PROGRESS > SUCCESS
     // 동일한 AppointmentState 내에서는 rentalDate 내림차순
@@ -182,6 +211,33 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("cursorState") AppointmentState cursorState,
             @Param("cursorDate") LocalDateTime cursorDate,
             @Param("cursorId") Long cursorId,
+            @Param("limit") int limit
+    );
+
+    // 첫 페이지 조회
+    @Query(
+            value = """
+            SELECT a.* FROM appointment a JOIN post p ON a.post = p.id JOIN item i ON p.item = i.id
+            WHERE a.owner = :ownerId
+                AND p.post_type = :type
+                AND a.rental_date >= :start
+                AND a.state IN ('CONFIRMED', 'IN_PROGRESS', 'SUCCESS')
+            ORDER BY
+                CASE a.state
+                    WHEN 'CONFIRMED' THEN 1
+                    WHEN 'IN_PROGRESS' THEN 2
+                    WHEN 'SUCCESS' THEN 3
+                    ELSE 4
+                END ASC,
+                a.rental_date DESC,
+                a.id DESC
+            LIMIT :limit
+        """, nativeQuery = true
+    )
+    List<Appointment> findMyAppointmentFirstPageAsOwner(
+            @Param("ownerId") Long ownerId,
+            @Param("type") PostType type,
+            @Param("start") LocalDateTime start,
             @Param("limit") int limit
     );
 
