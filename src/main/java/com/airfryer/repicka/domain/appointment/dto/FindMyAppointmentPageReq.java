@@ -30,5 +30,5 @@ public class FindMyAppointmentPageReq
     private LocalDateTime cursorDate;
 
     @NotNull(message = "커서(ID)를 입력해주세요.")
-    private Long id;
+    private Long cursorId;
 }
