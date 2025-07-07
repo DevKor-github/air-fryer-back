@@ -75,23 +75,26 @@ public class PostService {
 
         // 각 Post에 대해 PostDetailRes 생성
         List<PostDetailRes> postDetailResList = posts.stream()
-                .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem())); })
+                .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem()), user); })
                 .toList();
 
         return postDetailResList;
     }
 
-    public PostDetailRes getPostDetail(Long postId) {
+    // 게시글 상세 조회
+    @Transactional(readOnly = true)
+    public PostDetailRes getPostDetail(Long postId, User user) {
         // 게시글, 상품, 이미지 등 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, postId));
 
         List<String> imageUrls = itemImageService.getItemImages(post.getItem());
 
-        return PostDetailRes.from(post, imageUrls);
+        return PostDetailRes.from(post, imageUrls, user);
     }
 
     // 게시글 목록 검색
+    @Transactional(readOnly = true)
     public List<PostPreviewRes> searchPostList(SearchPostReq condition) {
         // 태그로 게시글 리스트 찾기
         List<Post> posts = postRepository.findPostsByCondition(condition);
@@ -131,7 +134,7 @@ public class PostService {
         }
 
         return postsWithSameItem.stream()
-            .map(postWithSameItem -> PostDetailRes.from(postWithSameItem, itemImageService.getItemImages(updatedItem)))
+            .map(postWithSameItem -> PostDetailRes.from(postWithSameItem, itemImageService.getItemImages(updatedItem), user))
             .toList();
     }   
 
@@ -148,6 +151,18 @@ public class PostService {
 
         // 게시글 삭제
         postRepository.delete(post);
+    }
+    
+    // 게시글 끌올
+    @Transactional
+    public LocalDateTime repostPost(Long postId, User user) {
+        // 게시글 조회 및 작성자 권한 확인
+        Post post = validatePostOwnership(postId, user);
+
+        // 제품 끌올
+        post.getItem().repostItem();
+
+        return post.getItem().getRepostDate();
     }
 
     // 게시글 조회 및 작성자 권한을 확인하여 에러를 반환

@@ -4,11 +4,14 @@ import com.airfryer.repicka.domain.item.dto.BaseItemDto;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.user.dto.BaseUserDto;
+import com.airfryer.repicka.domain.user.entity.User;
+
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -25,13 +28,22 @@ public class PostDetailRes {
     private int price; // 가격
 
     @Builder.Default
-    private int deposit = 0; // 보증급
+    private int deposit = 0; // 보증금
 
     @Builder.Default
-    private List<String> images = new ArrayList<>();
+    private List<String> images = new ArrayList<>(); // 이미지 리스트
 
-    // user, item, post, imageUrl로 PostDetailRes 반환하는 정적 팩토리 메서드
-    public static PostDetailRes from(Post post, List<String> imageUrls) {
+    private LocalDateTime repostDate; // 끌올 날짜
+
+    private int likeCount; // 좋아요 개수
+
+    private int chatRoomCount; // 채팅방 개수
+
+    private boolean isMine; // 내 게시글 여부
+
+    // post, imageUrls, currentUser로 PostDetailRes 반환하는 정적 팩토리 메서드
+    public static PostDetailRes from(Post post, List<String> imageUrls, User currentUser) {
+        boolean isMine = currentUser != null && currentUser.getId().equals(post.getWriter().getId());
 
         return PostDetailRes.builder()
                 .id(post.getId())
@@ -41,6 +53,10 @@ public class PostDetailRes {
                 .price(post.getPrice())
                 .deposit(post.getDeposit())
                 .images(imageUrls)
+                .repostDate(post.getItem().getRepostDate())
+                .likeCount(post.getLikeCount())
+                .chatRoomCount(post.getChatRoomCount())
+                .isMine(isMine)
                 .build();
     }
 }

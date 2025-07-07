@@ -9,6 +9,7 @@ import com.airfryer.repicka.domain.post.dto.CreatePostReq;
 import com.airfryer.repicka.domain.post.dto.PostDetailRes;
 import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
 import com.airfryer.repicka.domain.post.dto.SearchPostReq;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -80,13 +83,29 @@ public class PostController {
 
     @GetMapping("/{postId}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId) {
-        PostDetailRes postDetailRes = postService.getPostDetail(postId);
+    public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId,
+                                                           @AuthenticationPrincipal CustomOAuth2User user) {
+        
+        // JWT 토큰이 있는 경우 User 정보 전달
+        PostDetailRes postDetailRes = postService.getPostDetail(postId, user != null ? user.getUser() : null);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("게시글 상세 내용을 성공적으로 조회하였습니다.")
                         .data(postDetailRes)
+                        .build());
+    }
+
+    @PatchMapping("/{postId}/repost")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<SuccessResponseDto> repostPost(@AuthenticationPrincipal CustomOAuth2User user,
+                                                          @PathVariable(value="postId") Long postId) {
+        LocalDateTime repostDate = postService.repostPost(postId, user.getUser());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()              
+                        .message("게시글을 성공적으로 끌올하였습니다.")
+                        .data(Map.of("repostDate", repostDate))
                         .build());
     }
 
