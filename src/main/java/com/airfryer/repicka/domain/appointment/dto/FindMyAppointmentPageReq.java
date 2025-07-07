@@ -18,10 +18,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FindMyAppointmentPageReq
 {
-    @NotBlank(message = "약속 타입을 입력해주세요. (RENTAL / SALE)")
+    @NotNull(message = "약속 타입을 입력해주세요. (RENTAL / SALE)")
     private PostType type;
 
-    @NotBlank(message = "검색 기간을 입력해주세요. (ALL / YEAR / SIX_MONTH / WEEK)")
+    @NotNull(message = "검색 기간을 입력해주세요. (ALL / YEAR / SIX_MONTH / WEEK)")
     private FindMyAppointmentPeriod period;
 
     @NotNull(message = "페이지 크기를 입력해주세요.")
