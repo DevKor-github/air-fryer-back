@@ -24,16 +24,12 @@ public class FindMyAppointmentPageReq
     @NotBlank(message = "검색 기간을 입력해주세요. (ALL / YEAR / SIX_MONTH / WEEK)")
     private FindMyAppointmentPeriod period;
 
-    @NotBlank(message = "커서(약속 상태)를 입력해주세요. (CONFIRMED / IN_PROGRESS / SUCCESS)")
-    private AppointmentState cursorState;
-
-    @NotNull(message = "커서(일시)를 입력해주세요.")
-    private LocalDateTime cursorDate;
-
-    @NotNull(message = "커서(ID)를 입력해주세요.")
-    private Long cursorId;
-
     @NotNull(message = "페이지 크기를 입력해주세요.")
     @Positive(message = "페이지 크기는 0보다 커야 합니다.")
     private int pageSize;
+
+    // 커서 데이터
+    private AppointmentState cursorState;   // 약속 상태
+    private LocalDateTime cursorDate;       // 대여(구매) 일시
+    private Long cursorId;                  // 약속 ID
 }
