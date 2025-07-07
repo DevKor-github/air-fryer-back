@@ -333,6 +333,21 @@ public class AppointmentService
                 dto
         );
 
+        /// 페이지 정보 계산
+
+        // 다음 페이지가 존재하는가?
+        Boolean hasNext = appointmentPage.size() > dto.getPageSize();
+
+        // 반환할 커서 데이터
+        AppointmentState cursorState = hasNext ? appointmentPage.getLast().getState() : null;
+        LocalDateTime cursorDate = hasNext ? appointmentPage.getLast().getRentalDate() : null;
+        Long cursorId = hasNext ? appointmentPage.getLast().getId() : null;
+
+        // 다음 페이지가 존재한다면, 마지막 아이템 제거
+        if(hasNext) {
+            appointmentPage = appointmentPage.subList(0, dto.getPageSize());
+        }
+
         /// 대표 이미지 리스트 조회
 
         List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentPage.stream().map(appointment -> {
@@ -352,16 +367,6 @@ public class AppointmentService
                         appointment -> appointment,
                         appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getPost().getItem().getId()))
                 ));
-
-        /// 페이지 정보 계산
-
-        // 다음 페이지가 존재하는가?
-        Boolean hasNext = appointmentPage.size() > dto.getPageSize();
-
-        // 반환할 커서 데이터
-        AppointmentState cursorState = hasNext ? appointmentPage.getLast().getState() : null;
-        LocalDateTime cursorDate = hasNext ? appointmentPage.getLast().getRentalDate() : null;
-        Long cursorId = hasNext ? appointmentPage.getLast().getId() : null;
 
         /// 데이터 반환
 
