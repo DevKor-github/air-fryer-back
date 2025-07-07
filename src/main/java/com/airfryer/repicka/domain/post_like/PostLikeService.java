@@ -37,6 +37,10 @@ public class PostLikeService {
         if (existingLike.isPresent()) {
             // 이미 좋아요를 눌렀으면 좋아요 취소
             postLikeRepository.delete(existingLike.get());
+
+            // 좋아요 취소 시 좋아요 수 감소
+            post.removeLikeCount();
+
             return false;
         }
         else {
@@ -47,6 +51,10 @@ public class PostLikeService {
                 .build();
             
             postLikeRepository.save(postLike);
+
+            // 좋아요 추가 시 좋아요 수 증가
+            post.addLikeCount();
+
             return true;
         }
     }
