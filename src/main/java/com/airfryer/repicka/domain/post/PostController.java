@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +28,7 @@ import java.util.Map;
 public class PostController {
     private final PostService postService;
 
-    @GetMapping("/presigned-url")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    @GetMapping("/presigned-url")    
     public ResponseEntity<SuccessResponseDto> getPresignedUrl(@AuthenticationPrincipal CustomOAuth2User user,
                                                               @Valid PresignedUrlReq req) {
         PresignedUrlRes presignedUrlRes = postService.getPresignedUrl(req, user.getUser());
@@ -43,7 +41,6 @@ public class PostController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> createPost(@AuthenticationPrincipal CustomOAuth2User user,
                                                          @Valid @RequestBody CreatePostReq req) {
         List<PostDetailRes> postDetailResList = postService.createPostWithItemAndImages(req, user.getUser());
@@ -56,7 +53,6 @@ public class PostController {
     }
 
     @PutMapping("/{postId}")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> updatePost(@AuthenticationPrincipal CustomOAuth2User user,
                                                           @PathVariable(value="postId") Long postId,
                                                           @Valid @RequestBody CreatePostReq req) {
@@ -70,7 +66,6 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> deletePost(@AuthenticationPrincipal CustomOAuth2User user,
                                                           @PathVariable(value="postId") Long postId) {
         postService.deletePost(postId, user.getUser());
@@ -82,7 +77,6 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId,
                                                            @AuthenticationPrincipal CustomOAuth2User user) {
         
@@ -97,7 +91,6 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}/repost")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> repostPost(@AuthenticationPrincipal CustomOAuth2User user,
                                                           @PathVariable(value="postId") Long postId) {
         LocalDateTime repostDate = postService.repostPost(postId, user.getUser());
@@ -110,7 +103,6 @@ public class PostController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<SuccessResponseDto> searchPostList(@Valid SearchPostReq req) {
         List<PostPreviewRes> postPreviewResList = postService.searchPostList(req);
 
@@ -123,7 +115,6 @@ public class PostController {
 
     // 월 단위로 날짜별 제품 대여 가능 여부 조회
     @GetMapping("/{postId}/rental-availability")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<SuccessResponseDto> getItemRentalAvailability(@PathVariable Long postId,
                                                                         @RequestParam int year,
                                                                         @RequestParam int month)
@@ -139,7 +130,6 @@ public class PostController {
 
     // 제품 구매가 가능한 첫 날짜 조회
     @GetMapping("/{postId}/sale-availability")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<SuccessResponseDto> getItemSaleAvailability(@PathVariable Long postId)
     {
         LocalDate data = postService.getItemSaleAvailability(postId);
