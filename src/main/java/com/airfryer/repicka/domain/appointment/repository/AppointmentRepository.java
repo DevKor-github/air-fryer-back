@@ -95,7 +95,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                         END
                         AND (
                             a.rental_date < :cursorDate
-                            OR (a.rental_date = :cursorDate AND a.id < :cursorId)
+                            OR (a.rental_date = :cursorDate AND a.id <= :cursorId)
                         )
                     )
                 )
@@ -159,7 +159,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                         END
                         AND (
                             a.rental_date < :cursorDate
-                            OR (a.rental_date = :cursorDate AND a.id < :cursorId)
+                            OR (a.rental_date = :cursorDate AND a.id <= :cursorId)
                         )
                     )
                 )
