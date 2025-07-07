@@ -322,10 +322,8 @@ public class AppointmentService
     // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
     @Transactional(readOnly = true)
     public AppointmentPageRes findMyAppointmentPage(User user,
-                                                    Pageable pageable,
-                                                    PostType type,
                                                     FindMyAppointmentSubject subject,
-                                                    FindMyAppointmentPeriod period)
+                                                    FindMyAppointmentPageReq dto)
     {
         /// 검색 시작 날짜
 
