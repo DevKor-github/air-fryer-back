@@ -31,7 +31,6 @@ public class AppointmentPageRes
                                         AppointmentState cursorState,
                                         LocalDateTime cursorDate,
                                         Long cursorId,
-                                        int pageSize,
                                         Boolean hasNext)
     {
         return AppointmentPageRes.builder()
@@ -43,7 +42,6 @@ public class AppointmentPageRes
                         .cursorState(cursorState)
                         .cursorDate(cursorDate)
                         .cursorId(cursorId)
-                        .pageSize(pageSize)
                         .hasNext(hasNext)
                         .build())
                 .build();
@@ -106,7 +104,6 @@ public class AppointmentPageRes
         private LocalDateTime cursorDate;       // 대여(구매) 일시
         private Long cursorId;                  // 약속 ID
 
-        private int pageSize;       // 페이지 크기
         private Boolean hasNext;    // 다음 페이지가 존재하는가?
     }
 }
