@@ -9,6 +9,7 @@ import com.airfryer.repicka.domain.post.dto.CreatePostReq;
 import com.airfryer.repicka.domain.post.dto.PostDetailRes;
 import com.airfryer.repicka.domain.post.dto.PostPreviewRes;
 import com.airfryer.repicka.domain.post.dto.SearchPostReq;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -84,7 +85,9 @@ public class PostController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<SuccessResponseDto> getPostDetail(@PathVariable(value="postId") Long postId,
                                                            @AuthenticationPrincipal CustomOAuth2User user) {
-        PostDetailRes postDetailRes = postService.getPostDetail(postId, user);
+        
+        // JWT 토큰이 있는 경우 User 정보 전달
+        PostDetailRes postDetailRes = postService.getPostDetail(postId, user != null ? user.getUser() : null);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
