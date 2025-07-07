@@ -113,7 +113,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     )
     List<Appointment> findMyAppointmentPageAsRequester(
             @Param("requesterId") Long requesterId,
-            @Param("type") String type,
+            @Param("type") PostType type,
             @Param("start") LocalDateTime start,
             @Param("cursorState") AppointmentState cursorState,
             @Param("cursorDate") LocalDateTime cursorDate,
@@ -177,7 +177,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     )
     List<Appointment> findMyAppointmentPageAsOwner(
             @Param("ownerId") Long ownerId,
-            @Param("type") String type,
+            @Param("type") PostType type,
             @Param("start") LocalDateTime start,
             @Param("cursorState") AppointmentState cursorState,
             @Param("cursorDate") LocalDateTime cursorDate,
