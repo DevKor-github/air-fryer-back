@@ -115,7 +115,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("requesterId") Long requesterId,
             @Param("type") String type,
             @Param("start") LocalDateTime start,
-            @Param("cursorState") int cursorState,
+            @Param("cursorState") AppointmentState cursorState,
             @Param("cursorRentalDate") LocalDateTime cursorRentalDate,
             @Param("cursorId") Long cursorId,
             @Param("limit") int limit
@@ -179,7 +179,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("ownerId") Long ownerId,
             @Param("type") String type,
             @Param("start") LocalDateTime start,
-            @Param("cursorState") int cursorState,
+            @Param("cursorState") AppointmentState cursorState,
             @Param("cursorRentalDate") LocalDateTime cursorRentalDate,
             @Param("cursorId") Long cursorId,
             @Param("limit") int limit
