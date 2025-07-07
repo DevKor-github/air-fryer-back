@@ -114,9 +114,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     )
     List<Appointment> findMyAppointmentPageAsRequester(
             @Param("requesterId") Long requesterId,
-            @Param("type") PostType type,
+            @Param("type") String type,
             @Param("start") LocalDateTime start,
-            @Param("cursorState") AppointmentState cursorState,
+            @Param("cursorState") String cursorState,
             @Param("cursorDate") LocalDateTime cursorDate,
             @Param("cursorId") Long cursorId,
             @Param("limit") int limit
@@ -144,7 +144,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     )
     List<Appointment> findMyAppointmentFirstPageAsRequester(
             @Param("requesterId") Long requesterId,
-            @Param("type") PostType type,
+            @Param("type") String type,
             @Param("start") LocalDateTime start,
             @Param("limit") int limit
     );
@@ -206,9 +206,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     )
     List<Appointment> findMyAppointmentPageAsOwner(
             @Param("ownerId") Long ownerId,
-            @Param("type") PostType type,
+            @Param("type") String type,
             @Param("start") LocalDateTime start,
-            @Param("cursorState") AppointmentState cursorState,
+            @Param("cursorState") String cursorState,
             @Param("cursorDate") LocalDateTime cursorDate,
             @Param("cursorId") Long cursorId,
             @Param("limit") int limit
@@ -236,7 +236,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     )
     List<Appointment> findMyAppointmentFirstPageAsOwner(
             @Param("ownerId") Long ownerId,
-            @Param("type") PostType type,
+            @Param("type") String type,
             @Param("start") LocalDateTime start,
             @Param("limit") int limit
     );
