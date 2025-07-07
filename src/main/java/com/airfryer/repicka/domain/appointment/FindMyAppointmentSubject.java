@@ -23,15 +23,27 @@ public enum FindMyAppointmentSubject
                                                      User user,
                                                      FindMyAppointmentPageReq dto)
         {
-            return repository.findMyAppointmentPageAsRequester(
-                    user.getId(),
-                    dto.getType(),
-                    dto.getPeriod().calculateFromDate(LocalDateTime.now()),
-                    dto.getCursorState(),
-                    dto.getCursorDate(),
-                    dto.getCursorId(),
-                    dto.getPageSize() + 1
-            );
+            if(dto.getCursorState() == null || dto.getCursorDate() == null || dto.getCursorId() == null)
+            {
+                return repository.findMyAppointmentFirstPageAsRequester(
+                        user.getId(),
+                        dto.getType(),
+                        dto.getPeriod().calculateFromDate(LocalDateTime.now()),
+                        dto.getPageSize() + 1
+                );
+            }
+            else
+            {
+                return repository.findMyAppointmentPageAsRequester(
+                        user.getId(),
+                        dto.getType(),
+                        dto.getPeriod().calculateFromDate(LocalDateTime.now()),
+                        dto.getCursorState(),
+                        dto.getCursorDate(),
+                        dto.getCursorId(),
+                        dto.getPageSize() + 1
+                );
+            }
         }
     },
     OWNER("OWNER", "소유자") {
@@ -40,15 +52,27 @@ public enum FindMyAppointmentSubject
                                                      User user,
                                                      FindMyAppointmentPageReq dto)
         {
-            return repository.findMyAppointmentPageAsOwner(
-                    user.getId(),
-                    dto.getType(),
-                    dto.getPeriod().calculateFromDate(LocalDateTime.now()),
-                    dto.getCursorState(),
-                    dto.getCursorDate(),
-                    dto.getCursorId(),
-                    dto.getPageSize() + 1
-            );
+            if(dto.getCursorState() == null || dto.getCursorDate() == null || dto.getCursorId() == null)
+            {
+                return repository.findMyAppointmentFirstPageAsOwner(
+                        user.getId(),
+                        dto.getType(),
+                        dto.getPeriod().calculateFromDate(LocalDateTime.now()),
+                        dto.getPageSize() + 1
+                );
+            }
+            else
+            {
+                return repository.findMyAppointmentPageAsOwner(
+                        user.getId(),
+                        dto.getType(),
+                        dto.getPeriod().calculateFromDate(LocalDateTime.now()),
+                        dto.getCursorState(),
+                        dto.getCursorDate(),
+                        dto.getCursorId(),
+                        dto.getPageSize() + 1
+                );
+            }
         }
     };
 
