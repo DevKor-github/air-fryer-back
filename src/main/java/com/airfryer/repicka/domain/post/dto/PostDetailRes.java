@@ -40,8 +40,10 @@ public class PostDetailRes {
 
     private boolean isMine; // 내 게시글 여부
 
+    private boolean isLiked; // 좋아요 여부
+
     // post, imageUrls, currentUser로 PostDetailRes 반환하는 정적 팩토리 메서드
-    public static PostDetailRes from(Post post, List<String> imageUrls, User currentUser) {
+    public static PostDetailRes from(Post post, List<String> imageUrls, User currentUser, boolean isLiked) {
         boolean isMine = currentUser != null && currentUser.getId().equals(post.getWriter().getId());
 
         return PostDetailRes.builder()
@@ -56,6 +58,7 @@ public class PostDetailRes {
                 .likeCount(post.getLikeCount())
                 .chatRoomCount(post.getChatRoomCount())
                 .isMine(isMine)
+                .isLiked(isLiked)
                 .build();
     }
 }

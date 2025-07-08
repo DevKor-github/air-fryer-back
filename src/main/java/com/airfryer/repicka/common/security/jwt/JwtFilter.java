@@ -1,7 +1,6 @@
 package com.airfryer.repicka.common.security.jwt;
 
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.common.security.oauth2.CustomOAuth2UserService;
 import com.airfryer.repicka.domain.user.entity.User;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -23,7 +22,6 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter
 {
     private final JwtUtil jwtUtil;
-    private final CustomOAuth2UserService customOAuth2UserService;
     private final UserRepository userRepository;
 
     @Override

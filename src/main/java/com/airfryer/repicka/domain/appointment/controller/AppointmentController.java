@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +22,6 @@ public class AppointmentController
 
     // 대여 게시글에서 약속 제시
     @PostMapping("/in-rental-post")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerAppointmentInRentalPost(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                            @RequestBody @Valid OfferAppointmentInRentalPostReq dto)
     {
@@ -40,7 +38,6 @@ public class AppointmentController
 
     // 판매 게시글에서 약속 제시
     @PostMapping("/in-sale-post")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerAppointmentInSalePost(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                          @RequestBody @Valid OfferAppointmentInSalePostReq dto)
     {
@@ -59,7 +56,6 @@ public class AppointmentController
 
     // 약속 확정
     @PatchMapping("/{appointmentId}/confirm")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> confirmAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                  @PathVariable Long appointmentId)
     {
@@ -75,7 +71,6 @@ public class AppointmentController
 
     // 약속 취소
     @PatchMapping("/{appointmentId}/cancel")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> cancelAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                 @PathVariable Long appointmentId)
     {
@@ -92,7 +87,6 @@ public class AppointmentController
     // 내가 requester인 약속 페이지 조회 (나의 PICK 조회)
     // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
     @GetMapping("/requester")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsRequester(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                @Valid FindMyAppointmentPageReq dto)
     {
@@ -113,7 +107,6 @@ public class AppointmentController
     // 내가 owner인 약속 페이지 조회
     // 요청자가 owner인 (확정/대여중/완료) 상태의 약속 페이지 조회
     @GetMapping("/owner")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsOwner(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                            @Valid FindMyAppointmentPageReq dto)
     {
@@ -133,7 +126,6 @@ public class AppointmentController
 
     // 확정된 약속 변경 제시
     @PatchMapping("/confirmed")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerToUpdateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                 @RequestBody @Valid OfferToUpdateConfirmedAppointmentReq dto)
     {
