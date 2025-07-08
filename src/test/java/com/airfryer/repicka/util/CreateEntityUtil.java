@@ -9,8 +9,8 @@ import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.item.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
-import com.airfryer.repicka.domain.post_like.entity.PostLike;
-import com.airfryer.repicka.domain.post_like.repository.PostLikeRepository;
+import com.airfryer.repicka.domain.item_like.entity.ItemLike;
+import com.airfryer.repicka.domain.item_like.repository.ItemLikeRepository;
 import com.airfryer.repicka.domain.user.entity.Gender;
 import com.airfryer.repicka.domain.user.entity.LoginMethod;
 import com.airfryer.repicka.domain.user.entity.Role;
@@ -31,7 +31,7 @@ public class CreateEntityUtil
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final PostRepository postRepository;
-    private final PostLikeRepository postLikeRepository;
+    private final ItemLikeRepository itemLikeRepository;
     private final AppointmentRepository appointmentRepository;
 
     public User createUser()
@@ -104,16 +104,16 @@ public class CreateEntityUtil
         return post;
     }
 
-    public PostLike createPostLike()
+    public ItemLike createPostLike()
     {
-        PostLike postLike = PostLike.builder()
+        ItemLike itemLike = ItemLike.builder()
                 .liker(createUser())
                 .post(createPost())
                 .build();
 
-        postLike = postLikeRepository.save(postLike);
+        itemLike = itemLikeRepository.save(itemLike);
 
-        return postLike;
+        return itemLike;
     }
 
     public Appointment createAppointment()
