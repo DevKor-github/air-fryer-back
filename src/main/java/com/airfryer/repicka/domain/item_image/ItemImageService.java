@@ -16,13 +16,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ItemImageService {
+public class ItemImageService
+{
     private final ItemImageRepository itemImageRepository;
     private final S3Service s3Service;
 
     // 다수의 상품 이미지 저장
     @Transactional
-    public List<ItemImage> createItemImage(String[] fileKeys, Item item) {
+    public List<ItemImage> createItemImage(String[] fileKeys, Item item)
+    {
         List<ItemImage> itemImages = new ArrayList<>();
         int order = 1;
         for (String fileKey: fileKeys) {

@@ -6,14 +6,14 @@ import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
-import com.airfryer.repicka.domain.appointment.repository.UpdateInProgressAppointmentRepository;
 import com.airfryer.repicka.domain.item.entity.Item;
+import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.item.entity.PostType;
-import com.airfryer.repicka.domain.post.repository.PostRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,8 +29,7 @@ import java.util.stream.Collectors;
 public class AppointmentService
 {
     private final AppointmentRepository appointmentRepository;
-    private final UpdateInProgressAppointmentRepository updateInProgressAppointmentRepository;
-    private final PostRepository postRepository;
+    private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
 
     private final ItemImageService itemImageService;
@@ -444,10 +443,11 @@ public class AppointmentService
 
     /// 해당 날짜에 예정된 대여 약속이 하나도 없는지 판별
 
-    public boolean isPostAvailableOnDate(Long postId, LocalDateTime date) {
+    public boolean isItemAvailableOnDate(Long itemId, LocalDateTime date) {
         return appointmentRepository.findListOverlappingWithPeriod(
-                postId,
-                AppointmentState.CONFIRMED,
+                itemId,
+                List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
+                AppointmentType.RENTAL,
                 date,
                 date
         ).isEmpty();
@@ -455,25 +455,27 @@ public class AppointmentService
 
     /// 해당 구간 동안 예정된 대여 약속이 하나도 존재하지 않는지 판별
 
-    public boolean isPostAvailableOnInterval(Long postId, LocalDateTime startDate, LocalDateTime endDate)
+    public boolean isItemAvailableOnInterval(Long itemId, LocalDateTime startDate, LocalDateTime endDate)
     {
         if(endDate.isBefore(startDate)) {
             return true;
         }
 
         return appointmentRepository.findListOverlappingWithPeriod(
-                postId,
-                AppointmentState.CONFIRMED,
+                itemId,
+                List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
+                AppointmentType.RENTAL,
                 startDate,
                 endDate
         ).isEmpty();
     }
 
-    public boolean isPostAvailableOnInterval(Long postId, LocalDateTime startDate)
+    public boolean isItemAvailableOnInterval(Long itemId, LocalDateTime startDate)
     {
         return appointmentRepository.findListOverlappingWithPeriod(
-                postId,
-                AppointmentState.CONFIRMED,
+                itemId,
+                List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
+                AppointmentType.RENTAL,
                 startDate
         ).isEmpty();
     }
@@ -485,8 +487,9 @@ public class AppointmentService
         // 반환할 날짜
         LocalDate firstSaleAvailableDate = LocalDate.now();
 
-        // 대여 게시글 데이터 조회
-        Optional<Post> rentalPostOptional = postRepository.findByItemIdAndPostType(itemId, PostType.RENTAL);
+        // 제품 데이터 조회
+        Item item = itemRepository.findById(itemId).
+                orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 대여 게시글이 존재하는 경우
         if(rentalPostOptional.isPresent())
@@ -530,7 +533,7 @@ public class AppointmentService
         }
 
         // 대여를 원하는 구간 동안 예정된 대여 약속이 하나도 없는지 체크
-        if(!isPostAvailableOnInterval(post.getId(), startDate, endDate)) {
+        if(!isItemAvailableOnInterval(post.getId(), startDate, endDate)) {
             throw new CustomException(CustomExceptionCode.ALREADY_RENTAL_RESERVED_PERIOD, Map.of(
                     "startDate", startDate,
                     "endDate", endDate

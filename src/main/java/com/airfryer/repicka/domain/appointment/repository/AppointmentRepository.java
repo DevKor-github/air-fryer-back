@@ -2,6 +2,7 @@ package com.airfryer.repicka.domain.appointment.repository;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,32 +27,34 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     // 게시글, ID, 약속 상태로 반납 날짜가 가장 늦은 약속 데이터 조회
     Optional<Appointment> findTop1ByPostIdAndStateOrderByReturnDateDesc(Long postId, AppointmentState state);
 
-    // 어떤 게시글의 특정 구간 동안 존재하는 모든 특정 상태의 약속 조회
+    /// 어떤 게시글의 특정 구간 동안 존재하며 특정 상태에 속하는 특정 타입의 약속 조회
+
     @Query("""
         SELECT a FROM Appointment a
-        WHERE a.post.id = :postId AND a.state = :state AND (
+        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = :type AND (
            (a.rentalDate BETWEEN :start AND :end) OR
            (a.returnDate BETWEEN :start AND :end) OR
            (a.rentalDate < :start AND a.returnDate > :end)
         )
     """)
     List<Appointment> findListOverlappingWithPeriod(
-            @Param("postId") Long postId,
-            @Param("state") AppointmentState state,
+            @Param("itemId") Long itemId,
+            @Param("state") List<AppointmentState> state,
+            @Param("type") AppointmentType type,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
 
-    // 어떤 게시글의 특정 구간 동안 존재하는 모든 특정 상태의 약속 조회
     @Query("""
         SELECT a FROM Appointment a
-        WHERE a.post.id = :postId AND a.state = :state AND (
+        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = :type AND (
            (a.returnDate >= :start)
         )
     """)
     List<Appointment> findListOverlappingWithPeriod(
-            @Param("postId") Long postId,
-            @Param("state") AppointmentState state,
+            @Param("itemId") Long itemId,
+            @Param("state") List<AppointmentState> state,
+            @Param("type") AppointmentType type,
             @Param("start") LocalDateTime start
     );
 

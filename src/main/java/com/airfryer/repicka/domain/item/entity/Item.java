@@ -156,15 +156,20 @@ public class Item extends BaseEntity
 
     /// 제품 수정
 
-    public void updateItem(CreateItemReq itemDetail) {
+    public void updateItem(CreateItemReq itemDetail)
+    {
         this.productTypes = itemDetail.getProductTypes();
-        this.size = itemDetail.getSize();
+        this.postTypes = itemDetail.getPostTypes();
         this.title = itemDetail.getTitle();
         this.description = itemDetail.getDescription();
         this.color = itemDetail.getColor();
+        this.size = itemDetail.getSize();
         this.quality = itemDetail.getQuality();
+        this.rentalFee = itemDetail.getRentalFee();
+        this.salePrice = itemDetail.getSalePrice();
+        this.deposit = itemDetail.getDeposit();
         this.location = itemDetail.getLocation();
-        this.tradeMethod = itemDetail.getTradeMethod();
+        this.tradeMethods = itemDetail.getTradeMethods();
         this.canDeal = itemDetail.getCanDeal();
     }
 

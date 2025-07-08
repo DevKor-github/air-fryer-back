@@ -11,7 +11,7 @@ public enum ItemColor
     WHITE("WHITE", "하양"),
     BLACK("BLACK", "검정"),
     IVORY("IVORY", "아이보리"),
-    OTHER("OTHER", "기타");
+    COLOR_OTHER("OTHER", "기타");
 
     private final String code;
     private final String label;

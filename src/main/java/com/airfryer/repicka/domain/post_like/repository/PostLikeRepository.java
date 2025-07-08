@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface PostLikeRepository extends JpaRepository<PostLike, Long>
 {
-    Optional<PostLike> findByPostAndLiker(Post post, User user);
+    Optional<PostLike> findByItemIdAndLikerId(Long itemId, Long likerId);
 
     @Query("SELECT pl FROM PostLike pl JOIN FETCH pl.post JOIN FETCH pl.post.item WHERE pl.liker = :user")
     List<PostLike> findByLiker(@Param("user") User user);

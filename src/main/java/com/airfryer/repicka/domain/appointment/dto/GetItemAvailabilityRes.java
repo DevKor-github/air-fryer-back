@@ -12,7 +12,6 @@ import java.util.Map;
 public class GetItemAvailabilityRes
 {
     private Long itemId;
-    private Long postId;
     private int year;
     private int month;
     private Map<LocalDate, Boolean> availability;

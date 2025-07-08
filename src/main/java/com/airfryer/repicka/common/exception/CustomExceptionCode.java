@@ -22,17 +22,16 @@ public enum CustomExceptionCode
 
     // 제품(Item) 관련 예외
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "제품 데이터를 찾을 수 없습니다."),
+    ITEM_ACCESS_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 제품에 대한 수정/삭제 권한이 없습니다."),
+    ALREADY_RESERVED_ITEM(HttpStatus.CONFLICT, "확정된 약속이 있어 삭제할 수 없습니다."),
     DEAL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "가격 협의가 불가능한 제품입니다."),
     ALREADY_SALE_RESERVED(HttpStatus.CONFLICT, "이미 판매가 예정된 제품입니다."),
+    CANNOT_RENTAL_ITEM(HttpStatus.BAD_REQUEST, "대여가 불가능한 제품입니다."),
+    CANNOT_SALE_ITEM(HttpStatus.BAD_REQUEST, "구매가 불가능한 제품입니다."),
 
     // 게시글(Post) 관련 예외
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글 데이터를 찾을 수 없습니다."),
-    POST_ACCESS_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 게시글에 대한 수정/삭제 권한이 없습니다."),
-    NOT_RENTAL_POST(HttpStatus.BAD_REQUEST, "대여 게시글이 아닙니다."),
-    NOT_SALE_POST(HttpStatus.BAD_REQUEST, "판매 게시글이 아닙니다."),
     SAME_WRITER_AND_REQUESTER(HttpStatus.BAD_REQUEST, "게시글 작성자와 대여 및 구매 요청자는 달라야 합니다."),
-    ALREADY_RESERVED_POST(HttpStatus.CONFLICT, "확정된 약속이 있어 삭제할 수 없습니다."),
-    
+
 
     // 약속(Appointment) 관련 예외
     NOT_APPOINTMENT_PARTICIPANT(HttpStatus.FORBIDDEN, "약속 관계자가 아닙니다."),

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.airfryer.repicka.domain.post_like.repository.PostLikeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,11 +12,9 @@ import lombok.RequiredArgsConstructor;
 
 import com.airfryer.repicka.domain.post_like.dto.PostLikeRes;
 import com.airfryer.repicka.domain.post_like.entity.PostLike;
-import com.airfryer.repicka.domain.post_like.repository.PostLikeRepository;
-import com.airfryer.repicka.domain.item_image.ItemImageService; 
+import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.repository.PostRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
@@ -25,7 +24,6 @@ import com.airfryer.repicka.common.exception.CustomExceptionCode;
 public class PostLikeService {
 
     private final PostLikeRepository postLikeRepository;
-    private final PostRepository postRepository;
     private final ItemImageService itemImageService;
 
     @Transactional
