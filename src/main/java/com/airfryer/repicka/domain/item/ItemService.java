@@ -85,9 +85,9 @@ public class ItemService
         itemRepository.save(item);
 
         // 제품 이미지 생성
-        itemImageService.createItemImage(dto.getImages(), item);
+        List<String> itemImageUrls = itemImageService.createItemImage(dto.getImages(), item);
 
-        return ItemDetailRes.from(item, itemImageService.getItemImages(item), user, false);
+        return ItemDetailRes.from(item, itemImageUrls, user, false);
     }
 
     // 제품 수정
@@ -102,7 +102,7 @@ public class ItemService
 
         // TODO: 제품 이미지 수정
 
-        return ItemDetailRes.from(item, itemImageService.getItemImages(item), user, false);
+        return ItemDetailRes.from(item, itemImageService.getItemImageUrls(item), user, false);
     }
 
     // 제품 삭제
@@ -130,7 +130,7 @@ public class ItemService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 제품 이미지 조회
-        List<String> imageUrls = itemImageService.getItemImages(item);
+        List<String> imageUrls = itemImageService.getItemImageUrls(item);
 
         // 좋아요 여부 조회
         boolean isLiked = (user != null) && (postLikeRepository.findByItemIdAndLikerId(itemId, user.getId()).isPresent());
