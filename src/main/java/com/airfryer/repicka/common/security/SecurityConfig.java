@@ -2,12 +2,14 @@ package com.airfryer.repicka.common.security;
 
 import com.airfryer.repicka.common.security.exception.CustomAccessDeniedHandler;
 import com.airfryer.repicka.common.security.exception.CustomAuthenticationEntryPoint;
+import com.airfryer.repicka.common.security.jwt.JwtFilter;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2UserService;
 import com.airfryer.repicka.common.security.oauth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,9 +18,11 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
@@ -31,6 +35,9 @@ public class SecurityConfig
     // OAuth 처리 서비스
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
+    // JWT 필터
+    private final JwtFilter jwtFilter;
 
     // 예외 처리 클래스
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -56,13 +63,34 @@ public class SecurityConfig
                         .successHandler(oAuth2SuccessHandler)
                 );
 
+        // URL 기반 권한 설정
+        httpSecurity
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/v1/post/presigned-url").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/post/**").permitAll()
+                        .requestMatchers("/login/**", "/oauth2/**").permitAll()
+                        .anyRequest().authenticated()
+                );
+
         // 예외 처리 설정
         httpSecurity
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler));
 
+        // JWT 필터 추가
+        httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return httpSecurity.build();
+    }
+
+    // JWT 필터 서블릿 등록 비활성화
+    @Bean
+    public FilterRegistrationBean<JwtFilter> jwtFilterRegistration()
+    {
+        FilterRegistrationBean<JwtFilter> registration = new FilterRegistrationBean<>(jwtFilter);
+        registration.setEnabled(false);
+        return registration;
     }
 
     // CORS 설정

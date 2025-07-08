@@ -20,6 +20,7 @@ import com.airfryer.repicka.domain.post.dto.SearchPostReq;
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
+import com.airfryer.repicka.domain.post_like.repository.PostLikeRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,8 +41,12 @@ public class PostService {
     private final PostRepository postRepository;
     private final ItemService itemService;
     private final ItemImageService itemImageService;
+    
     private final AppointmentRepository appointmentRepository;
     private final AppointmentService appointmentService;
+
+    private final PostLikeRepository postLikeRepository;
+
     private final S3Service s3Service;
 
     // 게시글 이미지 업로드 위해 presigned url 발급
@@ -75,7 +80,7 @@ public class PostService {
 
         // 각 Post에 대해 PostDetailRes 생성
         List<PostDetailRes> postDetailResList = posts.stream()
-                .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem()), user); })
+                .map(post -> { return PostDetailRes.from(post, itemImageService.getItemImages(post.getItem()), user, false); })
                 .toList();
 
         return postDetailResList;
@@ -90,7 +95,10 @@ public class PostService {
 
         List<String> imageUrls = itemImageService.getItemImages(post.getItem());
 
-        return PostDetailRes.from(post, imageUrls, user);
+        // 좋아요 여부 조회
+        boolean isLiked = postLikeRepository.findByPostAndLiker(post, user).isPresent();
+
+        return PostDetailRes.from(post, imageUrls, user, isLiked);
     }
 
     // 게시글 목록 검색
@@ -134,7 +142,11 @@ public class PostService {
         }
 
         return postsWithSameItem.stream()
-            .map(postWithSameItem -> PostDetailRes.from(postWithSameItem, itemImageService.getItemImages(updatedItem), user))
+            .map(postWithSameItem -> {
+                List<String> itemImages = itemImageService.getItemImages(updatedItem);
+                boolean isLiked = postLikeRepository.findByPostAndLiker(postWithSameItem, user).isPresent();
+                return PostDetailRes.from(postWithSameItem, itemImages, user, isLiked);
+            })
             .toList();
     }   
 

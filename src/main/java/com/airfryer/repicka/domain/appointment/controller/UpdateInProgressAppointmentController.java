@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +23,6 @@ public class UpdateInProgressAppointmentController
 
     // 대여 중인 약속 변경 제시
     @PostMapping()
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> offerToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                  @RequestBody @Valid OfferToUpdateInProgressAppointmentReq dto)
     {
@@ -40,7 +38,6 @@ public class UpdateInProgressAppointmentController
 
     // 대여 중인 약속 변경 제시 데이터 조회
     @GetMapping()
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> findOfferToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                      @RequestParam Long appointmentId,
                                                                                      @RequestParam Boolean isMine)
@@ -57,7 +54,6 @@ public class UpdateInProgressAppointmentController
 
     // 대여 중인 약속 변경 제시 수락 및 거절
     @PatchMapping("/{updateInProgressAppointmentId}")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> acceptOfferToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                        @PathVariable Long updateInProgressAppointmentId,
                                                                                        @RequestParam Boolean isAccepted)
@@ -74,7 +70,6 @@ public class UpdateInProgressAppointmentController
 
     // 대여 중인 약속 변경 제시 취소
     @DeleteMapping("/{updateInProgressAppointmentId}")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> deleteOfferToUpdateInProgressAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                        @PathVariable Long updateInProgressAppointmentId)
     {
