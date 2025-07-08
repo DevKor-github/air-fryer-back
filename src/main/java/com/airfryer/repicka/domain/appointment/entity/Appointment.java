@@ -4,6 +4,7 @@ import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInRentalPostReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInSalePostReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateConfirmedAppointmentReq;
+import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -25,17 +26,17 @@ public class Appointment extends BaseEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 게시글
+    // 제품
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post")
-    private Post post;
+    @JoinColumn(name = "item")
+    private Item item;
 
-    // 생성자
+    // 대여자(구매자)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator")
-    private User creator;
+    @JoinColumn(name = "requester")
+    private User requester;
 
     // 소유자
     @NotNull
@@ -43,11 +44,21 @@ public class Appointment extends BaseEntity
     @JoinColumn(name = "owner")
     private User owner;
 
-    // 대여자(구매자)
+    // 생성자
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requester")
-    private User requester;
+    @JoinColumn(name = "creator")
+    private User creator;
+
+    // 약속 종류
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AppointmentType type;
+
+    // 약속 상태
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AppointmentState state;
 
     // 대여(구매) 일시
     @NotNull
@@ -72,11 +83,6 @@ public class Appointment extends BaseEntity
     @NotNull
     @Builder.Default
     private int deposit = 0;
-
-    // 약속 진행 상태
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private AppointmentState state;
 
     /// 약속 데이터 수정
 

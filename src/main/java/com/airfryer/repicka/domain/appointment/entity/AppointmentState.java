@@ -3,8 +3,8 @@ package com.airfryer.repicka.domain.appointment.entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
 @AllArgsConstructor
+@Getter
 public enum AppointmentState
 {
     PENDING("PENDING", "제시"),
