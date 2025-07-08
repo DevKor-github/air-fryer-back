@@ -64,11 +64,6 @@ public class Item extends BaseEntity
     @Builder.Default
     private PostType[] postTypes = new PostType[2];
 
-    // 사이즈
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private ItemSize size;
-
     // 제목
     @NotNull
     @Column(length = 255)
@@ -81,6 +76,11 @@ public class Item extends BaseEntity
     // 색상
     @Enumerated(EnumType.STRING)
     private ItemColor color;
+
+    // 사이즈
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private ItemSize size;
 
     // 품질
     @Enumerated(EnumType.STRING)
@@ -119,7 +119,7 @@ public class Item extends BaseEntity
             columnDefinition = "text[]"
     )
     @Builder.Default
-    private TradeMethod[] tradeMethod = new TradeMethod[2];
+    private TradeMethod[] tradeMethods = new TradeMethod[2];
 
     // 가격 제시 가능 여부
     @NotNull
