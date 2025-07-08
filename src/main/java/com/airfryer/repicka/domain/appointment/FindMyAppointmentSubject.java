@@ -3,12 +3,9 @@ package com.airfryer.repicka.domain.appointment;
 import com.airfryer.repicka.domain.appointment.dto.FindMyAppointmentPageReq;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
-import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;

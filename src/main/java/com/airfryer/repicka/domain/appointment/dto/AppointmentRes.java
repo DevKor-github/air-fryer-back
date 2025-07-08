@@ -2,8 +2,7 @@ package com.airfryer.repicka.domain.appointment.dto;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
-import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.PostType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

@@ -4,8 +4,6 @@ import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInRentalPostReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInSalePostReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateConfirmedAppointmentReq;
-import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateInProgressAppointmentReq;
-import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

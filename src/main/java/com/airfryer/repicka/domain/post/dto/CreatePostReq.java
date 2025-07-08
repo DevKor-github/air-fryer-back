@@ -1,7 +1,7 @@
 package com.airfryer.repicka.domain.post.dto;
 
 import com.airfryer.repicka.domain.item.dto.CreateItemReq;
-import com.airfryer.repicka.domain.post.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.PostType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

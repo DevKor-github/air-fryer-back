@@ -1,7 +1,6 @@
 package com.airfryer.repicka.domain.post.repository;
 
-import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.PostType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

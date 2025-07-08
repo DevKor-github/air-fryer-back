@@ -1,8 +1,7 @@
 package com.airfryer.repicka.domain.post.dto;
 
 import com.airfryer.repicka.domain.item.entity.ProductType;
-import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.PostType;
 import lombok.Builder;
 import lombok.Getter;
 

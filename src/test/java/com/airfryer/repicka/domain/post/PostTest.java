@@ -1,8 +1,6 @@
 package com.airfryer.repicka.domain.post;
 
-import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
-import com.airfryer.repicka.domain.user.entity.User;
 import com.airfryer.repicka.util.CreateEntityUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

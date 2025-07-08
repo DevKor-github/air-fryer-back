@@ -7,8 +7,7 @@ import com.airfryer.repicka.domain.item.entity.*;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
-import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
 import com.airfryer.repicka.domain.post_like.entity.PostLike;
 import com.airfryer.repicka.domain.post_like.repository.PostLikeRepository;
@@ -17,8 +16,6 @@ import com.airfryer.repicka.domain.user.entity.LoginMethod;
 import com.airfryer.repicka.domain.user.entity.Role;
 import com.airfryer.repicka.domain.user.entity.User;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

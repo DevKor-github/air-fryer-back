@@ -1,8 +1,7 @@
 package com.airfryer.repicka.domain.post.dto;
 
 import com.airfryer.repicka.domain.item.dto.BaseItemDto;
-import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.PostType;
 import com.airfryer.repicka.domain.user.dto.BaseUserDto;
 import com.airfryer.repicka.domain.user.entity.User;
 

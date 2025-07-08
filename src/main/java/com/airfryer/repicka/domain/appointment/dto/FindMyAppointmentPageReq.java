@@ -2,8 +2,7 @@ package com.airfryer.repicka.domain.appointment.dto;
 
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentPeriod;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.post.entity.PostType;
-import jakarta.validation.constraints.NotBlank;
+import com.airfryer.repicka.domain.item.entity.PostType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;

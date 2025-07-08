@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.post.repository;
 
 import com.airfryer.repicka.domain.post.dto.PostOrder;
 import com.airfryer.repicka.domain.post.dto.SearchPostReq;
-import com.airfryer.repicka.domain.post.entity.Post;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;

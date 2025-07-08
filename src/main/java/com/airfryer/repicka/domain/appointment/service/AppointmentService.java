@@ -2,32 +2,25 @@ package com.airfryer.repicka.domain.appointment.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.domain.appointment.FindMyAppointmentPeriod;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.appointment.repository.UpdateInProgressAppointmentRepository;
 import com.airfryer.repicka.domain.item.entity.Item;
-import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
-import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.PostType;
 import com.airfryer.repicka.domain.post.repository.PostRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 

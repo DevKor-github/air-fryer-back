@@ -2,22 +2,17 @@ package com.airfryer.repicka.domain.appointment.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.appointment.FindMyAppointmentPeriod;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
-import com.airfryer.repicka.domain.post.entity.PostType;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/appointment")

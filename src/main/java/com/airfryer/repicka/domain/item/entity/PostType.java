@@ -1,4 +1,4 @@
-package com.airfryer.repicka.domain.post.entity;
+package com.airfryer.repicka.domain.item.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

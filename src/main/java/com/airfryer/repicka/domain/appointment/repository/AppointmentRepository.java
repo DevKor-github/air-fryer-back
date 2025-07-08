@@ -2,8 +2,6 @@ package com.airfryer.repicka.domain.appointment.repository;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.post.entity.PostType;
-import com.airfryer.repicka.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

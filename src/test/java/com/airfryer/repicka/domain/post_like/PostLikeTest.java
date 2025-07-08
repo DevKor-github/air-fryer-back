@@ -1,6 +1,5 @@
 package com.airfryer.repicka.domain.post_like;
 
-import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post_like.entity.PostLike;
 import com.airfryer.repicka.domain.post_like.repository.PostLikeRepository;
 import com.airfryer.repicka.util.CreateEntityUtil;
