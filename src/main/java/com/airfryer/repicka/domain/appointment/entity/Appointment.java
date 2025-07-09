@@ -139,17 +139,18 @@ public class Appointment extends BaseEntity
     public Appointment clone()
     {
         return Appointment.builder()
-                .post(this.post)
-                .creator(this.creator)
-                .owner(this.owner)
+                .item(this.item)
                 .requester(this.requester)
+                .owner(this.owner)
+                .creator(this.creator)
+                .type(this.type)
+                .state(this.state)
                 .rentalDate(this.rentalDate)
                 .returnDate(this.returnDate)
                 .rentalLocation(this.rentalLocation)
                 .returnLocation(this.returnLocation)
                 .price(this.price)
                 .deposit(this.deposit)
-                .state(this.state)
                 .build();
     }
 

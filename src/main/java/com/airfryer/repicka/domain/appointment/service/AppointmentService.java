@@ -248,7 +248,7 @@ public class AppointmentService
 
         /// 약속 데이터 반환
 
-        return AppointmentRes.from(appointment, post);
+        return AppointmentRes.from(appointment, item);
     }
 
     // 약속 취소
@@ -271,18 +271,13 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
-        /// 게시글 데이터 조회
-
-        // 게시글 데이터 조회
-        Post post = appointment.getPost();
-
         /// 제품 데이터 조회
 
         // 제품 데이터 조회
-        Item item = post.getItem();
+        Item item = appointment.getItem();
 
         // 구매 약속의 경우
-        if(post.getPostType() == PostType.SALE)
+        if(appointment.getType() == AppointmentType.SALE)
         {
             // 제품의 판매 예정 날짜 변경
             item.cancelSale();
@@ -297,7 +292,7 @@ public class AppointmentService
 
         /// 약속 데이터 반환
 
-        return AppointmentRes.from(appointment, post);
+        return AppointmentRes.from(appointment, item);
     }
 
     // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
@@ -332,7 +327,7 @@ public class AppointmentService
         /// 대표 이미지 리스트 조회
 
         List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentPage.stream().map(appointment -> {
-            return appointment.getPost().getItem().getId();
+            return appointment.getItem().getId();
         }).toList());
 
         // Map(제품 ID, 대표 이미지 URL) 생성
@@ -346,7 +341,7 @@ public class AppointmentService
         Map<Appointment, Optional<String>> map = appointmentPage.stream()
                 .collect(Collectors.toMap(
                         appointment -> appointment,
-                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getPost().getItem().getId())),
+                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getItem().getId())),
                         (a, b) -> b,
                         LinkedHashMap::new
                 ));
@@ -382,16 +377,12 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
-        /// 게시글 데이터 조회
-
-        Post post = appointment.getPost();
-
         /// 제품 데이터 조회
 
-        Item item = post.getItem();
+        Item item = appointment.getItem();
 
         // 가격 협의가 불가능한데 가격을 바꿔서 요청을 보내는 경우, 예외 처리
-        if(!item.getCanDeal() && (dto.getPrice() != post.getPrice() || dto.getDeposit() != post.getDeposit())) {
+        if(!item.getCanDeal() && (dto.getPrice() != appointment.getPrice() || dto.getDeposit() != appointment.getDeposit())) {
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
 
@@ -399,10 +390,10 @@ public class AppointmentService
         appointment.cancelAppointment();
 
         // 대여 게시글의 경우
-        if(post.getPostType() == PostType.RENTAL)
+        if(appointment.getType() == AppointmentType.RENTAL)
         {
             // 대여 구간 가능 여부 체크
-            checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), post, item);
+            checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
         }
         // 판매 게시글의 경우
         else
@@ -418,14 +409,14 @@ public class AppointmentService
 
         // 새로운 약속 데이터 생성
         Appointment newAppointment = appointment.clone();
-        newAppointment.updateAppointment(user, dto, post.getPostType() == PostType.RENTAL);
+        newAppointment.updateAppointment(user, dto, appointment.getType() == AppointmentType.RENTAL);
 
         // 약속 데이터 저장
         appointmentRepository.save(newAppointment);
 
         /// 약속 데이터 반환
 
-        return AppointmentRes.from(newAppointment, post);
+        return AppointmentRes.from(newAppointment, item);
     }
 
     /// ============================ 공통 로직 ============================

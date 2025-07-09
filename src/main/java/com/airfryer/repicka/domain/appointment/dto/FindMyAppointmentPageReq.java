@@ -2,6 +2,7 @@ package com.airfryer.repicka.domain.appointment.dto;
 
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentPeriod;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.item.entity.PostType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 public class FindMyAppointmentPageReq
 {
     @NotNull(message = "약속 타입을 입력해주세요. (RENTAL / SALE)")
-    private PostType type;
+    private AppointmentType type;
 
     @NotNull(message = "검색 기간을 입력해주세요. (ALL / YEAR / SIX_MONTH / WEEK)")
     private FindMyAppointmentPeriod period;
