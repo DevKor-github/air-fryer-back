@@ -1,4 +1,4 @@
-package com.airfryer.repicka.domain.post_like.dto;
+package com.airfryer.repicka.domain.item_like.dto;
 
 import com.airfryer.repicka.domain.post.entity.Post;
 import com.airfryer.repicka.domain.post.entity.PostType;
@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PostLikeRes {
+public class ItemLikeRes {
     private Long id;
 
     private PostType postType; // 게시글 타입
@@ -25,8 +25,8 @@ public class PostLikeRes {
     
     private int deposit; // 보증금
 
-    public static PostLikeRes from(Post post, String thumbnailUrl) {
-        return PostLikeRes.builder()
+    public static ItemLikeRes from(Post post, String thumbnailUrl) {
+        return ItemLikeRes.builder()
             .id(post.getId())
             .postType(post.getPostType())
             .title(post.getItem().getTitle())

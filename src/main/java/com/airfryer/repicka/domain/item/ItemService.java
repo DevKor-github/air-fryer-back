@@ -20,7 +20,7 @@ import com.airfryer.repicka.domain.item.dto.ItemPreviewRes;
 import com.airfryer.repicka.domain.item.dto.SearchItemReq;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.item.repository.ItemCustomRepository;
-import com.airfryer.repicka.domain.post_like.repository.PostLikeRepository;
+import com.airfryer.repicka.domain.item_like.repository.ItemLikeRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class ItemService
     private final AppointmentRepository appointmentRepository;
     private final AppointmentService appointmentService;
 
-    private final PostLikeRepository postLikeRepository;
+    private final ItemLikeRepository itemLikeRepository;
 
     private final S3Service s3Service;
 
@@ -133,7 +133,7 @@ public class ItemService
         List<String> imageUrls = itemImageService.getItemImageUrls(item);
 
         // 좋아요 여부 조회
-        boolean isLiked = (user != null) && (postLikeRepository.findByItemIdAndLikerId(itemId, user.getId()).isPresent());
+        boolean isLiked = (user != null) && (itemLikeRepository.findByItemIdAndLikerId(itemId, user.getId()).isPresent());
 
         return ItemDetailRes.from(item, imageUrls, user, isLiked);
     }

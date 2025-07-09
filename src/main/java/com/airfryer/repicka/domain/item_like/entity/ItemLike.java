@@ -1,4 +1,4 @@
-package com.airfryer.repicka.domain.post_like.entity;
+package com.airfryer.repicka.domain.item_like.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.item.entity.Item;
@@ -8,12 +8,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
-@Table(name = "post_like")
+@Table(name = "item_like")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class PostLike extends BaseEntity
+public class ItemLike extends BaseEntity
 {
     // 게시글 좋아요 식별자
     @Id
