@@ -52,7 +52,7 @@ public class AppointmentService
         }
 
         // 게시글 작성자와 대여자가 다른 사용자인지 체크
-        if(Objects.equals(item.getOwner(), borrower)) {
+        if(Objects.equals(item.getOwner().getId(), borrower.getId())) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
@@ -130,7 +130,7 @@ public class AppointmentService
         }
 
         // 게시글 작성자와 대여자가 다른 사용자인지 체크
-        if(Objects.equals(item.getOwner(), buyer)) {
+        if(Objects.equals(item.getOwner().getId(), buyer.getId())) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
