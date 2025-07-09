@@ -19,26 +19,30 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/like")
 @RequiredArgsConstructor
-public class ItemLikeController {
-
+public class ItemLikeController
+{
     private final ItemLikeService itemLikeService;
 
-    @PostMapping("/{postId}")
-    public ResponseEntity<SuccessResponseDto> likePost(@PathVariable(value="postId") Long postId,
-                                                        @AuthenticationPrincipal CustomOAuth2User user) {
-        boolean isLiked = itemLikeService.likePost(postId, user.getUser());
+    // 제품 좋아요
+    @PostMapping("/{itemId}")
+    public ResponseEntity<SuccessResponseDto> likeItem(@PathVariable(value="itemId") Long itemId,
+                                                       @AuthenticationPrincipal CustomOAuth2User user)
+    {
+        boolean isLiked = itemLikeService.likeItem(itemId, user.getUser());
 
         return ResponseEntity.ok(SuccessResponseDto.builder()
-            .message(isLiked ? "게시글 좋아요를 성공적으로 추가했습니다." : "게시글 좋아요를 성공적으로 취소했습니다.")
+            .message(isLiked ? "제품 좋아요를 성공적으로 추가했습니다." : "제품 좋아요를 성공적으로 취소했습니다.")
             .build());
     }
 
+    // 좋아요 목록
     @GetMapping
-    public ResponseEntity<SuccessResponseDto> getPostLikes(@AuthenticationPrincipal CustomOAuth2User user) {
-
+    public ResponseEntity<SuccessResponseDto> getPostLikes(@AuthenticationPrincipal CustomOAuth2User user)
+    {
         List<ItemLikeRes> postLikes = itemLikeService.getPostLikes(user.getUser());
+
         return ResponseEntity.ok(SuccessResponseDto.builder()
-            .message("게시글 좋아요 목록을 성공적으로 조회했습니다.")
+            .message("제품 좋아요 목록을 성공적으로 조회했습니다.")
             .data(postLikes)
             .build());
     }
