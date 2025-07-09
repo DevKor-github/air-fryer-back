@@ -179,19 +179,13 @@ public class Item extends BaseEntity
         this.repostDate = LocalDateTime.now();
     }
 
-    /// 게시글 가격 및 보증금 수정
-
-    public void updatePriceAndDeposit(int price, int deposit) {
-        this.price = price;
-        this.deposit = deposit;
-    }
-
     /// 좋아요 개수 증가/감소
 
     public void addLikeCount() { this.likeCount++; }
     public void removeLikeCount() { this.likeCount--; }
 
     /// 채팅방 개수 증가/감소
+
     public void addChatRoomCount() { this.chatRoomCount++; }
     public void removeChatRoomCount() { this.chatRoomCount--; }
 }
