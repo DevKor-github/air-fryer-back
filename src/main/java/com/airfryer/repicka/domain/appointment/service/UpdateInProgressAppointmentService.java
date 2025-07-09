@@ -167,12 +167,15 @@ public class UpdateInProgressAppointmentService
 
         if(isAccepted)
         {
-            // 대여 구간 가능 여부 체크
-            appointmentService.checkRentalPeriodPossibility(
-                    LocalDateTime.now(),
-                    updateInProgressAppointment.getReturnDate(),
-                    appointment.getItem()
-            );
+            // 기존 반납 일시부터 새로운 반납 일시까지의 대여 구간 가능 여부 체크
+            if(appointment.getReturnDate().isBefore(updateInProgressAppointment.getReturnDate()))
+            {
+                appointmentService.checkRentalPeriodPossibility(
+                        appointment.getReturnDate(),
+                        updateInProgressAppointment.getReturnDate(),
+                        appointment.getItem()
+                );
+            }
 
             // 약속 데이터 변경
             appointment.updateAppointment(updateInProgressAppointment.getReturnDate(), updateInProgressAppointment.getReturnLocation());
