@@ -25,7 +25,7 @@ public class SearchItemReq
     // 제품 타입
     private ProductType[] productTypes;
 
-    // 게시글 타입
+    // 거래 타입
     private TransactionType[] transactionTypes;
 
     // 제품 사이즈
