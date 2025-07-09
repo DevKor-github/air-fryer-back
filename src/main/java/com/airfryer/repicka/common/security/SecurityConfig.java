@@ -66,8 +66,8 @@ public class SecurityConfig
         // URL 기반 권한 설정
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/v1/post/presigned-url").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/post/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/item/presigned-url").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/item/**").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 );

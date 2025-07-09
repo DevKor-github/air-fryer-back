@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/v1/item")
+@RequiredArgsConstructor
 public class ItemController
 {
     private final ItemService itemService;
