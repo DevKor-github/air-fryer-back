@@ -28,10 +28,7 @@ public enum CustomExceptionCode
     ALREADY_SALE_RESERVED(HttpStatus.CONFLICT, "이미 판매가 예정된 제품입니다."),
     CANNOT_RENTAL_ITEM(HttpStatus.BAD_REQUEST, "대여가 불가능한 제품입니다."),
     CANNOT_SALE_ITEM(HttpStatus.BAD_REQUEST, "구매가 불가능한 제품입니다."),
-
-    // 게시글(Post) 관련 예외
-    SAME_WRITER_AND_REQUESTER(HttpStatus.BAD_REQUEST, "게시글 작성자와 대여 및 구매 요청자는 달라야 합니다."),
-
+    SAME_OWNER_AND_REQUESTER(HttpStatus.BAD_REQUEST, "제품 소유자와 대여 및 구매 요청자는 달라야 합니다."),
 
     // 약속(Appointment) 관련 예외
     NOT_APPOINTMENT_PARTICIPANT(HttpStatus.FORBIDDEN, "약속 관계자가 아닙니다."),

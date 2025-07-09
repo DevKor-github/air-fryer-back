@@ -1,8 +1,8 @@
 package com.airfryer.repicka.domain.appointment.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
-import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInRentalPostReq;
-import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInSalePostReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferRentalAppointmentReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferSaleAppointmentReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateConfirmedAppointmentReq;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.user.entity.User;
@@ -84,23 +84,23 @@ public class Appointment extends BaseEntity
 
     /// 약속 데이터 수정
 
-    public void updateAppointment(OfferAppointmentInRentalPostReq dto)
+    public void updateAppointment(OfferRentalAppointmentReq dto)
     {
         this.rentalLocation = dto.getRentalLocation();
         this.returnLocation = dto.getReturnLocation();
         this.rentalDate = dto.getRentalDate();
         this.returnDate = dto.getReturnDate();
-        this.price = dto.getPrice();
+        this.price = dto.getRentalFee();
         this.deposit = dto.getDeposit();
     }
 
-    public void updateAppointment(OfferAppointmentInSalePostReq dto)
+    public void updateAppointment(OfferSaleAppointmentReq dto)
     {
         this.rentalLocation = dto.getSaleLocation();
         this.returnLocation = null;
         this.rentalDate = dto.getSaleDate();
         this.returnDate = null;
-        this.price = dto.getPrice();
+        this.price = dto.getSalePrice();
         this.deposit = 0;
     }
 
