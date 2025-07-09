@@ -118,6 +118,8 @@ public class ItemService
             throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_ITEM, null);
         }
 
+        // TODO: 제품 이미지 삭제
+
         // 제품 삭제
         itemRepository.delete(item);
     }
