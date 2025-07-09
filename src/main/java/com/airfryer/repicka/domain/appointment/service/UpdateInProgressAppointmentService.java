@@ -50,17 +50,11 @@ public class UpdateInProgressAppointmentService
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
-        /// 게시글 데이터 조회
-
-        // 게시글 데이터 조회
-        Post post = appointment.getPost();
-
         // 대여 구간 가능 여부 체크
         appointmentService.checkRentalPeriodPossibility(
                 LocalDateTime.now(),
                 dto.getReturnDate(),
-                post,
-                post.getItem()
+                appointment.getItem()
         );
 
         /// 대여 중인 약속 변경 요청 데이터 생성
@@ -84,7 +78,7 @@ public class UpdateInProgressAppointmentService
         // 기존의 대여중 변경 요청이 존재하지 않는 경우
         else
         {
-            // 새롤운 데이터 생성
+            // 새로운 데이터 생성
             updateInProgressAppointment = UpdateInProgressAppointment.builder()
                     .appointment(appointment)
                     .creator(user)
@@ -98,7 +92,7 @@ public class UpdateInProgressAppointmentService
 
         /// 약속 데이터 반환
 
-        return AppointmentRes.from(updateInProgressAppointment, post);
+        return AppointmentRes.from(updateInProgressAppointment, appointment.getItem());
     }
 
     // 대여 중인 약속 변경 제시 데이터 조회
@@ -170,15 +164,11 @@ public class UpdateInProgressAppointmentService
 
         if(isAccepted)
         {
-            // 게시글 데이터 조회
-            Post post = appointment.getPost();
-
             // 대여 구간 가능 여부 체크
             appointmentService.checkRentalPeriodPossibility(
                     LocalDateTime.now(),
                     updateInProgressAppointment.getReturnDate(),
-                    post,
-                    post.getItem()
+                    appointment.getItem()
             );
 
             // 약속 데이터 변경

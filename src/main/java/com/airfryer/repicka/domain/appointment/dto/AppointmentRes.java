@@ -44,14 +44,14 @@ public class AppointmentRes
                 .build();
     }
 
-    public static AppointmentRes from(UpdateInProgressAppointment updateInProgressAppointment, Post post)
+    public static AppointmentRes from(UpdateInProgressAppointment updateInProgressAppointment, Item item)
     {
         return AppointmentRes.builder()
                 .appointmentId(updateInProgressAppointment.getAppointment().getId())
-                .postId(post.getId())
+                .itemId(item.getId())
                 .ownerId(updateInProgressAppointment.getAppointment().getOwner().getId())
                 .borrowerId(updateInProgressAppointment.getAppointment().getRequester().getId())
-                .type(post.getPostType())
+                .type(updateInProgressAppointment.getAppointment().getType())
                 .rentalDate(updateInProgressAppointment.getAppointment().getRentalDate())
                 .returnDate(updateInProgressAppointment.getReturnDate())
                 .rentalLocation(updateInProgressAppointment.getAppointment().getRentalLocation())
