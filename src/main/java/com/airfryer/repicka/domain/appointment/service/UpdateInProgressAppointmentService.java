@@ -50,12 +50,15 @@ public class UpdateInProgressAppointmentService
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
-        // 대여 구간 가능 여부 체크
-        appointmentService.checkRentalPeriodPossibility(
-                LocalDateTime.now(),
-                dto.getReturnDate(),
-                appointment.getItem()
-        );
+        // 기존 반납 일시부터 새로운 반납 일시까지의 대여 구간 가능 여부 체크
+        if(appointment.getReturnDate().isBefore(dto.getReturnDate()))
+        {
+            appointmentService.checkRentalPeriodPossibility(
+                    appointment.getReturnDate(),
+                    dto.getReturnDate(),
+                    appointment.getItem()
+            );
+        }
 
         /// 대여 중인 약속 변경 요청 데이터 생성
 

@@ -32,8 +32,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     @Query("""
         SELECT a FROM Appointment a
         WHERE a.item.id = :itemId AND a.state IN :state AND a.type = :type AND (
-           (a.rentalDate BETWEEN :start AND :end) OR
-           (a.returnDate BETWEEN :start AND :end) OR
+           (a.rentalDate > :start AND a.rentalDate < :end) OR
+           (a.returnDate > :start AND a.returnDate < :end) OR
            (a.rentalDate < :start AND a.returnDate > :end)
         )
     """)
