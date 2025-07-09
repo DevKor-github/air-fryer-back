@@ -13,7 +13,7 @@ import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
-import com.airfryer.repicka.domain.item.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,7 @@ public class AppointmentService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
 
         // 대여가 가능한 제품인지 확인
-        if(!Arrays.asList(item.getPostTypes()).contains(PostType.RENTAL)) {
+        if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL)) {
             throw new CustomException(CustomExceptionCode.CANNOT_RENTAL_ITEM, null);
         }
 
@@ -125,7 +125,7 @@ public class AppointmentService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
 
         // 구매가 가능한 제품인지 확인
-        if(!Arrays.asList(item.getPostTypes()).contains(PostType.SALE)) {
+        if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.SALE)) {
             throw new CustomException(CustomExceptionCode.CANNOT_SALE_ITEM, null);
         }
 
@@ -472,7 +472,7 @@ public class AppointmentService
                 orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 대여가 가능한 경우
-        if(Arrays.asList(item.getPostTypes()).contains(PostType.RENTAL))
+        if(Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL))
         {
             // 예정된 대여 약속 중, 반납 날짜가 가장 늦은 약속 데이터 조회
             Optional<Appointment> appointmentOptional = appointmentRepository.findTop1ByItemIdAndStateOrderByReturnDateDesc(

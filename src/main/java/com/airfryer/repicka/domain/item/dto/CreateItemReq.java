@@ -13,8 +13,8 @@ public class CreateItemReq
     @NotNull(message = "제품 타입을 입력해주세요.")
     private ProductType[] productTypes = new ProductType[2];
 
-    @NotNull(message = "게시글 타입을 입력해주세요.")
-    private PostType[] postTypes = new PostType[2];
+    @NotNull(message = "거래 타입을 입력해주세요.")
+    private TransactionType[] transactionTypes = new TransactionType[2];
 
     @Size(max = 255, message = "제목은 최대 255자까지 입력할 수 있습니다.")
     @NotBlank(message = "제목을 입력해주세요.")

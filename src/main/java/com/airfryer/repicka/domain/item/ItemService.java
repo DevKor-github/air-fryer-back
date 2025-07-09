@@ -18,7 +18,7 @@ import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item.dto.ItemDetailRes;
 import com.airfryer.repicka.domain.item.dto.ItemPreviewRes;
 import com.airfryer.repicka.domain.item.dto.SearchItemReq;
-import com.airfryer.repicka.domain.item.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.item.repository.ItemCustomRepository;
 import com.airfryer.repicka.domain.post_like.repository.PostLikeRepository;
 import com.airfryer.repicka.domain.user.entity.User;
@@ -63,7 +63,7 @@ public class ItemService
         Item item = Item.builder()
                 .owner(user)
                 .productTypes(dto.getProductTypes())
-                .postTypes(dto.getPostTypes())
+                .transactionTypes(dto.getTransactionTypes())
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .color(dto.getColor())
@@ -185,7 +185,7 @@ public class ItemService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 대여가 가능한 제품인지 확인
-        if(!Arrays.asList(item.getPostTypes()).contains(PostType.RENTAL)) {
+        if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL)) {
             throw new CustomException(CustomExceptionCode.CANNOT_RENTAL_ITEM, null);
         }
 
@@ -210,7 +210,7 @@ public class ItemService
         }
 
         // 제품이 판매 예정 혹은 판매된 경우, 이후의 날짜들은 전부 대여 불가능 처리
-        if(Arrays.asList(item.getPostTypes()).contains(PostType.SALE) && item.getSaleDate() != null)
+        if(Arrays.asList(item.getTransactionTypes()).contains(TransactionType.SALE) && item.getSaleDate() != null)
         {
             LocalDate saleDate = item.getSaleDate().toLocalDate();  // 제품 판매 예정 날짜
 
@@ -294,7 +294,7 @@ public class ItemService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 구매가 가능한 제품인지 확인
-        if(!Arrays.asList(item.getPostTypes()).contains(PostType.SALE)) {
+        if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.SALE)) {
             throw new CustomException(CustomExceptionCode.CANNOT_SALE_ITEM, null);
         }
 

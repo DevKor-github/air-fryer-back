@@ -2,7 +2,7 @@ package com.airfryer.repicka.domain.item.dto;
 
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.entity.ProductType;
-import com.airfryer.repicka.domain.item.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.TransactionType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,7 +16,7 @@ public class ItemPreviewRes
     private ProductType[] productTypes = new ProductType[2]; // 제품 타입
 
     @Builder.Default
-    private PostType[] postTypes = new PostType[2]; // 게시글 타입
+    private TransactionType[] transactionTypes = new TransactionType[2]; // 거래 타입
 
     private String thumbnail;       // 대표 사진
     private String title;           // 게시글 제목
@@ -32,7 +32,7 @@ public class ItemPreviewRes
         return ItemPreviewRes.builder()
                 .itemId(item.getId())
                 .productTypes(item.getProductTypes())
-                .postTypes(item.getPostTypes())
+                .transactionTypes(item.getTransactionTypes())
                 .thumbnail(thumbnailUrl)
                 .title(item.getTitle())
                 .rentalFee(item.getRentalFee())

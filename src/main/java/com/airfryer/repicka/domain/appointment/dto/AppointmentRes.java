@@ -4,7 +4,6 @@ import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
 import com.airfryer.repicka.domain.item.entity.Item;
-import com.airfryer.repicka.domain.item.entity.PostType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

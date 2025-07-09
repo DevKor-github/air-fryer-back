@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PostType
+public enum TransactionType
 {
     RENTAL("RENTAL", "대여"),
     SALE("SALE", "판매");

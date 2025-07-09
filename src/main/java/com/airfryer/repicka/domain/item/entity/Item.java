@@ -42,13 +42,13 @@ public class Item extends BaseEntity
             )
     )
     @Column(
-            name = "product_type",
+            name = "product_types",
             columnDefinition = "text[]"
     )
     @Builder.Default
     private ProductType[] productTypes = new ProductType[2];
 
-    // 게시글 타입
+    // 거래 타입
     @NotEmpty
     @Type(
             value = EnumArrayType.class,
@@ -58,11 +58,11 @@ public class Item extends BaseEntity
             )
     )
     @Column(
-            name = "post_type",
+            name = "transaction_types",
             columnDefinition = "text[]"
     )
     @Builder.Default
-    private PostType[] postTypes = new PostType[2];
+    private TransactionType[] transactionTypes = new TransactionType[2];
 
     // 제목
     @NotNull
@@ -115,7 +115,7 @@ public class Item extends BaseEntity
             )
     )
     @Column(
-            name = "trade_method",
+            name = "trade_methods",
             columnDefinition = "text[]"
     )
     @Builder.Default
@@ -159,7 +159,7 @@ public class Item extends BaseEntity
     public void updateItem(CreateItemReq itemDetail)
     {
         this.productTypes = itemDetail.getProductTypes();
-        this.postTypes = itemDetail.getPostTypes();
+        this.transactionTypes = itemDetail.getTransactionTypes();
         this.title = itemDetail.getTitle();
         this.description = itemDetail.getDescription();
         this.color = itemDetail.getColor();

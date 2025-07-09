@@ -63,10 +63,10 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository {
             paramIndex++;
         }
 
-        // 게시글 타입 조건
-        if (condition.getPostTypes() != null && condition.getPostTypes().length > 0) {
-            queryBuilder.append("AND i.post_types @> ?").append(paramIndex).append("::text[] ");
-            parameters.add(Arrays.stream(condition.getPostTypes())
+        // 거래 타입 조건
+        if (condition.getTransactionTypes() != null && condition.getTransactionTypes().length > 0) {
+            queryBuilder.append("AND i.transaction_types @> ?").append(paramIndex).append("::text[] ");
+            parameters.add(Arrays.stream(condition.getTransactionTypes())
                     .map(Enum::name)
                     .toArray(String[]::new));
             paramIndex++;

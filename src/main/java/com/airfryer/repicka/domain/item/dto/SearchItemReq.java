@@ -1,7 +1,7 @@
 package com.airfryer.repicka.domain.item.dto;
 
 import com.airfryer.repicka.domain.item.entity.*;
-import com.airfryer.repicka.domain.item.entity.PostType;
+import com.airfryer.repicka.domain.item.entity.TransactionType;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class SearchItemReq
     private ProductType[] productTypes;
 
     // 게시글 타입
-    private PostType[] postTypes;
+    private TransactionType[] transactionTypes;
 
     // 제품 사이즈
     private ItemSize[] sizes;
