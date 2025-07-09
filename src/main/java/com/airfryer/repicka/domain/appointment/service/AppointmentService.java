@@ -471,14 +471,12 @@ public class AppointmentService
         Item item = itemRepository.findById(itemId).
                 orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
-        // 대여 게시글이 존재하는 경우
-        if(rentalPostOptional.isPresent())
+        // 대여가 가능한 경우
+        if(Arrays.asList(item.getPostTypes()).contains(PostType.RENTAL))
         {
-            Post rentalPost = rentalPostOptional.get();
-
             // 예정된 대여 약속 중, 반납 날짜가 가장 늦은 약속 데이터 조회
-            Optional<Appointment> appointmentOptional = appointmentRepository.findTop1ByPostIdAndStateOrderByReturnDateDesc(
-                    rentalPost.getId(),
+            Optional<Appointment> appointmentOptional = appointmentRepository.findTop1ByItemIdAndStateOrderByReturnDateDesc(
+                    itemId,
                     AppointmentState.CONFIRMED
             );
 
