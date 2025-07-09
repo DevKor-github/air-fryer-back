@@ -392,6 +392,11 @@ public class AppointmentService
         // 대여 게시글의 경우
         if(appointment.getType() == AppointmentType.RENTAL)
         {
+            // 반납 일시와 반납 장소 정보가 존재하는지 확인
+            if(dto.getRentalDate() == null || dto.getRentalLocation() == null || dto.getDeposit() == null) {
+                throw new CustomException(CustomExceptionCode.INVALID_RENTAL_INFORMATION, null);
+            }
+
             // 대여 구간 가능 여부 체크
             checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
         }

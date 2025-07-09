@@ -29,6 +29,7 @@ public enum CustomExceptionCode
     CANNOT_RENTAL_ITEM(HttpStatus.BAD_REQUEST, "대여가 불가능한 제품입니다."),
     CANNOT_SALE_ITEM(HttpStatus.BAD_REQUEST, "구매가 불가능한 제품입니다."),
     SAME_OWNER_AND_REQUESTER(HttpStatus.BAD_REQUEST, "제품 소유자와 대여 및 구매 요청자는 달라야 합니다."),
+    INVALID_RENTAL_INFORMATION(HttpStatus.BAD_REQUEST, "유효하지 않은 대여 정보입니다."),
 
     // 약속(Appointment) 관련 예외
     NOT_APPOINTMENT_PARTICIPANT(HttpStatus.FORBIDDEN, "약속 관계자가 아닙니다."),
