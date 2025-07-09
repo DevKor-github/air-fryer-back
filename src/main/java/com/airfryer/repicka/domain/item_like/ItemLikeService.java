@@ -27,7 +27,7 @@ public class ItemLikeService
     private final ItemLikeRepository itemLikeRepository;
     private final ItemImageService itemImageService;
 
-    // 제품 좋아요
+    // 제품 좋아요 등록 및 취소
     @Transactional
     public boolean likeItem(Long itemId, User user)
     {

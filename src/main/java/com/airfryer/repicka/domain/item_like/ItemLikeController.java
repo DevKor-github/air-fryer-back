@@ -23,7 +23,7 @@ public class ItemLikeController
 {
     private final ItemLikeService itemLikeService;
 
-    // 제품 좋아요
+    // 제품 좋아요 등록 및 취소
     @PostMapping("/{itemId}")
     public ResponseEntity<SuccessResponseDto> likeItem(@PathVariable(value="itemId") Long itemId,
                                                        @AuthenticationPrincipal CustomOAuth2User user)
