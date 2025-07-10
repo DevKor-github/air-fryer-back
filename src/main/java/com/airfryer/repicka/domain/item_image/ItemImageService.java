@@ -16,29 +16,51 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ItemImageService {
+public class ItemImageService
+{
     private final ItemImageRepository itemImageRepository;
     private final S3Service s3Service;
 
-    // 다수의 상품 이미지 저장
+    /// 여러 제품 이미지 저장
+
     @Transactional
-    public List<ItemImage> createItemImage(String[] fileKeys, Item item) {
+    public List<String> createItemImage(String[] fileKeys, Item item)
+    {
+        // 제품 이미지 리스트 생성
         List<ItemImage> itemImages = new ArrayList<>();
-        int order = 1;
-        for (String fileKey: fileKeys) {
+        for(int i = 0; i < fileKeys.length; i++)
+        {
             ItemImage itemImage = ItemImage.builder()
-                    .displayOrder(order++)
+                    .displayOrder(i + 1)
                     .item(item)
-                    .fileKey(fileKey)
+                    .fileKey(fileKeys[i])
                     .build();
 
             itemImages.add(itemImage);
         }
 
+        // 제품 이미지 리스트 저장
         itemImages = itemImageRepository.saveAll(itemImages);
 
-        return itemImages;
+        // 이미지 URL 리스트 반환
+        return getItemImageUrls(itemImages);
     }
+
+    /// 제품 이미지 URL 리스트 반환
+
+    public List<String> getItemImageUrls(Item item)
+    {
+        List<ItemImage> itemImages = itemImageRepository.findAllByItemId(item.getId());
+        return getItemImageUrls(itemImages);
+    }
+
+    public List<String> getItemImageUrls(List<ItemImage> itemImages) {
+        return itemImages.stream()
+                .map(this::getFullImageUrl)
+                .toList();
+    }
+
+    /// 제품의 썸네일 URL 조회
 
     public String getThumbnail(Item item) {
         Optional<ItemImage> itemImageOptional = itemImageRepository.findByDisplayOrderAndItemId(1, item.getId());
@@ -46,23 +68,8 @@ public class ItemImageService {
         return getFullImageUrl(itemImage);
     }
 
-    public List<String> getItemImages(Item item) {
-        List<ItemImage> itemImages = itemImageRepository.findAllByItemId(item.getId());
-        List<String> imageUrls = itemImages.stream()
-                .map(this::getFullImageUrl)
-                .toList();
-        return imageUrls;
-    }
-    
-    // ItemImage 엔티티의 fileKey를 전체 URL로 변환
-    public String getFullImageUrl(ItemImage itemImage) {
-        if (itemImage == null) {
-            return null;
-        }
-        return s3Service.getFullImageUrl(itemImage.getFileKey());
-    }
+    /// 여러 제품의 썸네일 URL 조회
 
-    // 여러 Item의 썸네일을 한 번에 조회
     public Map<Long, String> getThumbnailsForItems(List<Item> items) {
         List<Long> itemIds = items.stream()
                 .map(Item::getId)
@@ -72,8 +79,17 @@ public class ItemImageService {
         
         return thumbnails.stream()
                 .collect(Collectors.toMap(
-                    itemImage -> itemImage.getItem().getId(),
-                    itemImage -> getFullImageUrl(itemImage)
+                        itemImage -> itemImage.getItem().getId(),
+                        this::getFullImageUrl
                 ));
+    }
+
+    /// 제품 이미지의 fileKey를 전체 URL로 변환
+
+    public String getFullImageUrl(ItemImage itemImage) {
+        if (itemImage == null) {
+            return null;
+        }
+        return s3Service.getFullImageUrl(itemImage.getFileKey());
     }
 }

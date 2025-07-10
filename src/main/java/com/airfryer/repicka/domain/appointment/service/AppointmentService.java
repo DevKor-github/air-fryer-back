@@ -2,32 +2,25 @@ package com.airfryer.repicka.domain.appointment.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.domain.appointment.FindMyAppointmentPeriod;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
-import com.airfryer.repicka.domain.appointment.repository.UpdateInProgressAppointmentRepository;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
-import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.entity.PostType;
-import com.airfryer.repicka.domain.post.repository.PostRepository;
+import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,56 +29,51 @@ import java.util.stream.Collectors;
 public class AppointmentService
 {
     private final AppointmentRepository appointmentRepository;
-    private final UpdateInProgressAppointmentRepository updateInProgressAppointmentRepository;
-    private final PostRepository postRepository;
+    private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
 
     private final ItemImageService itemImageService;
 
     /// 서비스
 
-    // 대여 게시글에서 약속 제시
+    // 대여 약속 제시
     @Transactional
-    public void offerAppointmentInRentalPost(User borrower, OfferAppointmentInRentalPostReq dto)
+    public void offerRentalAppointment(User borrower, OfferRentalAppointmentReq dto)
     {
-        /// 게시글 데이터 조회
-
-        // 게시글 데이터 조회
-        Post post = postRepository.findById(dto.getPostId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, dto.getPostId()));
-
-        // 대여 게시글인지 체크
-        if(post.getPostType() != PostType.RENTAL) {
-            throw new CustomException(CustomExceptionCode.NOT_RENTAL_POST, post.getPostType());
-        }
-
-        // 게시글 작성자와 대여자가 다른 사용자인지 체크
-        if(Objects.equals(post.getWriter(), borrower)) {
-            throw new CustomException(CustomExceptionCode.SAME_WRITER_AND_REQUESTER, null);
-        }
-
         /// 제품 데이터 조회
 
         // 제품 데이터 조회
-        Item item = post.getItem();
+        Item item = itemRepository.findById(dto.getItemId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
+
+        // 대여가 가능한 제품인지 확인
+        if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL)) {
+            throw new CustomException(CustomExceptionCode.CANNOT_RENTAL_ITEM, null);
+        }
+
+        // 게시글 작성자와 대여자가 다른 사용자인지 체크
+        if(Objects.equals(item.getOwner().getId(), borrower.getId())) {
+            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
+        }
 
         // 가격 협의가 불가능한데 가격을 바꾸지는 않았는지 체크
-        if(!item.getCanDeal() && (dto.getPrice() != post.getPrice() || dto.getDeposit() != post.getDeposit())) {
+        if(!item.getCanDeal() && (dto.getRentalFee() != item.getRentalFee() || dto.getDeposit() != item.getDeposit())) {
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
 
         // 대여 구간 가능 여부 체크
-        checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), post, item);
+        checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
 
         /// 게시글 작성자와 대여자 간의 협의 중인 약속 데이터가 이미 존재한다면, 기존 약속 데이터를 수정
         /// 게시글 작성자와 대여자 간의 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 약속 데이터를 생성
 
         // 게시글 작성자와 대여자 간의 협의 중인 약속 데이터 조회
-        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerIdAndRequesterIdAndState(
-                post.getId(),
-                post.getWriter().getId(),
+        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateAndType(
+                item.getId(),
+                item.getOwner().getId(),
                 borrower.getId(),
-                AppointmentState.PENDING
+                AppointmentState.PENDING,
+                AppointmentType.RENTAL
         );
 
         // 협의 중인 약속 데이터가 존재하는 경우, 기존 약속 데이터를 수정
@@ -105,17 +93,18 @@ public class AppointmentService
         {
             // 새로운 약속 데이터 생성
             Appointment appointment = Appointment.builder()
-                    .post(post)
-                    .creator(borrower)
-                    .owner(post.getWriter())
+                    .item(item)
                     .requester(borrower)
-                    .rentalLocation(dto.getRentalLocation().trim())
-                    .returnLocation(dto.getReturnLocation().trim())
+                    .owner(item.getOwner())
+                    .creator(borrower)
+                    .type(AppointmentType.RENTAL)
+                    .state(AppointmentState.PENDING)
                     .rentalDate(dto.getRentalDate())
                     .returnDate(dto.getReturnDate())
-                    .price(dto.getPrice())
+                    .rentalLocation(dto.getRentalLocation().trim())
+                    .returnLocation(dto.getReturnLocation().trim())
+                    .price(dto.getRentalFee())
                     .deposit(dto.getDeposit())
-                    .state(AppointmentState.PENDING)
                     .build();
 
             // 약속 데이터 저장
@@ -125,32 +114,28 @@ public class AppointmentService
         // TODO: 채팅방 데이터와 약속 데이터를 반환해야 함.
     }
 
-    // 판매 게시글에서 약속 제시
+    // 판매 약속 제시
     @Transactional
-    public void offerAppointmentInSalePost(User buyer, OfferAppointmentInSalePostReq dto)
+    public void offerSaleAppointment(User buyer, OfferSaleAppointmentReq dto)
     {
-        /// 게시글 데이터 조회
-
-        Post post = postRepository.findById(dto.getPostId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.POST_NOT_FOUND, dto.getPostId()));
-
-        // 판매 게시글인지 체크
-        if(post.getPostType() != PostType.SALE) {
-            throw new CustomException(CustomExceptionCode.NOT_SALE_POST, post.getPostType());
-        }
-
-        // 게시글 작성자와 대여자가 다른 사용자인지 체크
-        if(Objects.equals(post.getWriter(), buyer)) {
-            throw new CustomException(CustomExceptionCode.SAME_WRITER_AND_REQUESTER, null);
-        }
-
         /// 제품 데이터 조회
 
         // 제품 데이터 조회
-        Item item = post.getItem();
+        Item item = itemRepository.findById(dto.getItemId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
+
+        // 구매가 가능한 제품인지 확인
+        if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.SALE)) {
+            throw new CustomException(CustomExceptionCode.CANNOT_SALE_ITEM, null);
+        }
+
+        // 게시글 작성자와 대여자가 다른 사용자인지 체크
+        if(Objects.equals(item.getOwner().getId(), buyer.getId())) {
+            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
+        }
 
         // 가격 협의가 불가능한데 가격을 바꾸지는 않았는지 체크
-        if(!item.getCanDeal() && (dto.getPrice() != post.getPrice())) {
+        if(!item.getCanDeal() && (dto.getSalePrice() != item.getSalePrice())) {
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
 
@@ -161,11 +146,12 @@ public class AppointmentService
         /// 게시글 작성자와 구매자 간의 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 약속 데이터를 생성
 
         // 게시글 작성자와 구매자 간의 협의 중인 약속 데이터 조회
-        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByPostIdAndOwnerIdAndRequesterIdAndState(
-                post.getId(),
-                post.getWriter().getId(),
+        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateAndType(
+                item.getId(),
+                item.getOwner().getId(),
                 buyer.getId(),
-                AppointmentState.PENDING
+                AppointmentState.PENDING,
+                AppointmentType.SALE
         );
 
         // 협의 중인 약속 데이터가 존재하는 경우, 기존 약속 데이터를 수정
@@ -185,17 +171,18 @@ public class AppointmentService
         {
             // 새로운 약속 데이터 생성
             Appointment appointment = Appointment.builder()
-                    .post(post)
-                    .creator(buyer)
-                    .owner(post.getWriter())
+                    .item(item)
                     .requester(buyer)
-                    .rentalLocation(dto.getSaleLocation().trim())
-                    .returnLocation(null)
+                    .owner(item.getOwner())
+                    .creator(buyer)
+                    .type(AppointmentType.SALE)
+                    .state(AppointmentState.PENDING)
                     .rentalDate(dto.getSaleDate())
                     .returnDate(null)
-                    .price(dto.getPrice())
+                    .rentalLocation(dto.getSaleLocation().trim())
+                    .returnLocation(null)
+                    .price(dto.getSalePrice())
                     .deposit(0)
-                    .state(AppointmentState.PENDING)
                     .build();
 
             // 약속 데이터 저장
@@ -230,24 +217,18 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
-        /// 게시글 데이터 조회
-
-        // 게시글 데이터 조회
-        Post post = appointment.getPost();
-
         /// 제품 데이터 조회
 
         // 제품 데이터 조회
-        Item item = post.getItem();
+        Item item = appointment.getItem();
 
         // 대여 약속의 경우
-        if(post.getPostType() == PostType.RENTAL)
+        if(appointment.getType() == AppointmentType.RENTAL)
         {
             // 대여 구간 가능 여부 체크
             checkRentalPeriodPossibility(
                     appointment.getRentalDate(),
                     appointment.getReturnDate(),
-                    post,
                     item
             );
         }
@@ -267,7 +248,7 @@ public class AppointmentService
 
         /// 약속 데이터 반환
 
-        return AppointmentRes.from(appointment, post);
+        return AppointmentRes.from(appointment, item);
     }
 
     // 약속 취소
@@ -290,18 +271,13 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
-        /// 게시글 데이터 조회
-
-        // 게시글 데이터 조회
-        Post post = appointment.getPost();
-
         /// 제품 데이터 조회
 
         // 제품 데이터 조회
-        Item item = post.getItem();
+        Item item = appointment.getItem();
 
         // 구매 약속의 경우
-        if(post.getPostType() == PostType.SALE)
+        if(appointment.getType() == AppointmentType.SALE)
         {
             // 제품의 판매 예정 날짜 변경
             item.cancelSale();
@@ -316,7 +292,7 @@ public class AppointmentService
 
         /// 약속 데이터 반환
 
-        return AppointmentRes.from(appointment, post);
+        return AppointmentRes.from(appointment, item);
     }
 
     // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
@@ -351,7 +327,7 @@ public class AppointmentService
         /// 대표 이미지 리스트 조회
 
         List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentPage.stream().map(appointment -> {
-            return appointment.getPost().getItem().getId();
+            return appointment.getItem().getId();
         }).toList());
 
         // Map(제품 ID, 대표 이미지 URL) 생성
@@ -365,7 +341,7 @@ public class AppointmentService
         Map<Appointment, Optional<String>> map = appointmentPage.stream()
                 .collect(Collectors.toMap(
                         appointment -> appointment,
-                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getPost().getItem().getId())),
+                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getItem().getId())),
                         (a, b) -> b,
                         LinkedHashMap::new
                 ));
@@ -401,16 +377,12 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
-        /// 게시글 데이터 조회
-
-        Post post = appointment.getPost();
-
         /// 제품 데이터 조회
 
-        Item item = post.getItem();
+        Item item = appointment.getItem();
 
         // 가격 협의가 불가능한데 가격을 바꿔서 요청을 보내는 경우, 예외 처리
-        if(!item.getCanDeal() && (dto.getPrice() != post.getPrice() || dto.getDeposit() != post.getDeposit())) {
+        if(!item.getCanDeal() && (dto.getPrice() != appointment.getPrice() || dto.getDeposit() != appointment.getDeposit())) {
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
 
@@ -418,10 +390,15 @@ public class AppointmentService
         appointment.cancelAppointment();
 
         // 대여 게시글의 경우
-        if(post.getPostType() == PostType.RENTAL)
+        if(appointment.getType() == AppointmentType.RENTAL)
         {
+            // 반납 일시와 반납 장소 정보가 존재하는지 확인
+            if(dto.getRentalDate() == null || dto.getRentalLocation() == null || dto.getDeposit() == null) {
+                throw new CustomException(CustomExceptionCode.INVALID_RENTAL_INFORMATION, null);
+            }
+
             // 대여 구간 가능 여부 체크
-            checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), post, item);
+            checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
         }
         // 판매 게시글의 경우
         else
@@ -437,24 +414,25 @@ public class AppointmentService
 
         // 새로운 약속 데이터 생성
         Appointment newAppointment = appointment.clone();
-        newAppointment.updateAppointment(user, dto, post.getPostType() == PostType.RENTAL);
+        newAppointment.updateAppointment(user, dto, appointment.getType() == AppointmentType.RENTAL);
 
         // 약속 데이터 저장
         appointmentRepository.save(newAppointment);
 
         /// 약속 데이터 반환
 
-        return AppointmentRes.from(newAppointment, post);
+        return AppointmentRes.from(newAppointment, item);
     }
 
     /// ============================ 공통 로직 ============================
 
     /// 해당 날짜에 예정된 대여 약속이 하나도 없는지 판별
 
-    public boolean isPostAvailableOnDate(Long postId, LocalDateTime date) {
+    public boolean isItemAvailableOnDate(Long itemId, LocalDateTime date) {
         return appointmentRepository.findListOverlappingWithPeriod(
-                postId,
-                AppointmentState.CONFIRMED,
+                itemId,
+                List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
+                AppointmentType.RENTAL,
                 date,
                 date
         ).isEmpty();
@@ -462,25 +440,27 @@ public class AppointmentService
 
     /// 해당 구간 동안 예정된 대여 약속이 하나도 존재하지 않는지 판별
 
-    public boolean isPostAvailableOnInterval(Long postId, LocalDateTime startDate, LocalDateTime endDate)
+    public boolean isItemAvailableOnInterval(Long itemId, LocalDateTime startDate, LocalDateTime endDate)
     {
         if(endDate.isBefore(startDate)) {
             return true;
         }
 
         return appointmentRepository.findListOverlappingWithPeriod(
-                postId,
-                AppointmentState.CONFIRMED,
+                itemId,
+                List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
+                AppointmentType.RENTAL,
                 startDate,
                 endDate
         ).isEmpty();
     }
 
-    public boolean isPostAvailableOnInterval(Long postId, LocalDateTime startDate)
+    public boolean isItemAvailableOnInterval(Long itemId, LocalDateTime startDate)
     {
         return appointmentRepository.findListOverlappingWithPeriod(
-                postId,
-                AppointmentState.CONFIRMED,
+                itemId,
+                List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
+                AppointmentType.RENTAL,
                 startDate
         ).isEmpty();
     }
@@ -492,17 +472,16 @@ public class AppointmentService
         // 반환할 날짜
         LocalDate firstSaleAvailableDate = LocalDate.now();
 
-        // 대여 게시글 데이터 조회
-        Optional<Post> rentalPostOptional = postRepository.findByItemIdAndPostType(itemId, PostType.RENTAL);
+        // 제품 데이터 조회
+        Item item = itemRepository.findById(itemId).
+                orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
-        // 대여 게시글이 존재하는 경우
-        if(rentalPostOptional.isPresent())
+        // 대여가 가능한 경우
+        if(Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL))
         {
-            Post rentalPost = rentalPostOptional.get();
-
             // 예정된 대여 약속 중, 반납 날짜가 가장 늦은 약속 데이터 조회
-            Optional<Appointment> appointmentOptional = appointmentRepository.findTop1ByPostIdAndStateOrderByReturnDateDesc(
-                    rentalPost.getId(),
+            Optional<Appointment> appointmentOptional = appointmentRepository.findTop1ByItemIdAndStateOrderByReturnDateDesc(
+                    itemId,
                     AppointmentState.CONFIRMED
             );
 
@@ -525,7 +504,6 @@ public class AppointmentService
 
     public void checkRentalPeriodPossibility(LocalDateTime startDate,
                                              LocalDateTime endDate,
-                                             Post post,
                                              Item item)
     {
         // 시작 날짜가 종료 날짜 이전인지 체크
@@ -537,7 +515,7 @@ public class AppointmentService
         }
 
         // 대여를 원하는 구간 동안 예정된 대여 약속이 하나도 없는지 체크
-        if(!isPostAvailableOnInterval(post.getId(), startDate, endDate)) {
+        if(!isItemAvailableOnInterval(item.getId(), startDate, endDate)) {
             throw new CustomException(CustomExceptionCode.ALREADY_RENTAL_RESERVED_PERIOD, Map.of(
                     "startDate", startDate,
                     "endDate", endDate

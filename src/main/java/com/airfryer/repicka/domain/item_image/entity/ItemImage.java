@@ -7,9 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
-@Table(
-        name = "item_image"
-)
+@Table(name = "item_image")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -21,10 +19,6 @@ public class ItemImage extends BaseEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 사진 순서
-    @NotNull
-    private Integer displayOrder;
-
     // 제품
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,4 +29,8 @@ public class ItemImage extends BaseEntity
     @NotNull
     @Column(length = 500)
     private String fileKey;
+
+    // 사진 순서
+    @NotNull
+    private int displayOrder;
 }

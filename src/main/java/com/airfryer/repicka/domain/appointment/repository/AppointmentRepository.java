@@ -2,8 +2,7 @@ package com.airfryer.repicka.domain.appointment.repository;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.post.entity.PostType;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,43 +16,45 @@ import java.util.Optional;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long>
 {
     // 게시글 ID, 소유자, 대여자, 약속 상태로 약속 데이터 조회
-    List<Appointment> findByPostIdAndOwnerIdAndRequesterIdAndState(Long postId, Long ownerId, Long requesterId, AppointmentState state);
+    List<Appointment> findByItemIdAndOwnerIdAndRequesterIdAndStateAndType(
+            Long itemId,
+            Long ownerId,
+            Long requesterId,
+            AppointmentState state,
+            AppointmentType type
+    );
 
-    // 게시글 ID, 반납 일시, 약속 상태로 약속 데이터 조회
-    Optional<Appointment> findByPostIdAndReturnDateAndState(Long postId, LocalDateTime returnDate, AppointmentState state);
+    // 제품 ID, 약속 상태로 반납 날짜가 가장 늦은 약속 데이터 조회
+    Optional<Appointment> findTop1ByItemIdAndStateOrderByReturnDateDesc(Long ItemId, AppointmentState state);
 
-    // 게시글 ID, 약속 상태로 약속 리스트 조회
-    List<Appointment> findByPostIdAndState(Long postId, AppointmentState state);
+    /// 어떤 게시글의 특정 구간 동안 존재하며 특정 상태에 속하는 특정 타입의 약속 조회
 
-    // 게시글, ID, 약속 상태로 반납 날짜가 가장 늦은 약속 데이터 조회
-    Optional<Appointment> findTop1ByPostIdAndStateOrderByReturnDateDesc(Long postId, AppointmentState state);
-
-    // 어떤 게시글의 특정 구간 동안 존재하는 모든 특정 상태의 약속 조회
     @Query("""
         SELECT a FROM Appointment a
-        WHERE a.post.id = :postId AND a.state = :state AND (
-           (a.rentalDate BETWEEN :start AND :end) OR
-           (a.returnDate BETWEEN :start AND :end) OR
+        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = :type AND (
+           (a.rentalDate > :start AND a.rentalDate < :end) OR
+           (a.returnDate > :start AND a.returnDate < :end) OR
            (a.rentalDate < :start AND a.returnDate > :end)
         )
     """)
     List<Appointment> findListOverlappingWithPeriod(
-            @Param("postId") Long postId,
-            @Param("state") AppointmentState state,
+            @Param("itemId") Long itemId,
+            @Param("state") List<AppointmentState> state,
+            @Param("type") AppointmentType type,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
 
-    // 어떤 게시글의 특정 구간 동안 존재하는 모든 특정 상태의 약속 조회
     @Query("""
         SELECT a FROM Appointment a
-        WHERE a.post.id = :postId AND a.state = :state AND (
+        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = :type AND (
            (a.returnDate >= :start)
         )
     """)
     List<Appointment> findListOverlappingWithPeriod(
-            @Param("postId") Long postId,
-            @Param("state") AppointmentState state,
+            @Param("itemId") Long itemId,
+            @Param("state") List<AppointmentState> state,
+            @Param("type") AppointmentType type,
             @Param("start") LocalDateTime start
     );
 
@@ -61,13 +62,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
 
     // 커서 기반 페이지네이션 (cursor: appointmentState, rentalDate, id)
     // AppointmentState 기준 : CONFIRMED > IN_PROGRESS > SUCCESS
-    // 동일한 AppointmentState 내에서는 rentalDate 내림차순
-    // 그것까지 동일하면 ID 내림차순
+    // 동일한 AppointmentState 내에서는 rentalDate 오름차순
+    // 그것까지 동일하면 ID 오름차순
     @Query(
         value = """
-            SELECT a.* FROM appointment a JOIN post p ON a.post = p.id JOIN item i ON p.item = i.id
+            SELECT a.* FROM appointment a JOIN item i ON a.item = i.id
             WHERE a.requester = :requesterId
-                AND p.post_type = :type
+                AND a.type = :type
                 AND a.rental_date >= :start
                 AND a.state IN ('CONFIRMED', 'IN_PROGRESS', 'SUCCESS')
                 AND (
@@ -95,8 +96,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                             ELSE 4
                         END
                         AND (
-                            a.rental_date < :cursorDate
-                            OR (a.rental_date = :cursorDate AND a.id <= :cursorId)
+                            a.rental_date > :cursorDate
+                            OR (a.rental_date = :cursorDate AND a.id >= :cursorId)
                         )
                     )
                 )
@@ -107,8 +108,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                     WHEN 'SUCCESS' THEN 3
                     ELSE 4
                 END ASC,
-                a.rental_date DESC,
-                a.id DESC
+                a.rental_date ASC,
+                a.id ASC
             LIMIT :limit
         """, nativeQuery = true
     )
@@ -125,9 +126,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     // 첫 페이지 조회
     @Query(
             value = """
-            SELECT a.* FROM appointment a JOIN post p ON a.post = p.id JOIN item i ON p.item = i.id
+            SELECT a.* FROM appointment a JOIN item i ON a.item = i.id
             WHERE a.requester = :requesterId
-                AND p.post_type = :type
+                AND a.type = :type
                 AND a.rental_date >= :start
                 AND a.state IN ('CONFIRMED', 'IN_PROGRESS', 'SUCCESS')
             ORDER BY
@@ -137,8 +138,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                     WHEN 'SUCCESS' THEN 3
                     ELSE 4
                 END ASC,
-                a.rental_date DESC,
-                a.id DESC
+                a.rental_date ASC,
+                a.id ASC
             LIMIT :limit
         """, nativeQuery = true
     )
@@ -153,13 +154,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
 
     // 커서 기반 페이지네이션 (cursor: appointmentState, rentalDate, id)
     // AppointmentState 기준 : CONFIRMED > IN_PROGRESS > SUCCESS
-    // 동일한 AppointmentState 내에서는 rentalDate 내림차순
-    // 그것까지 동일하면 ID 내림차순
+    // 동일한 AppointmentState 내에서는 rentalDate 오름차순
+    // 그것까지 동일하면 ID 오름차순
     @Query(
             value = """
-            SELECT a.* FROM appointment a JOIN post p ON a.post = p.id JOIN item i ON p.item = i.id
+            SELECT a.* FROM appointment a JOIN item i ON a.item = i.id
             WHERE a.owner = :ownerId
-                AND p.post_type = :type
+                AND a.type = :type
                 AND a.rental_date >= :start
                 AND a.state IN ('CONFIRMED', 'IN_PROGRESS', 'SUCCESS')
                 AND (
@@ -187,8 +188,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                             ELSE 4
                         END
                         AND (
-                            a.rental_date < :cursorDate
-                            OR (a.rental_date = :cursorDate AND a.id <= :cursorId)
+                            a.rental_date > :cursorDate
+                            OR (a.rental_date = :cursorDate AND a.id >= :cursorId)
                         )
                     )
                 )
@@ -199,8 +200,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                     WHEN 'SUCCESS' THEN 3
                     ELSE 4
                 END ASC,
-                a.rental_date DESC,
-                a.id DESC
+                a.rental_date ASC,
+                a.id ASC
             LIMIT :limit
         """, nativeQuery = true
     )
@@ -217,9 +218,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     // 첫 페이지 조회
     @Query(
             value = """
-            SELECT a.* FROM appointment a JOIN post p ON a.post = p.id JOIN item i ON p.item = i.id
+            SELECT a.* FROM appointment a JOIN item i ON a.item = i.id
             WHERE a.owner = :ownerId
-                AND p.post_type = :type
+                AND a.type = :type
                 AND a.rental_date >= :start
                 AND a.state IN ('CONFIRMED', 'IN_PROGRESS', 'SUCCESS')
             ORDER BY
@@ -229,8 +230,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
                     WHEN 'SUCCESS' THEN 3
                     ELSE 4
                 END ASC,
-                a.rental_date DESC,
-                a.id DESC
+                a.rental_date ASC,
+                a.id ASC
             LIMIT :limit
         """, nativeQuery = true
     )

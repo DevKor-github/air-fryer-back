@@ -1,11 +1,10 @@
 package com.airfryer.repicka.domain.appointment.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
-import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInRentalPostReq;
-import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentInSalePostReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferRentalAppointmentReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferSaleAppointmentReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateConfirmedAppointmentReq;
-import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateInProgressAppointmentReq;
-import com.airfryer.repicka.domain.post.entity.Post;
+import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -14,9 +13,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "appointment"
-)
+@Table(name = "appointment")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -27,17 +24,17 @@ public class Appointment extends BaseEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 게시글
+    // 제품
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post")
-    private Post post;
+    @JoinColumn(name = "item")
+    private Item item;
 
-    // 생성자
+    // 대여자(구매자)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator")
-    private User creator;
+    @JoinColumn(name = "requester")
+    private User requester;
 
     // 소유자
     @NotNull
@@ -45,11 +42,21 @@ public class Appointment extends BaseEntity
     @JoinColumn(name = "owner")
     private User owner;
 
-    // 대여자(구매자)
+    // 생성자
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requester")
-    private User requester;
+    @JoinColumn(name = "creator")
+    private User creator;
+
+    // 약속 종류
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AppointmentType type;
+
+    // 약속 상태
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AppointmentState state;
 
     // 대여(구매) 일시
     @NotNull
@@ -75,30 +82,25 @@ public class Appointment extends BaseEntity
     @Builder.Default
     private int deposit = 0;
 
-    // 약속 진행 상태
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private AppointmentState state;
-
     /// 약속 데이터 수정
 
-    public void updateAppointment(OfferAppointmentInRentalPostReq dto)
+    public void updateAppointment(OfferRentalAppointmentReq dto)
     {
         this.rentalLocation = dto.getRentalLocation();
         this.returnLocation = dto.getReturnLocation();
         this.rentalDate = dto.getRentalDate();
         this.returnDate = dto.getReturnDate();
-        this.price = dto.getPrice();
+        this.price = dto.getRentalFee();
         this.deposit = dto.getDeposit();
     }
 
-    public void updateAppointment(OfferAppointmentInSalePostReq dto)
+    public void updateAppointment(OfferSaleAppointmentReq dto)
     {
         this.rentalLocation = dto.getSaleLocation();
         this.returnLocation = null;
         this.rentalDate = dto.getSaleDate();
         this.returnDate = null;
-        this.price = dto.getPrice();
+        this.price = dto.getSalePrice();
         this.deposit = 0;
     }
 
@@ -137,17 +139,18 @@ public class Appointment extends BaseEntity
     public Appointment clone()
     {
         return Appointment.builder()
-                .post(this.post)
-                .creator(this.creator)
-                .owner(this.owner)
+                .item(this.item)
                 .requester(this.requester)
+                .owner(this.owner)
+                .creator(this.creator)
+                .type(this.type)
+                .state(this.state)
                 .rentalDate(this.rentalDate)
                 .returnDate(this.returnDate)
                 .rentalLocation(this.rentalLocation)
                 .returnLocation(this.returnLocation)
                 .price(this.price)
                 .deposit(this.deposit)
-                .state(this.state)
                 .build();
     }
 

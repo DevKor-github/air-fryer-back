@@ -24,14 +24,13 @@ public class OfferToUpdateConfirmedAppointmentReq
     @Future(message = "대여 일시는 현재보다 미래여야 합니다.")
     private LocalDateTime rentalDate;
 
-    @NotNull(message = "반납 일시를 입력해주세요.")
     @Future(message = "반납 일시는 현재보다 미래여야 합니다.")
-    private LocalDateTime returnDate;
+    private LocalDateTime returnDate = null;
 
-    @NotNull(message = "대여료를 입력해주세요.")
-    @Min(value = 0, message = "대여료는 0원 이상이어야 합니다.")
+    @NotNull(message = "대여료(판매값)를 입력해주세요.")
+    @Min(value = 0, message = "대여료(판매값)는 0원 이상이어야 합니다.")
     private int price;
 
     @Min(value = 0, message = "보증금은 0원 이상이어야 합니다.")
-    private int deposit = 0;
+    private Integer deposit;
 }

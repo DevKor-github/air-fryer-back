@@ -16,7 +16,7 @@ public enum ProductType
     SELF_MADE("SELF_MADE", "자체 제작"),
     VINTAGE("VINTAGE", "빈티지"),
     REFORM("REFORM", "리폼"),
-    OTHER("OTHER", "기타");
+    PRODUCT_OTHER("OTHER", "기타");
 
     private final String code;
     private final String label;

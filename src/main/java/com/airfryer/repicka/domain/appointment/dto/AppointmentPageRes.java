@@ -2,12 +2,9 @@ package com.airfryer.repicka.domain.appointment.dto;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.entity.ProductType;
-import com.airfryer.repicka.domain.post.entity.Post;
-import com.airfryer.repicka.domain.post.entity.PostType;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,13 +18,13 @@ import java.util.Optional;
 @Builder(access = AccessLevel.PRIVATE)
 public class AppointmentPageRes
 {
-    private PostType type;      // 타입 (대여/구매)
+    private AppointmentType type;   // 타입 (대여/구매)
 
     private List<AppointmentInfo> appointmentInfoList;  // 약속 정보 리스트
     private PageInfo pageInfo;                          // 페이지 정보
 
     public static AppointmentPageRes of(Map<Appointment, Optional<String>> map,
-                                        PostType postType,
+                                        AppointmentType type,
                                         AppointmentState cursorState,
                                         LocalDateTime cursorDate,
                                         Long cursorId,
@@ -37,7 +34,7 @@ public class AppointmentPageRes
                 .appointmentInfoList(map.entrySet().stream().map(entry -> {
                     return AppointmentInfo.from(entry.getKey(), entry.getValue());
                 }).toList())
-                .type(postType)
+                .type(type)
                 .pageInfo(PageInfo.builder()
                         .cursorState(cursorState)
                         .cursorDate(cursorDate)
@@ -52,7 +49,6 @@ public class AppointmentPageRes
     private static class AppointmentInfo
     {
         private Long appointmentId;     // 약속 ID
-        private Long postId;            // 게시글 ID
         private Long itemId;            // 제품 ID
         private Long requesterId;       // 대여자(구매자) ID
         private Long ownerId;           // 소유자 ID
@@ -71,12 +67,10 @@ public class AppointmentPageRes
 
         private static AppointmentInfo from(Appointment appointment, Optional<String> imageUrl)
         {
-            Post post = appointment.getPost();
-            Item item = post.getItem();
+            Item item = appointment.getItem();
 
             return AppointmentInfo.builder()
                     .appointmentId(appointment.getId())
-                    .postId(post.getId())
                     .itemId(item.getId())
                     .requesterId(appointment.getRequester().getId())
                     .ownerId(appointment.getOwner().getId())
