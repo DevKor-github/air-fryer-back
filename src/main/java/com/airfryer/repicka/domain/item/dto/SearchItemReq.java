@@ -34,6 +34,9 @@ public class SearchItemReq
     // 제품 색상
     private ItemColor[] colors;
 
+    // 거래 방식
+    private TradeMethod[] tradeMethods;
+
     // 원하는 거래 날짜
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime date;
