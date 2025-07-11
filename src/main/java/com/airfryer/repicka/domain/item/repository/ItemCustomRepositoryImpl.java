@@ -64,6 +64,14 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository {
                     .toArray(String[]::new));
         }
 
+        // 거래 방식 조건
+        if (condition.getTradeMethods() != null && condition.getTradeMethods().length > 0) {
+            queryBuilder.append("AND i.trade_methods && ?::text[] ");
+            parameters.add(Arrays.stream(condition.getTradeMethods())
+                    .map(Enum::name)
+                    .toArray(String[]::new));
+        }
+
         // 정렬 조건
         queryBuilder.append(getOrderByClause(condition.getItemOrder()));
 
