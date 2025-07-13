@@ -5,10 +5,7 @@ import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
-import com.airfryer.repicka.domain.item.dto.CreateItemReq;
-import com.airfryer.repicka.domain.item.dto.ItemDetailRes;
-import com.airfryer.repicka.domain.item.dto.ItemPreviewRes;
-import com.airfryer.repicka.domain.item.dto.SearchItemReq;
+import com.airfryer.repicka.domain.item.dto.*;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -103,12 +100,12 @@ public class ItemController
     @GetMapping("/search")
     public ResponseEntity<SuccessResponseDto> searchItemList(@Valid SearchItemReq req)
     {
-        List<ItemPreviewRes> itemPreviewResList = itemService.searchItemList(req);
+        SearchItemRes data = itemService.searchItemList(req);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("조건에 따른 제품 목록을 성공적으로 조회하였습니다.")
-                        .data(itemPreviewResList)
+                        .data(data)
                         .build());
     }
 

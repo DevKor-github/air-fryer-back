@@ -11,13 +11,10 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.item.dto.*;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
-import com.airfryer.repicka.domain.item.dto.CreateItemReq;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
-import com.airfryer.repicka.domain.item.dto.ItemDetailRes;
-import com.airfryer.repicka.domain.item.dto.ItemPreviewRes;
-import com.airfryer.repicka.domain.item.dto.SearchItemReq;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.item.repository.ItemCustomRepository;
 import com.airfryer.repicka.domain.item_like.repository.ItemLikeRepository;
@@ -155,22 +152,27 @@ public class ItemService
 
     // 제품 목록 검색
     @Transactional(readOnly = true)
-    public List<ItemPreviewRes> searchItemList(SearchItemReq condition)
+    public SearchItemRes searchItemList(SearchItemReq condition)
     {
         // 태그로 제품 리스트 찾기
-        List<Item> items = itemCustomRepository.findItemsByCondition(condition);
+        SearchItemResult searchResult = itemCustomRepository.findItemsByCondition(condition);
 
         // 제품 각각의 썸네일 조회
-        Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(items);
+        Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(searchResult.getItems());
 
         // 제품 정보를 정제하여 반환
-        return items.stream()
+        List<ItemPreviewDto> itemPreviewDtoList = searchResult.getItems().stream()
             .map(item -> {
                 boolean isAvailable = appointmentService.isItemAvailableOnDate(item.getId(), condition.getDate());  // 원하는 날짜에 대여나 구매 가능 여부
                 String thumbnailUrl = thumbnailMap.get(item.getId()); // 대표 사진
-                return ItemPreviewRes.from(item, thumbnailUrl, isAvailable);
+                return ItemPreviewDto.from(item, thumbnailUrl, isAvailable);
             })
             .toList();
+
+        return SearchItemRes.builder()
+                .items(itemPreviewDtoList)
+                .totalCount(searchResult.getTotalCount())
+                .build();
     }
     
     // 제품 끌올
