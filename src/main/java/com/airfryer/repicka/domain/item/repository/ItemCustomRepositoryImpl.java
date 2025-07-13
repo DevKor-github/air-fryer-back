@@ -22,7 +22,7 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository {
     @Override
     public List<Item> findItemsByCondition(SearchItemReq condition) {
         StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("SELECT i.* FROM item i WHERE 1=1 ");
+        queryBuilder.append("SELECT i.* FROM item i WHERE i.is_deleted=false ");
 
         List<Object> parameters = new ArrayList<>();
 
