@@ -97,6 +97,11 @@ public class ItemService
         // 제품 조회 및 권한 확인
         Item item = validateItemOwnership(itemId, user);
 
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
         // 제품 수정
         item.updateItem(dto);
 
@@ -111,6 +116,11 @@ public class ItemService
     {
         // 제품 조회 및 권한 확인
         Item item = validateItemOwnership(itemId, user);
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 예정된 약속이 존재하는 경우, 삭제 불가능
         if(!appointmentService.isItemAvailableOnInterval(itemId, LocalDateTime.now())) {
@@ -128,6 +138,11 @@ public class ItemService
         // 제품 조회
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 제품 이미지 조회
         List<String> imageUrls = itemImageService.getItemImageUrls(item);
@@ -165,6 +180,11 @@ public class ItemService
         // 제품 조회 및 권한 확인
         Item item = validateItemOwnership(itemId, user);
 
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
         // 제품 끌올
         item.repostItem();
 
@@ -183,6 +203,11 @@ public class ItemService
         // 제품 데이터 조회
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 대여가 가능한 제품인지 확인
         if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL)) {
@@ -292,6 +317,11 @@ public class ItemService
         // 제품 데이터 조회
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 구매가 가능한 제품인지 확인
         if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.SALE)) {

@@ -35,6 +35,11 @@ public class ItemLikeService
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
         // 기존의 제품 좋아요 데이터 조회
         Optional<ItemLike> existingLike = itemLikeRepository.findByItemIdAndLikerId(itemId, user.getId());
 
