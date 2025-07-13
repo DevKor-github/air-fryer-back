@@ -135,6 +135,11 @@ public class Item extends BaseEntity
     @Builder.Default
     private int chatRoomCount = 0;
 
+    // 삭제 여부
+    @NotNull
+    @Builder.Default
+    private Boolean isDeleted = false;
+
     // 판매 날짜
     private LocalDateTime saleDate;
 

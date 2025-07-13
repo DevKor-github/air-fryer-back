@@ -101,7 +101,6 @@ public class ItemService
         item.updateItem(dto);
 
         // TODO: 제품 이미지 수정
-        // TODO: 연관된 약속이 있다면 어떻게 처리할 것인가?
 
         return ItemDetailRes.from(item, itemImageService.getItemImageUrls(item), user, false);
     }
