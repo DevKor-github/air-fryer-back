@@ -82,13 +82,14 @@ public class ItemLikeService
         // 좋아요를 누른 제품 리스트 조회
         List<Item> items = itemLikes.stream()
             .map(ItemLike::getItem)
+            .filter(item -> !item.getIsDeleted())
             .toList();
 
         // 모든 제품의 썸네일 배치
         Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(items);
 
-        return itemLikes.stream()
-            .map(itemLike -> ItemLikeRes.from(itemLike.getItem(), thumbnailMap.get(itemLike.getItem().getId())))
+        return items.stream()
+            .map(item -> ItemLikeRes.from(item, thumbnailMap.get(item.getId())))
             .toList();
     }
 }
