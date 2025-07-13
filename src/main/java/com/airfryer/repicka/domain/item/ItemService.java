@@ -112,15 +112,13 @@ public class ItemService
         // 제품 조회 및 권한 확인
         Item item = validatePostOwnership(itemId, user);
 
-        // 확정되었거나, 약속이 존재하는 경우, 삭제 불가능
+        // 예정된 약속이 존재하는 경우, 삭제 불가능
         if(!appointmentService.isItemAvailableOnInterval(itemId, LocalDateTime.now())) {
             throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_ITEM, null);
         }
 
-        // TODO: 제품 이미지 삭제
-
         // 제품 삭제
-        itemRepository.delete(item);
+        item.delete();
     }
 
     // 제품 상세 조회

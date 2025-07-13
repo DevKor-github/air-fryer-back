@@ -178,6 +178,12 @@ public class Item extends BaseEntity
         this.canDeal = itemDetail.getCanDeal();
     }
 
+    /// 제품 삭제
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
     /// 제품 끌올
 
     public void repostItem() {
