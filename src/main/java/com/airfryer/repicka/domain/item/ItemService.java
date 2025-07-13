@@ -95,7 +95,7 @@ public class ItemService
     public ItemDetailRes updateItem(Long itemId, CreateItemReq dto, User user)
     {
         // 제품 조회 및 권한 확인
-        Item item = validatePostOwnership(itemId, user);
+        Item item = validateItemOwnership(itemId, user);
 
         // 제품 수정
         item.updateItem(dto);
@@ -110,7 +110,7 @@ public class ItemService
     public void deleteItem(Long itemId, User user)
     {
         // 제품 조회 및 권한 확인
-        Item item = validatePostOwnership(itemId, user);
+        Item item = validateItemOwnership(itemId, user);
 
         // 예정된 약속이 존재하는 경우, 삭제 불가능
         if(!appointmentService.isItemAvailableOnInterval(itemId, LocalDateTime.now())) {
@@ -163,7 +163,7 @@ public class ItemService
     public LocalDateTime repostItem(Long itemId, User user)
     {
         // 제품 조회 및 권한 확인
-        Item item = validatePostOwnership(itemId, user);
+        Item item = validateItemOwnership(itemId, user);
 
         // 제품 끌올
         item.repostItem();
@@ -311,7 +311,7 @@ public class ItemService
     /// 공통 로직
 
     // 제품 조회 및 권한 확인
-    private Item validatePostOwnership(Long itemId, User user)
+    private Item validateItemOwnership(Long itemId, User user)
     {
         // 제품 조회
         Item item = itemRepository.findById(itemId)
