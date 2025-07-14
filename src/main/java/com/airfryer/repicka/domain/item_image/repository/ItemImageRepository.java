@@ -13,6 +13,9 @@ public interface ItemImageRepository extends JpaRepository<ItemImage, Long>
     // 상품 별 이미지 찾기
     Optional<ItemImage> findByDisplayOrderAndItemId(Integer displayOrder, Long itemId);
 
+    // 상품으로부터 대표 이미지 조회
+    Optional<ItemImage> findFirstByItemId(Long itemId);
+
     // 상품 리스트로부터 대표 이미지 리스트 조회
     @Query("SELECT i FROM ItemImage i WHERE i.displayOrder = 1 AND i.item.id IN :itemIdList")
     List<ItemImage> findThumbnailListByItemIdList(@Param("itemIdList") List<Long> itemIdList);
