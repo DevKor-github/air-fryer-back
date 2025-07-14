@@ -50,6 +50,7 @@ public class EnterChatRoomRes
         private Long myUserId;              // 나의 사용자 ID
         private Long opponentUserId;        // 상대방의 사용자 ID
         private Boolean isOpponentKorean;   // 상대방의 고려대 인증 여부
+        private Boolean isFinished;         // 채팅방 종료 여부
 
         private static ChatRoomInfo from(ChatRoom chatRoom, User me)
         {
@@ -60,6 +61,7 @@ public class EnterChatRoomRes
                     .myUserId(me.getId())
                     .opponentUserId(opponent.getId())
                     .isOpponentKorean(opponent.getIsKoreaUnivVerified())
+                    .isFinished(chatRoom.getIsFinished())
                     .build();
         }
     }

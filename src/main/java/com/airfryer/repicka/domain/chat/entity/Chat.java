@@ -22,6 +22,7 @@ public class Chat
     private Long chatRoomId;
 
     // 사용자 ID
+    @NotNull
     private Long userId;
 
     // 내용

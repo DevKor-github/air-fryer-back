@@ -36,4 +36,9 @@ public class ChatRoom extends BaseEntity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner")
     private User owner;
+
+    // 종료 여부
+    @NotNull
+    @Builder.Default
+    private Boolean isFinished = false;
 }
