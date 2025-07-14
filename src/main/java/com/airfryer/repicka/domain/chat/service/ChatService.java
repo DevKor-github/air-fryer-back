@@ -94,6 +94,11 @@ public class ChatService
         LocalDateTime chatCursorCreatedAt = hasNext ? chatPage.getLast().getCreatedAt() : null;
         ObjectId chatCursorId = hasNext ? chatPage.getLast().getId() : null;
 
+        // 다음 페이지가 존재한다면, 마지막 아이템 제거
+        if(hasNext) {
+            chatPage = chatPage.subList(0, pageSize);
+        }
+
         /// 약속 리스트 조회
 
         // 약속 리스트 조회
