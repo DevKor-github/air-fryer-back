@@ -135,6 +135,11 @@ public class Item extends BaseEntity
     @Builder.Default
     private int chatRoomCount = 0;
 
+    // 삭제 여부
+    @NotNull
+    @Builder.Default
+    private Boolean isDeleted = false;
+
     // 판매 날짜
     private LocalDateTime saleDate;
 
@@ -171,6 +176,12 @@ public class Item extends BaseEntity
         this.location = itemDetail.getLocation();
         this.tradeMethods = itemDetail.getTradeMethods();
         this.canDeal = itemDetail.getCanDeal();
+    }
+
+    /// 제품 삭제
+
+    public void delete() {
+        this.isDeleted = true;
     }
 
     /// 제품 끌올

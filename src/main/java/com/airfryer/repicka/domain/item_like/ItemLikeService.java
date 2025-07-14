@@ -35,6 +35,11 @@ public class ItemLikeService
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
         // 기존의 제품 좋아요 데이터 조회
         Optional<ItemLike> existingLike = itemLikeRepository.findByItemIdAndLikerId(itemId, user.getId());
 
@@ -77,13 +82,14 @@ public class ItemLikeService
         // 좋아요를 누른 제품 리스트 조회
         List<Item> items = itemLikes.stream()
             .map(ItemLike::getItem)
+            .filter(item -> !item.getIsDeleted())
             .toList();
 
         // 모든 제품의 썸네일 배치
         Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(items);
 
-        return itemLikes.stream()
-            .map(itemLike -> ItemLikeRes.from(itemLike.getItem(), thumbnailMap.get(itemLike.getItem().getId())))
+        return items.stream()
+            .map(item -> ItemLikeRes.from(item, thumbnailMap.get(item.getId())))
             .toList();
     }
 }

@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ItemPreviewRes
+public class ItemPreviewDto
 {
     private Long itemId;    // 제품 ID
 
@@ -27,9 +27,9 @@ public class ItemPreviewRes
     private int chatRoomCount;      // 채팅방 개수
     private boolean isAvailable;    // 대여 및 구매 가능 여부
 
-    public static ItemPreviewRes from(Item item, String thumbnailUrl, boolean isAvailable)
+    public static ItemPreviewDto from(Item item, String thumbnailUrl, boolean isAvailable)
     {
-        return ItemPreviewRes.builder()
+        return ItemPreviewDto.builder()
                 .itemId(item.getId())
                 .productTypes(item.getProductTypes())
                 .transactionTypes(item.getTransactionTypes())

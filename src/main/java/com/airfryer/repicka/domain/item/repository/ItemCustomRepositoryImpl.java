@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.item.repository;
 
+import com.airfryer.repicka.domain.item.dto.SearchItemResult;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.dto.ItemOrder;
 import com.airfryer.repicka.domain.item.dto.SearchItemReq;
@@ -14,27 +15,28 @@ import java.util.Arrays;
 import java.util.List;
 
 @Repository
-public class ItemCustomRepositoryImpl implements ItemCustomRepository {
-
+public class ItemCustomRepositoryImpl implements ItemCustomRepository
+{
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public List<Item> findItemsByCondition(SearchItemReq condition) {
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("SELECT i.* FROM item i WHERE 1=1 ");
+    public SearchItemResult findItemsByCondition(SearchItemReq condition)
+    {
+        /// ====== 공통 WHERE 절 ======
 
+        StringBuilder whereBuilder = new StringBuilder("WHERE i.is_deleted=false ");
         List<Object> parameters = new ArrayList<>();
 
         // 키워드 조건
         if (StringUtils.hasText(condition.getKeyword())) {
-            queryBuilder.append("AND LOWER(i.title) LIKE ? ");
+            whereBuilder.append("AND LOWER(i.title) LIKE ? ");
             parameters.add("%" + condition.getKeyword().toLowerCase() + "%");
         }
 
         // 제품 타입 필터링
         if (condition.getProductTypes() != null && condition.getProductTypes().length > 0) {
-            queryBuilder.append("AND i.product_types && ?::text[] ");
+            whereBuilder.append("AND i.product_types && ?::text[] ");
             parameters.add(Arrays.stream(condition.getProductTypes())
                     .map(Enum::name)
                     .toArray(String[]::new));
@@ -42,7 +44,7 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository {
 
         // 사이즈 조건
         if (condition.getSizes() != null && condition.getSizes().length > 0) {
-            queryBuilder.append("AND i.size = ANY(?::text[]) ");
+            whereBuilder.append("AND i.size = ANY(?::text[]) ");
             parameters.add(Arrays.stream(condition.getSizes())
                     .map(Enum::name)
                     .toArray(String[]::new));
@@ -50,7 +52,7 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository {
 
         // 색상 조건
         if (condition.getColors() != null && condition.getColors().length > 0) {
-            queryBuilder.append("AND i.color = ANY(?::text[]) ");
+            whereBuilder.append("AND i.color = ANY(?::text[]) ");
             parameters.add(Arrays.stream(condition.getColors())
                     .map(Enum::name)
                     .toArray(String[]::new));
@@ -58,7 +60,7 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository {
 
         // 거래 타입 조건
         if (condition.getTransactionTypes() != null && condition.getTransactionTypes().length > 0) {
-            queryBuilder.append("AND i.transaction_types && ?::text[] ");
+            whereBuilder.append("AND i.transaction_types && ?::text[] ");
             parameters.add(Arrays.stream(condition.getTransactionTypes())
                     .map(Enum::name)
                     .toArray(String[]::new));
@@ -66,27 +68,58 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository {
 
         // 거래 방식 조건
         if (condition.getTradeMethods() != null && condition.getTradeMethods().length > 0) {
-            queryBuilder.append("AND i.trade_methods && ?::text[] ");
+            whereBuilder.append("AND i.trade_methods && ?::text[] ");
             parameters.add(Arrays.stream(condition.getTradeMethods())
                     .map(Enum::name)
                     .toArray(String[]::new));
         }
 
+        /// ====== Item 목록 조회 쿼리 ======
+
+        StringBuilder itemQueryBuilder = new StringBuilder();
+        itemQueryBuilder.append("SELECT * FROM item i ");
+        itemQueryBuilder.append(whereBuilder);
+
         // 정렬 조건
-        queryBuilder.append(getOrderByClause(condition.getItemOrder()));
+        itemQueryBuilder.append(getOrderByClause(condition.getItemOrder()));
 
         // 페이징
-        queryBuilder.append("LIMIT 10 OFFSET ? ");
+        itemQueryBuilder.append("LIMIT 10 OFFSET ? ");
         parameters.add(condition.getPage() * 10);
 
-        Query query = entityManager.createNativeQuery(queryBuilder.toString(), Item.class);
+        // 최종 쿼리
+        Query itemQuery = entityManager.createNativeQuery(itemQueryBuilder.toString(), Item.class);
 
-        // 파라미터 바인딩 (1부터 시작)
-        for (int i = 0; i < parameters.size(); i++) {
-            query.setParameter(i + 1, parameters.get(i));
+        // 파라미터 바인딩
+        for(int i = 0; i < parameters.size(); i++) {
+            itemQuery.setParameter(i + 1, parameters.get(i));
         }
 
-        return query.getResultList();
+        // 쿼리 실행 결과
+        @SuppressWarnings("unchecked")
+        List<Item> items = itemQuery.getResultList();
+
+        /// ====== 전체 개수 조회 쿼리 ======
+
+        StringBuilder countQueryBuilder = new StringBuilder();
+        countQueryBuilder.append("SELECT COUNT(*) FROM item i ");
+        countQueryBuilder.append(whereBuilder);
+
+        // 최종 쿼리
+        Query countQuery = entityManager.createNativeQuery(countQueryBuilder.toString());
+
+        // 파라미터 바인딩
+        for (int i = 0; i < parameters.size() - 1; i++) {
+            countQuery.setParameter(i + 1, parameters.get(i));
+        }
+
+        // 쿼리 실행 결과
+        int totalCount = ((Number) countQuery.getSingleResult()).intValue();
+
+        return SearchItemResult.builder()
+                .items(items)
+                .totalCount(totalCount)
+                .build();
     }
 
     private String getOrderByClause(ItemOrder itemOrder) {

@@ -46,6 +46,11 @@ public class AppointmentService
         Item item = itemRepository.findById(dto.getItemId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
 
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
         // 대여가 가능한 제품인지 확인
         if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL)) {
             throw new CustomException(CustomExceptionCode.CANNOT_RENTAL_ITEM, null);
@@ -114,7 +119,7 @@ public class AppointmentService
         // TODO: 채팅방 데이터와 약속 데이터를 반환해야 함.
     }
 
-    // 판매 약속 제시
+    // 구매 약속 제시
     @Transactional
     public void offerSaleAppointment(User buyer, OfferSaleAppointmentReq dto)
     {
@@ -123,6 +128,11 @@ public class AppointmentService
         // 제품 데이터 조회
         Item item = itemRepository.findById(dto.getItemId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 구매가 가능한 제품인지 확인
         if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.SALE)) {
@@ -221,6 +231,11 @@ public class AppointmentService
 
         // 제품 데이터 조회
         Item item = appointment.getItem();
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 대여 약속의 경우
         if(appointment.getType() == AppointmentType.RENTAL)
@@ -380,6 +395,11 @@ public class AppointmentService
         /// 제품 데이터 조회
 
         Item item = appointment.getItem();
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 가격 협의가 불가능한데 가격을 바꿔서 요청을 보내는 경우, 예외 처리
         if(!item.getCanDeal() && (dto.getPrice() != appointment.getPrice() || dto.getDeposit() != appointment.getDeposit())) {

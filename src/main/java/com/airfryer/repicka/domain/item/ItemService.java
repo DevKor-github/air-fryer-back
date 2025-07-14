@@ -11,13 +11,10 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.item.dto.*;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
-import com.airfryer.repicka.domain.item.dto.CreateItemReq;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
-import com.airfryer.repicka.domain.item.dto.ItemDetailRes;
-import com.airfryer.repicka.domain.item.dto.ItemPreviewRes;
-import com.airfryer.repicka.domain.item.dto.SearchItemReq;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.item.repository.ItemCustomRepository;
 import com.airfryer.repicka.domain.item_like.repository.ItemLikeRepository;
@@ -95,13 +92,17 @@ public class ItemService
     public ItemDetailRes updateItem(Long itemId, CreateItemReq dto, User user)
     {
         // 제품 조회 및 권한 확인
-        Item item = validatePostOwnership(itemId, user);
+        Item item = validateItemOwnership(itemId, user);
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 제품 수정
         item.updateItem(dto);
 
         // TODO: 제품 이미지 수정
-        // TODO: 연관된 약속이 있다면 어떻게 처리할 것인가?
 
         return ItemDetailRes.from(item, itemImageService.getItemImageUrls(item), user, false);
     }
@@ -111,17 +112,20 @@ public class ItemService
     public void deleteItem(Long itemId, User user)
     {
         // 제품 조회 및 권한 확인
-        Item item = validatePostOwnership(itemId, user);
+        Item item = validateItemOwnership(itemId, user);
 
-        // 확정되었거나, 약속이 존재하는 경우, 삭제 불가능
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
+        // 예정된 약속이 존재하는 경우, 삭제 불가능
         if(!appointmentService.isItemAvailableOnInterval(itemId, LocalDateTime.now())) {
             throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_ITEM, null);
         }
 
-        // TODO: 제품 이미지 삭제
-
         // 제품 삭제
-        itemRepository.delete(item);
+        item.delete();
     }
 
     // 제품 상세 조회
@@ -131,6 +135,11 @@ public class ItemService
         // 제품 조회
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 제품 이미지 조회
         List<String> imageUrls = itemImageService.getItemImageUrls(item);
@@ -143,22 +152,27 @@ public class ItemService
 
     // 제품 목록 검색
     @Transactional(readOnly = true)
-    public List<ItemPreviewRes> searchItemList(SearchItemReq condition)
+    public SearchItemRes searchItemList(SearchItemReq condition)
     {
         // 태그로 제품 리스트 찾기
-        List<Item> items = itemCustomRepository.findItemsByCondition(condition);
+        SearchItemResult searchResult = itemCustomRepository.findItemsByCondition(condition);
 
         // 제품 각각의 썸네일 조회
-        Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(items);
+        Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(searchResult.getItems());
 
         // 제품 정보를 정제하여 반환
-        return items.stream()
+        List<ItemPreviewDto> itemPreviewDtoList = searchResult.getItems().stream()
             .map(item -> {
                 boolean isAvailable = appointmentService.isItemAvailableOnDate(item.getId(), condition.getDate());  // 원하는 날짜에 대여나 구매 가능 여부
                 String thumbnailUrl = thumbnailMap.get(item.getId()); // 대표 사진
-                return ItemPreviewRes.from(item, thumbnailUrl, isAvailable);
+                return ItemPreviewDto.from(item, thumbnailUrl, isAvailable);
             })
             .toList();
+
+        return SearchItemRes.builder()
+                .items(itemPreviewDtoList)
+                .totalCount(searchResult.getTotalCount())
+                .build();
     }
     
     // 제품 끌올
@@ -166,7 +180,12 @@ public class ItemService
     public LocalDateTime repostItem(Long itemId, User user)
     {
         // 제품 조회 및 권한 확인
-        Item item = validatePostOwnership(itemId, user);
+        Item item = validateItemOwnership(itemId, user);
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 제품 끌올
         item.repostItem();
@@ -186,6 +205,11 @@ public class ItemService
         // 제품 데이터 조회
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
 
         // 대여가 가능한 제품인지 확인
         if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL)) {
@@ -296,6 +320,11 @@ public class ItemService
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
         // 구매가 가능한 제품인지 확인
         if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.SALE)) {
             throw new CustomException(CustomExceptionCode.CANNOT_SALE_ITEM, null);
@@ -314,7 +343,7 @@ public class ItemService
     /// 공통 로직
 
     // 제품 조회 및 권한 확인
-    private Item validatePostOwnership(Long itemId, User user)
+    private Item validateItemOwnership(Long itemId, User user)
     {
         // 제품 조회
         Item item = itemRepository.findById(itemId)
