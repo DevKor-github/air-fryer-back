@@ -21,10 +21,10 @@ public class Chat
     @NotNull
     private Long chatRoomId;
 
+    // 사용자 ID
+    private Long userId;
+
     // 내용
     @NotBlank
     private String content;
-
-    // 사용자 ID
-    private Long userId;
 }
