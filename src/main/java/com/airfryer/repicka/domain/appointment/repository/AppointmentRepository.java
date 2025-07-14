@@ -15,7 +15,14 @@ import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long>
 {
-    // 게시글 ID, 소유자, 대여자, 약속 상태로 약속 데이터 조회
+    // 게시글 ID, 소유자 ID, 대여자 ID로 약속 데이터 조회
+    List<Appointment> findByItemIdAndOwnerIdAndRequesterId(
+            Long itemId,
+            Long ownerId,
+            Long requesterId
+    );
+
+    // 게시글 ID, 소유자 ID, 대여자 ID, 약속 상태, 약속 타입으로 약속 데이터 조회
     List<Appointment> findByItemIdAndOwnerIdAndRequesterIdAndStateAndType(
             Long itemId,
             Long ownerId,
