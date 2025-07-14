@@ -72,8 +72,11 @@ dependencies {
 	// 소켓
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+	// WebFlux
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 	// MongoDB
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
 }
 
 tasks.named('test') {
