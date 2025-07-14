@@ -28,10 +28,11 @@ public class ChatController
     // 나의 채팅 페이지에서 채팅방 입장
     @PostMapping("/chatroom/{chatRoomId}/enter")
     public ResponseEntity<SuccessResponseDto> enterChatRoom(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                            @PathVariable Long chatRoomId)
+                                                            @PathVariable Long chatRoomId,
+                                                            @RequestParam int pageSize)
     {
         User user = oAuth2User.getUser();
-        EnterChatRoomRes data = chatService.enterChatRoom(user, chatRoomId);
+        EnterChatRoomRes data = chatService.enterChatRoom(user, chatRoomId, pageSize);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()

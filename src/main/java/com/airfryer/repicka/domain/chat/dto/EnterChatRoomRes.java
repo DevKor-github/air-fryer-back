@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import org.bson.types.ObjectId;
+import reactor.core.publisher.Flux;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,18 +27,27 @@ public class EnterChatRoomRes
     private List<ChatInfo> chats;               // 채팅 정보 리스트
     private List<AppointmentInfo> appointment;  // 약속 정보 리스트
 
-    public static EnterChatRoomRes from(ChatRoom chatRoom,
-                                        User me,
-                                        Item item,
-                                        Optional<String> imageUrl,
-                                        List<Chat> chatList,
-                                        List<Appointment> appointmentList)
+    private LocalDateTime chatCursorCreatedAt;  // 채팅: 커서 생성 일시
+    private ObjectId chatCursorId;              // 채팅: 커서 ID
+    private Boolean chatHasNext;                // 채팅: 다음 페이지가 존재하는가?
+
+    public static EnterChatRoomRes of(ChatRoom chatRoom,
+                                      User me,
+                                      String imageUrl,
+                                      List<Chat> chatList,
+                                      List<Appointment> appointmentList,
+                                      LocalDateTime chatCursorCreatedAt,
+                                      ObjectId chatCursorId,
+                                      boolean chatHasNext)
     {
         return EnterChatRoomRes.builder()
                 .chatRoom(ChatRoomInfo.from(chatRoom, me))
-                .itemInfo(ItemInfo.from(item, imageUrl))
+                .itemInfo(ItemInfo.from(chatRoom.getItem(), imageUrl))
                 .chats(chatList.stream().map(ChatInfo::from).toList())
                 .appointment(appointmentList.stream().map(AppointmentInfo::from).toList())
+                .chatCursorCreatedAt(chatCursorCreatedAt)
+                .chatCursorId(chatCursorId)
+                .chatHasNext(chatHasNext)
                 .build();
     }
 
@@ -88,11 +98,11 @@ public class EnterChatRoomRes
         private Boolean canDeal;                    // 가격 제시 가능 여부
         private LocalDateTime saleDate;             // 판매 예정 날짜
 
-        private static ItemInfo from(Item item, Optional<String> imageUrl)
+        private static ItemInfo from(Item item, String imageUrl)
         {
             return ItemInfo.builder()
                     .itemId(item.getId())
-                    .imageUrl(imageUrl.orElse(null))
+                    .imageUrl(imageUrl)
                     .productTypes(item.getProductTypes())
                     .transactionTypes(item.getTransactionTypes())
                     .title(item.getTitle())
@@ -119,9 +129,6 @@ public class EnterChatRoomRes
         private ObjectId chatId;    // 채팅 ID
         private Long userId;        // 사용자 ID
         private String content;     // 내용
-
-        private ObjectId cursorId;  // 커서 ID
-        private Boolean hasNext;    // 다음 페이지가 존재하는가?
 
         private static ChatInfo from(Chat chat)
         {
