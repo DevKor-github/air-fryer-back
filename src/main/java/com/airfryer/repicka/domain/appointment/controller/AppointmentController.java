@@ -36,7 +36,7 @@ public class AppointmentController
                         .build());
     }
 
-    // 게시글에서 판매 약속 제시
+    // 게시글에서 구매 약속 제시
     @PostMapping("/sale")
     public ResponseEntity<SuccessResponseDto> offerSaleAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                    @RequestBody @Valid OfferSaleAppointmentReq dto)
