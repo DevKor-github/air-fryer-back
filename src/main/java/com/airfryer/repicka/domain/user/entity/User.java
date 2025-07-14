@@ -59,4 +59,9 @@ public class User extends BaseEntity
 
     @NotNull
     private LocalDate lastAccessDate; // 마지막 접속 날짜
+
+    // 객체 비교
+    public boolean equals(User other) {
+        return this.id.equals(other.getId());
+    }
 }
