@@ -23,8 +23,6 @@ public class ChatController
 
     private final SimpMessageSendingOperations template;
 
-    // TODO: 나의 채팅 리스트 조회
-
     // TODO: 제품 페이지에서 채팅방 입장
 
     // 나의 채팅 페이지에서 채팅방 입장
@@ -41,8 +39,4 @@ public class ChatController
                         .data(data)
                         .build());
     }
-
-    // TODO: 채팅 전송
-
-    // TODO: 채팅방 나가기
 }
