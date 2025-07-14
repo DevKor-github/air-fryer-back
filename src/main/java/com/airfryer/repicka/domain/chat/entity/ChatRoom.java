@@ -1,7 +1,6 @@
 package com.airfryer.repicka.domain.chat.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
-import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
