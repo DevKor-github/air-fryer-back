@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 @RequiredArgsConstructor
 public class MongodbConfig implements InitializingBean
 {
-    @Lazy private MappingMongoConverter mappingMongoConverter;
+    private final MappingMongoConverter mappingMongoConverter;
 
     @Override
     public void afterPropertiesSet() {
