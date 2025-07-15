@@ -19,14 +19,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -96,7 +93,7 @@ public class ChatService
 
         // 다음 페이지가 존재한다면, 마지막 아이템 제거
         if(hasNext) {
-            chatPage = chatPage.subList(0, pageSize);
+            chatPage.removeLast();
         }
 
         /// 약속 리스트 조회
