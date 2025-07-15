@@ -58,6 +58,11 @@ public class ChatService
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
 
+        // 이미 삭제된 제품인지 확인
+        if(chatRoom.getItem().getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
         /// 제품 썸네일 URL 조회
 
         // 썸네일 데이터 조회
