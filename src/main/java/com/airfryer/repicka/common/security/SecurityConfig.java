@@ -28,7 +28,6 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig
 {
@@ -66,9 +65,32 @@ public class SecurityConfig
         // URL 기반 권한 설정
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/v1/item/presigned-url").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/item/**").permitAll()
+                        // 로그인
                         .requestMatchers("/login/**", "/oauth2/**").permitAll()
+
+                        // Access token 재발급
+                        .requestMatchers("/api/v1/refresh-token").permitAll()
+
+                        // Appointment
+                        .requestMatchers("/api/v1/appointment/**").hasAnyAuthority("USER", "ADMIN")
+
+                        // Update_In_Progress_Appointment
+                        .requestMatchers("/api/v1/update-in-progress-appointment/**").hasAnyAuthority("USER", "ADMIN")
+
+                        // Item
+                        .requestMatchers("/api/v1/item/presigned-url").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/item/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/item/**").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/item/**").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/item/**").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/item/**").hasAnyAuthority("USER", "ADMIN")
+
+                        // Item_Like
+                        .requestMatchers("/api/v1/like/**").hasAnyAuthority("USER", "ADMIN")
+
+                        // Test
+                        .requestMatchers("/api/test/is-login").hasAnyAuthority("USER", "ADMIN")
+
                         .anyRequest().authenticated()
                 );
 
