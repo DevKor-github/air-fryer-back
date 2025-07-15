@@ -1,6 +1,5 @@
 package com.airfryer.repicka.domain.chat.entity;
 
-import com.airfryer.repicka.common.entity.BaseDocument;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Chat extends BaseDocument
+public class Chat
 {
     @Id
     private ObjectId id;

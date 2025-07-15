@@ -88,7 +88,6 @@ public class ChatService
         boolean hasNext = chatPage.size() > pageSize;
 
         // 커서 데이터
-        LocalDateTime chatCursorCreatedAt = hasNext ? chatPage.getLast().getCreatedAt() : null;
         ObjectId chatCursorId = hasNext ? chatPage.getLast().getId() : null;
 
         // 다음 페이지가 존재한다면, 마지막 아이템 제거
@@ -128,7 +127,6 @@ public class ChatService
                 thumbnailUrl,
                 chatPage,
                 appointmentList,
-                chatCursorCreatedAt,
                 chatCursorId,
                 hasNext
         );
