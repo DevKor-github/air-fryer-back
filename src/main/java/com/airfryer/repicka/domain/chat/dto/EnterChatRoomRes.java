@@ -23,7 +23,7 @@ import java.util.Optional;
 public class EnterChatRoomRes
 {
     private ChatRoomInfo chatRoom;              // 채팅방 정보
-    private ItemInfo itemInfo;                  // 제품 정보
+    private ItemInfo item;                      // 제품 정보
     private List<ChatInfo> chats;               // 채팅 정보 리스트
     private List<AppointmentInfo> appointment;  // 약속 정보 리스트
 
@@ -42,7 +42,7 @@ public class EnterChatRoomRes
     {
         return EnterChatRoomRes.builder()
                 .chatRoom(ChatRoomInfo.from(chatRoom, me))
-                .itemInfo(ItemInfo.from(chatRoom.getItem(), imageUrl))
+                .item(ItemInfo.from(chatRoom.getItem(), imageUrl))
                 .chats(chatList.stream().map(ChatInfo::from).toList())
                 .appointment(appointmentList.stream().map(AppointmentInfo::from).toList())
                 .chatCursorCreatedAt(chatCursorCreatedAt)
