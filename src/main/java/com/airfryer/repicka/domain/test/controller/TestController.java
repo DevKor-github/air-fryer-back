@@ -17,7 +17,6 @@ public class TestController
 {
     // 로그인 여부 테스트
     @GetMapping("/test/is-login")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<SuccessResponseDto> testUser(@AuthenticationPrincipal CustomOAuth2User oAuth2User)
     {
         User user = oAuth2User.getUser();
