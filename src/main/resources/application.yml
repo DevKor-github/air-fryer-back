@@ -17,7 +17,7 @@ spring:
   ## MongoDB 연동
   data:
     mongodb:
-      uri: ${NOSQL_URI}
+      uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_DATABASE}?authSource=${MONGODB_DATABASE}
 
   ## OAuth 설정
   security:
