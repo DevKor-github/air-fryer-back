@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -56,11 +55,6 @@ public class ChatService
         // 채팅방 관계자인지 확인
         if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
-        }
-
-        // 이미 삭제된 제품인지 확인
-        if(chatRoom.getItem().getIsDeleted()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
         }
 
         /// 제품 썸네일 URL 조회
@@ -114,14 +108,12 @@ public class ChatService
         // 동일한 AppointmentState 내에서는 rentalDate 오름차순
         appointmentList.sort(
                 Comparator.comparing(
-                        (Appointment a) -> {
-                            return switch (a.getState()) {
-                                case PENDING -> 1;
-                                case CONFIRMED -> 2;
-                                case IN_PROGRESS -> 3;
-                                case SUCCESS -> 4;
-                                default -> 5;
-                            };
+                        (Appointment a) -> switch (a.getState()) {
+                            case PENDING -> 1;
+                            case CONFIRMED -> 2;
+                            case IN_PROGRESS -> 3;
+                            case SUCCESS -> 4;
+                            default -> 5;
                         })
                         .thenComparing(Appointment::getRentalDate, Comparator.naturalOrder())
         );
