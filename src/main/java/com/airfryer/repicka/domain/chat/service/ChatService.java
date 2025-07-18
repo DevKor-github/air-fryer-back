@@ -2,8 +2,7 @@ package com.airfryer.repicka.domain.chat.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.domain.appointment.entity.Appointment;
-import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
@@ -20,8 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -30,9 +29,9 @@ public class ChatService
 {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
-    private final AppointmentRepository appointmentRepository;
     private final ItemImageRepository itemImageRepository;
 
+    private final AppointmentService appointmentService;
     private final ItemImageService itemImageService;
 
     // 나의 채팅 페이지에서 채팅방 입장
@@ -65,6 +64,10 @@ public class ChatService
 
         // 썸네일 URL 조회
         String thumbnailUrl = itemImageService.getFullImageUrl(thumbnail);
+
+        /// 제품의 현재 대여 및 구매 가능 여부 조회
+
+        boolean isAvailable = appointmentService.isItemAvailableOnDate(chatRoom.getItem().getId(), LocalDateTime.now());
 
         /// 채팅 페이지 조회
 
@@ -102,7 +105,8 @@ public class ChatService
                 thumbnailUrl,
                 chatPage,
                 chatCursorId,
-                hasNext
+                hasNext,
+                isAvailable
         );
     }
 }
