@@ -16,11 +16,8 @@ import java.util.List;
 public class EnterChatRoomRes
 {
     private ChatRoomDto chatRoom;           // 채팅방 정보
-    private List<ChatInfo> chats;               // 채팅 정보 리스트
-    private ItemPreviewDto item;                // 제품 정보
-
-    private ObjectId chatCursorId;              // 채팅: 커서 ID
-    private Boolean chatHasNext;                // 채팅: 다음 페이지가 존재하는가?
+    private ChatPageDto chat;               // 채팅 정보
+    private ItemPreviewDto item;            // 제품 정보
 
     public static EnterChatRoomRes of(ChatRoom chatRoom,
                                       User me,
@@ -33,28 +30,7 @@ public class EnterChatRoomRes
         return EnterChatRoomRes.builder()
                 .chatRoom(ChatRoomDto.from(chatRoom, me))
                 .item(ItemPreviewDto.from(chatRoom.getItem(), imageUrl, isAvailable))
-                .chats(chatList.stream().map(ChatInfo::from).toList())
-                .chatCursorId(chatCursorId)
-                .chatHasNext(chatHasNext)
+                .chat(ChatPageDto.of(chatList, chatCursorId, chatHasNext))
                 .build();
-    }
-
-    // 채팅 정보
-    @Getter
-    @Builder(access = AccessLevel.PRIVATE)
-    private static class ChatInfo
-    {
-        private ObjectId chatId;    // 채팅 ID
-        private Long userId;        // 사용자 ID
-        private String content;     // 내용
-
-        private static ChatInfo from(Chat chat)
-        {
-            return ChatInfo.builder()
-                    .chatId(chat.getId())
-                    .userId(chat.getUserId())
-                    .content(chat.getContent())
-                    .build();
-        }
     }
 }
