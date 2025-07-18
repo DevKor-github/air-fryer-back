@@ -6,6 +6,9 @@ spring:
     url: ${TEST_DB_URL}
     username: ${TEST_DB_USERNAME}
     password: ${TEST_DB_PASSWORD}
+  data:
+    mongodb:
+      uri: mongodb://${TEST_MONGODB_USERNAME}:${TEST_MONGODB_PASSWORD}@${TEST_MONGODB_URL}/${TEST_MONGODB_DATABASE}?authSource=${TEST_MONGODB_DATABASE}
 
   jpa:
     hibernate:
