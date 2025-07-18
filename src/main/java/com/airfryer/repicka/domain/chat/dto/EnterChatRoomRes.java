@@ -19,10 +19,9 @@ import java.util.List;
 @Builder(access = AccessLevel.PRIVATE)
 public class EnterChatRoomRes
 {
-    private ChatRoomInfoDto chatRoom;              // 채팅방 정보
-    private ItemInfo item;                      // 제품 정보
+    private ChatRoomInfoDto chatRoom;           // 채팅방 정보
     private List<ChatInfo> chats;               // 채팅 정보 리스트
-    private List<AppointmentInfo> appointment;  // 약속 정보 리스트
+    private ItemInfo item;                      // 제품 정보
 
     private ObjectId chatCursorId;              // 채팅: 커서 ID
     private Boolean chatHasNext;                // 채팅: 다음 페이지가 존재하는가?
@@ -31,7 +30,6 @@ public class EnterChatRoomRes
                                       User me,
                                       String imageUrl,
                                       List<Chat> chatList,
-                                      List<Appointment> appointmentList,
                                       ObjectId chatCursorId,
                                       boolean chatHasNext)
     {
@@ -39,7 +37,6 @@ public class EnterChatRoomRes
                 .chatRoom(ChatRoomInfoDto.from(chatRoom, me))
                 .item(ItemInfo.from(chatRoom.getItem(), imageUrl))
                 .chats(chatList.stream().map(ChatInfo::from).toList())
-                .appointment(appointmentList.stream().map(AppointmentInfo::from).toList())
                 .chatCursorId(chatCursorId)
                 .chatHasNext(chatHasNext)
                 .build();
@@ -105,37 +102,6 @@ public class EnterChatRoomRes
                     .chatId(chat.getId())
                     .userId(chat.getUserId())
                     .content(chat.getContent())
-                    .build();
-        }
-    }
-
-    // 약속 정보
-    @Getter
-    @Builder(access = AccessLevel.PRIVATE)
-    private static class AppointmentInfo
-    {
-        private Long appointmentId;         // 약속 ID
-        private AppointmentType type;       // 약속 타입
-        private AppointmentState state;     // 약속 상태
-        private LocalDateTime rentalDate;   // 대여(구매) 일시
-        private LocalDateTime returnDate;   // 반납 일시
-        private String rentalLocation;      // 대여(구매) 장소
-        private String returnLocation;      // 반납 장소
-        private int price;                  // 대여료(판매값)
-        private int deposit;                // 보증금
-
-        private static AppointmentInfo from(Appointment appointment)
-        {
-            return AppointmentInfo.builder()
-                    .appointmentId(appointment.getId())
-                    .type(appointment.getType())
-                    .state(appointment.getState())
-                    .rentalDate(appointment.getRentalDate())
-                    .returnDate(appointment.getReturnDate())
-                    .rentalLocation(appointment.getRentalLocation())
-                    .returnLocation(appointment.getReturnLocation())
-                    .price(appointment.getPrice())
-                    .deposit(appointment.getDeposit())
                     .build();
         }
     }

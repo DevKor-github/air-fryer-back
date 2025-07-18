@@ -73,7 +73,7 @@ public class ChatService
 
         // 채팅 페이지 조회
         List<Chat> chatPage = chatRepository
-                .findFirstPageByChatRoomId(chatRoomId, pageable)
+                .findByChatRoomIdOrderByIdDesc(chatRoomId, pageable)
                 .collectList()
                 .block();
 
@@ -94,36 +94,13 @@ public class ChatService
             chatPage.removeLast();
         }
 
-        /// 약속 리스트 조회
-
-        // 약속 리스트 조회
-        List<Appointment> appointmentList = appointmentRepository.findByItemIdAndOwnerIdAndRequesterId(
-                chatRoom.getItem().getId(),
-                chatRoom.getOwner().getId(),
-                chatRoom.getRequester().getId()
-        );
-
-        // 약속 리스트 정렬
-        // AppointmentState 기준 : PENDING > CONFIRMED > IN_PROGRESS > SUCCESS > 그 외
-        // 동일한 AppointmentState 내에서는 rentalDate 오름차순
-        appointmentList.sort(
-                Comparator.comparing(
-                        (Appointment a) -> switch (a.getState()) {
-                            case PENDING -> 1;
-                            case CONFIRMED -> 2;
-                            case IN_PROGRESS -> 3;
-                            case SUCCESS -> 4;
-                            default -> 5;
-                        })
-                        .thenComparing(Appointment::getRentalDate, Comparator.naturalOrder())
-        );
+        /// 데이터 반환
 
         return EnterChatRoomRes.of(
                 chatRoom,
                 user,
                 thumbnailUrl,
                 chatPage,
-                appointmentList,
                 chatCursorId,
                 hasNext
         );
