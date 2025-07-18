@@ -3,13 +3,8 @@ package com.airfryer.repicka.domain.chat.repository;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.data.repository.query.Param;
 import reactor.core.publisher.Flux;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 public interface ChatRepository extends ReactiveMongoRepository<Chat, ObjectId>
 {
@@ -17,32 +12,8 @@ public interface ChatRepository extends ReactiveMongoRepository<Chat, ObjectId>
 
     // 커서 기반 페이지네이션 (cursor: id)
     // 최신순 정렬
-    @Query(
-            value = """
-                {
-                  "chatRoomId": ?0,
-                  "_id": { "$lt": ?1 }
-                }
-            """,
-            sort = "{ '_id' : -1 }"
-    )
-    Flux<Chat> findPageByChatRoomId(
-            Long chatRoomId,
-            ObjectId cursorId,
-            Pageable pageable
-    );
+    Flux<Chat> findByChatRoomIdAndIdLessThanOrderByIdDesc(Long chatRoomId, ObjectId id, Pageable pageable);
 
     // 첫 페이지 조회
-    @Query(
-            value = """
-                {
-                  "chatRoomId": ?0
-                }
-            """,
-            sort = "{ '_id' : -1 }"
-    )
-    Flux<Chat> findFirstPageByChatRoomId(
-            Long chatRoomId,
-            Pageable pageable
-    );
+    Flux<Chat> findByChatRoomIdOrderByIdDesc(Long chatRoomId, Pageable pageable);
 }
