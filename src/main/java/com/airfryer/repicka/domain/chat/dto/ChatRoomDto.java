@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Getter
 @Builder
-public class ChatRoomInfoDto
+public class ChatRoomDto
 {
     private Long chatRoomId;            // 채팅방 ID
     private Long myUserId;              // 나의 사용자 ID
@@ -18,11 +18,11 @@ public class ChatRoomInfoDto
     private Boolean isOpponentKorean;   // 상대방의 고려대 인증 여부
     private Boolean isFinished;         // 채팅방 종료 여부
 
-    public static ChatRoomInfoDto from(ChatRoom chatRoom, User me)
+    public static ChatRoomDto from(ChatRoom chatRoom, User me)
     {
         User opponent = Objects.equals(chatRoom.getRequester().getId(), me.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
-        return ChatRoomInfoDto.builder()
+        return ChatRoomDto.builder()
                 .chatRoomId(chatRoom.getId())
                 .myUserId(me.getId())
                 .opponentUserId(opponent.getId())

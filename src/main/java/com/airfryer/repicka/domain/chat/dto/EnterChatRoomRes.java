@@ -15,7 +15,7 @@ import java.util.List;
 @Builder(access = AccessLevel.PRIVATE)
 public class EnterChatRoomRes
 {
-    private ChatRoomInfoDto chatRoom;           // 채팅방 정보
+    private ChatRoomDto chatRoom;           // 채팅방 정보
     private List<ChatInfo> chats;               // 채팅 정보 리스트
     private ItemPreviewDto item;                // 제품 정보
 
@@ -31,7 +31,7 @@ public class EnterChatRoomRes
                                       boolean isAvailable)
     {
         return EnterChatRoomRes.builder()
-                .chatRoom(ChatRoomInfoDto.from(chatRoom, me))
+                .chatRoom(ChatRoomDto.from(chatRoom, me))
                 .item(ItemPreviewDto.from(chatRoom.getItem(), imageUrl, isAvailable))
                 .chats(chatList.stream().map(ChatInfo::from).toList())
                 .chatCursorId(chatCursorId)
