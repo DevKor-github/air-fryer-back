@@ -44,8 +44,8 @@ jobs:
       TEST_MONGODB_USERNAME: ${{ secrets.TEST_MONGODB_USERNAME }}
       TEST_MONGODB_PASSWORD: ${{ secrets.TEST_MONGODB_PASSWORD }}
       TEST_MONGODB_DATABASE: ${{ secrets.TEST_MONGODB_DATABASE }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      FRONTEND_URI: ${{ secrets.FRONTEND_URI }}
+      JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+      FRONTEND_URI: ${{ secrets.TEST_FRONTEND_URI }}
 
     steps:
       - name: Checkout Source Code
