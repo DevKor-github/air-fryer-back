@@ -28,6 +28,14 @@ jobs:
         ports:
           - 5432:5432
 
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password
+
     env:
       TEST_DB_URL: jdbc:postgresql://localhost:5432/repicka_test
       TEST_DB_USERNAME: postgres
