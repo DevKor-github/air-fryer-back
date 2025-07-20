@@ -37,9 +37,19 @@ public class SearchItemReq
     // 거래 방식
     private TradeMethod[] tradeMethods;
 
-    // 원하는 거래 날짜
+    // 거래 시작 날짜
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime date;
+    private LocalDateTime startDate;
+
+    // 거래 종료 날짜
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime endDate;
+
+    // 시작 금액
+    private int startPrice = 0;
+
+    // 종료 금액
+    private int endPrice = 999999;
 
     // 제품 정렬 순서
     private ItemOrder itemOrder = ItemOrder.RECENT;

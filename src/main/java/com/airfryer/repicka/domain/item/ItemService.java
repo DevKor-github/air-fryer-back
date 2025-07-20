@@ -163,7 +163,7 @@ public class ItemService
         // 제품 정보를 정제하여 반환
         List<ItemPreviewDto> itemPreviewDtoList = searchResult.getItems().stream()
             .map(item -> {
-                boolean isAvailable = appointmentService.isItemAvailableOnDate(item.getId(), condition.getDate());  // 원하는 날짜에 대여나 구매 가능 여부
+                boolean isAvailable = appointmentService.isItemAvailableOnInterval(item.getId(), condition.getStartDate(), condition.getEndDate());  // 원하는 날짜에 대여나 구매 가능 여부
                 String thumbnailUrl = thumbnailMap.get(item.getId()); // 대표 사진
                 return ItemPreviewDto.from(item, thumbnailUrl, isAvailable);
             })
