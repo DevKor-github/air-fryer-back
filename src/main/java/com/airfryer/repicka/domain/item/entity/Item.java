@@ -6,8 +6,8 @@ import com.airfryer.repicka.domain.item.dto.CreateItemReq;
 import com.airfryer.repicka.domain.user.entity.User;
 import io.hypersistence.utils.hibernate.type.array.EnumArrayType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.Range;
 import lombok.*;
 import org.hibernate.annotations.Type;
 
@@ -66,11 +66,11 @@ public class Item extends BaseEntity
 
     // 제목
     @NotNull
-    @Column(length = 255)
+    @Column(length = 64)
     private String title;
 
     // 설명
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", length = 1024)
     private String description;
 
     // 색상
@@ -88,16 +88,19 @@ public class Item extends BaseEntity
 
     // 대여료
     @NotNull
+    @Range(min = 0, max = 999999)
     @Builder.Default
     private int rentalFee = 0;
 
     // 판매값
     @NotNull
+    @Range(min = 0, max = 999999)
     @Builder.Default
     private int salePrice = 0;
 
     // 보증금
     @NotNull
+    @Range(min = 0, max = 999999)
     @Builder.Default
     private int deposit = 0;
 
