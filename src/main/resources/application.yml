@@ -1,6 +1,6 @@
 spring:
 
-  ## database(postgresql) 연동
+  ## PostgreSQL 연동
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL}
@@ -13,6 +13,11 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  ## MongoDB 연동
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_DATABASE}?authSource=${MONGODB_DATABASE}
 
   ## OAuth 설정
   security:

@@ -88,6 +88,10 @@ public class SecurityConfig
                         // Item_Like
                         .requestMatchers("/api/v1/like/**").hasAnyAuthority("USER", "ADMIN")
 
+                        // Chat
+                        .requestMatchers("/api/v1/chatroom/**").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/v1/chat/**").hasAnyAuthority("USER", "ADMIN")
+
                         // Test
                         .requestMatchers("/api/test/is-login").hasAnyAuthority("USER", "ADMIN")
 

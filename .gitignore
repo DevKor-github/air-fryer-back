@@ -40,3 +40,6 @@ out/
 
 ### QueryDSL ###
 /src/main/generated
+
+## 로컬 도커 설정
+docker-compose.yml
