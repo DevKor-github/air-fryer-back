@@ -2,15 +2,12 @@ package com.airfryer.repicka.domain.chat.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.appointment.dto.OfferRentalAppointmentReq;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.service.ChatService;
 import com.airfryer.repicka.domain.user.entity.User;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController
 {
     private final ChatService chatService;
-
-    private final SimpMessageSendingOperations template;
 
     // TODO: 제품 페이지에서 채팅방 입장
 
