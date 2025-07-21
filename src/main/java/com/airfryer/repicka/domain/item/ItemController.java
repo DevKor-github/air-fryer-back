@@ -9,6 +9,7 @@ import com.airfryer.repicka.domain.item.dto.*;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/item")
 @RequiredArgsConstructor
@@ -99,6 +101,9 @@ public class ItemController
     @GetMapping("/search")
     public ResponseEntity<SuccessResponseDto> searchItemList(@Valid SearchItemReq req)
     {
+        // 디버깅: 어떤 itemOrder가 적용되었는지 로그 출력
+        log.info("🔍 검색 요청 - itemOrder: {}, pageSize: {}, color: {}", req.getItemOrder(), req.getPageSize(), req.getColors() != null ? req.getColors().length : 0);
+        
         SearchItemRes data = itemService.searchItemList(req);
 
         return ResponseEntity.status(HttpStatus.OK)

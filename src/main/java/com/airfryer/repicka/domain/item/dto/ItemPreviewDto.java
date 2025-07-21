@@ -7,6 +7,7 @@ import com.airfryer.repicka.domain.item.entity.ItemColor;
 import com.airfryer.repicka.domain.item.entity.ItemSize;
 import com.airfryer.repicka.domain.item.entity.ItemQuality;
 import com.airfryer.repicka.domain.item.entity.TradeMethod;
+import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +36,7 @@ public class ItemPreviewDto
     private int likeCount;          // 좋아요 개수
     private int chatRoomCount;      // 채팅방 개수
     private boolean isAvailable;    // 대여 및 구매 가능 여부
+    private LocalDateTime repostDate; // 게시 날짜
 
     public static ItemPreviewDto from(Item item, String thumbnailUrl, boolean isAvailable)
     {
@@ -54,6 +56,7 @@ public class ItemPreviewDto
                 .likeCount(item.getLikeCount())
                 .chatRoomCount(item.getChatRoomCount())
                 .isAvailable(isAvailable)
+                .repostDate(item.getRepostDate())
                 .build();
     }
 }

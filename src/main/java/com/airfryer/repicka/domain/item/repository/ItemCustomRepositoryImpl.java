@@ -78,7 +78,7 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
 
         // 거래 금액 조건
         if (condition.getTransactionTypes() == null || condition.getTransactionTypes().length == 2) {
-            // 둘 다 선택하거나 선택 안함 → 대여료 판매가 둘 중 하나만 조건에 해당되어도 됨
+            // 둘 다 선택하거나 선택 안함 → 대여료 판매가 둘 중 하나라도 조건에 해당되는지 체크
             whereBuilder.append("AND (( i.rental_fee >= ? AND i.rental_fee <= ? ) OR ( i.sale_price >= ? AND i.sale_price <= ? ))");
             parameters.add(condition.getStartPrice());  // rental_fee >=
             parameters.add(condition.getEndPrice());    // rental_fee <=
@@ -101,6 +101,30 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
 
         // 거래 날짜 조건
         boolean hasDateFilter = condition.getStartDate() != null && condition.getEndDate() != null;
+        
+        // 커서 기반 페이지네이션 조건
+        boolean hasCursor = condition.getCursorId() != null;
+        
+        // 커서 기반 WHERE 조건 추가
+        if (hasCursor) {
+            whereBuilder.append(getCursorWhereClause(condition.getItemOrder()));
+            
+            // 커서 파라미터 추가 (정렬 조건에 따라 다름)
+            if (condition.getItemOrder() == ItemOrder.RECENT) {
+                if (condition.getCursorDate() != null) {
+                    parameters.add(condition.getCursorDate()); // repost_date <
+                    parameters.add(condition.getCursorDate()); // repost_date =
+                }
+                parameters.add(condition.getCursorId());       // id <
+            } else {
+                // LIKE, RENTAL_FEE, SALE_PRICE의 경우
+                if (condition.getCursorValue() != null) {
+                    parameters.add(condition.getCursorValue()); // value 비교
+                    parameters.add(condition.getCursorValue()); // value =
+                }
+                parameters.add(condition.getCursorId());        // id 비교
+            }
+        }
 
         /// ====== Item 목록 조회 쿼리 ======
 
@@ -134,9 +158,7 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
 
         // 정렬 조건
         itemQueryBuilder.append(getOrderByClause(condition.getItemOrder()));
-
-        // 페이징
-        itemQueryBuilder.append("LIMIT 10 OFFSET ? ");
+        itemQueryBuilder.append("LIMIT ? ");
 
         // 최종 쿼리
         Query itemQuery = entityManager.createNativeQuery(itemQueryBuilder.toString(), Item.class);
@@ -159,8 +181,8 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
             itemQuery.setParameter(paramIndex++, param);
         }
         
-        // 페이징 파라미터
-        itemQuery.setParameter(paramIndex, condition.getPage() * 10);
+        // LIMIT 파라미터 (pageSize)
+        itemQuery.setParameter(paramIndex, condition.getPageSize());
 
         // 쿼리 실행 결과
         @SuppressWarnings("unchecked")
@@ -186,7 +208,7 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
             countQuery.setParameter(countParamIndex++, condition.getEndDate());
         }
         
-        // 그 외 조건절용 파라미터들
+        // 그 외 조건절용 파라미터들 (커서 파라미터 포함)
         for (Object param : parameters) {
             countQuery.setParameter(countParamIndex++, param);
         }
@@ -202,10 +224,19 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
 
     private String getOrderByClause(ItemOrder itemOrder) {
         return switch (itemOrder) {
-            case RECENT -> "ORDER BY i.repost_date DESC ";
-            case LIKE -> "ORDER BY i.like_count DESC ";
-            case RENTAL_FEE -> "ORDER BY i.rental_fee ASC ";
-            case SALE_PRICE -> "ORDER BY i.sale_price ASC ";
+            case RECENT -> "ORDER BY i.repost_date DESC, i.id DESC ";
+            case LIKE -> "ORDER BY i.like_count DESC, i.id DESC ";
+            case RENTAL_FEE -> "ORDER BY i.rental_fee ASC, i.id DESC ";
+            case SALE_PRICE -> "ORDER BY i.sale_price ASC, i.id DESC ";
+        };
+    }
+    
+    private String getCursorWhereClause(ItemOrder itemOrder) {
+        return switch (itemOrder) {
+            case RECENT -> "AND (i.repost_date < ? OR (i.repost_date = ? AND i.id < ?)) ";
+            case LIKE -> "AND (i.like_count < ? OR (i.like_count = ? AND i.id < ?)) ";
+            case RENTAL_FEE -> "AND (i.rental_fee > ? OR (i.rental_fee = ? AND i.id > ?)) ";
+            case SALE_PRICE -> "AND (i.sale_price > ? OR (i.sale_price = ? AND i.id > ?)) ";
         };
     }
 }
