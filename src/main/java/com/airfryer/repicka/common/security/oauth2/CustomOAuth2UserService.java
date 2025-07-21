@@ -52,12 +52,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .loginMethod(oAuth2Response.getProvider())
                     .oauthId(oAuth2Response.getProviderId())
                     .role(Role.USER)
-                    .profileImageUrl("/프로필-이미지-기본경로")
                     .isKoreaUnivVerified(false)
-                    .gender(null)
-                    .height(null)
-                    .weight(null)
-                    .fcmToken(null)
                     .todayPostCount(0)
                     .lastAccessDate(LocalDate.now())
                     .build();
