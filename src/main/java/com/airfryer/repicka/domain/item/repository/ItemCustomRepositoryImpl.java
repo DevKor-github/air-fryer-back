@@ -188,7 +188,13 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
         @SuppressWarnings("unchecked")
         List<Item> items = itemQuery.getResultList();
 
-        /// ====== 전체 개수 조회 쿼리 ======
+        if (hasCursor) {
+            return SearchItemResult.builder()
+                .items(items)
+                .build();
+        }
+
+        /// ====== 첫 페이지일 때만 전체 개수 조회 쿼리 ======
         
         String countQueryString = "SELECT COUNT(*) FROM (" + baseQueryForCount + ") AS filtered_items";
         
@@ -235,8 +241,8 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
         return switch (itemOrder) {
             case RECENT -> "AND (i.repost_date < ? OR (i.repost_date = ? AND i.id < ?)) ";
             case LIKE -> "AND (i.like_count < ? OR (i.like_count = ? AND i.id < ?)) ";
-            case RENTAL_FEE -> "AND (i.rental_fee > ? OR (i.rental_fee = ? AND i.id > ?)) ";
-            case SALE_PRICE -> "AND (i.sale_price > ? OR (i.sale_price = ? AND i.id > ?)) ";
+            case RENTAL_FEE -> "AND (i.rental_fee > ? OR (i.rental_fee = ? AND i.id < ?)) ";
+            case SALE_PRICE -> "AND (i.sale_price > ? OR (i.sale_price = ? AND i.id < ?)) ";
         };
     }
 }
