@@ -349,7 +349,7 @@ public class AppointmentService
         Map<Long, String> thumbnailUrlMap = thumbnailList.stream()
                 .collect(Collectors.toMap(
                         itemImage -> itemImage.getItem().getId(),
-                        itemImageService::getFullImageUrl
+                        itemImage -> itemImage.getFileKey()
                 ));
 
         // Map(약속, 대표 이미지 URL) 생성

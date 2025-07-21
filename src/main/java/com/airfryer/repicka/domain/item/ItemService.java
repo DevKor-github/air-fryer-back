@@ -104,7 +104,7 @@ public class ItemService
 
         // TODO: 제품 이미지 수정
 
-        return ItemDetailRes.from(item, itemImageService.getItemImageUrls(item), user, false);
+        return ItemDetailRes.from(item, itemImageService.getItemImages(item), user, false);
     }
 
     // 제품 삭제
@@ -142,7 +142,7 @@ public class ItemService
         }
 
         // 제품 이미지 조회
-        List<String> imageUrls = itemImageService.getItemImageUrls(item);
+        List<String> imageUrls = itemImageService.getItemImages(item);
 
         // 좋아요 여부 조회
         boolean isLiked = (user != null) && (itemLikeRepository.findByItemIdAndLikerId(itemId, user.getId()).isPresent());

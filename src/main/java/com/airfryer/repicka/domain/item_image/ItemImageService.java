@@ -42,33 +42,33 @@ public class ItemImageService
         // 제품 이미지 리스트 저장
         itemImages = itemImageRepository.saveAll(itemImages);
 
-        // 이미지 URL 리스트 반환
-        return getItemImageUrls(itemImages);
+        // 이미지 리스트 반환
+        return getItemImages(itemImages);
     }
 
-    /// 제품 이미지 URL 리스트 반환
+    /// 제품 이미지 리스트 반환
 
-    public List<String> getItemImageUrls(Item item)
+    public List<String> getItemImages(Item item)
     {
         List<ItemImage> itemImages = itemImageRepository.findAllByItemId(item.getId());
-        return getItemImageUrls(itemImages);
+        return getItemImages(itemImages);
     }
 
-    public List<String> getItemImageUrls(List<ItemImage> itemImages) {
+    public List<String> getItemImages(List<ItemImage> itemImages) {
         return itemImages.stream()
-                .map(this::getFullImageUrl)
+                .map(ItemImage::getFileKey)
                 .toList();
     }
 
-    /// 제품의 썸네일 URL 조회
+    /// 제품의 썸네일 조회
 
     public String getThumbnail(Item item) {
         Optional<ItemImage> itemImageOptional = itemImageRepository.findByDisplayOrderAndItemId(1, item.getId());
         ItemImage itemImage = itemImageOptional.orElse(null);
-        return getFullImageUrl(itemImage);
+        return itemImage != null ? itemImage.getFileKey() : null;
     }
 
-    /// 여러 제품의 썸네일 URL 조회
+    /// 여러 제품의 썸네일 조회
 
     public Map<Long, String> getThumbnailsForItems(List<Item> items) {
         List<Long> itemIds = items.stream()
@@ -80,7 +80,7 @@ public class ItemImageService
         return thumbnails.stream()
                 .collect(Collectors.toMap(
                         itemImage -> itemImage.getItem().getId(),
-                        this::getFullImageUrl
+                        ItemImage::getFileKey
                 ));
     }
 
