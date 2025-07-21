@@ -84,6 +84,12 @@ public class ItemImageService
                 ));
     }
 
+    /// 제품 이미지 삭제
+    @Transactional
+    public void deleteItemImage(Long itemId) {
+        itemImageRepository.deleteAllByItemId(itemId);
+    }
+
     /// 제품 이미지의 fileKey를 전체 URL로 변환
 
     public String getFullImageUrl(ItemImage itemImage) {

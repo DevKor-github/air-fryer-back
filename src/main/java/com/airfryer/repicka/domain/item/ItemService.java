@@ -102,9 +102,13 @@ public class ItemService
         // 제품 수정
         item.updateItem(dto);
 
-        // TODO: 제품 이미지 수정
+        // 기존 제품 이미지 삭제
+        itemImageService.deleteItemImage(itemId);
 
-        return ItemDetailRes.from(item, itemImageService.getItemImages(item), user, false);
+        // 새로운 제품 이미지 저장
+        List<String> itemImages= itemImageService.createItemImage(dto.getImages(), item);
+
+        return ItemDetailRes.from(item, itemImages, user, false);
     }
 
     // 제품 삭제
