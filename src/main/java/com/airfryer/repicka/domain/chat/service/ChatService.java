@@ -110,7 +110,7 @@ public class ChatService
 
     // 채팅 전송
     @Transactional
-    public Mono<Void> sendMessage(User user, SendChatDto dto)
+    public void sendMessage(User user, SendChatDto dto)
     {
         /// 채팅방 조회
 
@@ -137,6 +137,6 @@ public class ChatService
                 .content(dto.getContent())
                 .build();
 
-        return chatRepository.save(chat).then();
+        chatRepository.save(chat);
     }
 }
