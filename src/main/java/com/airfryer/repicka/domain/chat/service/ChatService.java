@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,8 @@ public class ChatService
 
     private final AppointmentService appointmentService;
     private final ItemImageService itemImageService;
+
+    private final SimpMessagingTemplate messagingTemplate;
 
     // 나의 채팅 페이지에서 채팅방 입장
     @Transactional(readOnly = true)
@@ -138,5 +141,12 @@ public class ChatService
                 .build();
 
         chatRepository.save(chat);
+
+        // 구독 중인 사용자에게 메시지 전송
+        try {
+            messagingTemplate.convertAndSend("/sub/chatroom/" + dto.getChatRoomId(), dto);
+        } catch (Exception e) {
+            throw new CustomException(CustomExceptionCode.INTERNAL_CHAT_ERROR, e.getMessage());
+        }
     }
 }
