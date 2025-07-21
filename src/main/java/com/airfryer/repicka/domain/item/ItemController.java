@@ -101,9 +101,6 @@ public class ItemController
     @GetMapping("/search")
     public ResponseEntity<SuccessResponseDto> searchItemList(@Valid SearchItemReq req)
     {
-        // 디버깅: 어떤 itemOrder가 적용되었는지 로그 출력
-        log.info("🔍 검색 요청 - itemOrder: {}, pageSize: {}, color: {}", req.getItemOrder(), req.getPageSize(), req.getColors() != null ? req.getColors().length : 0);
-        
         SearchItemRes data = itemService.searchItemList(req);
 
         return ResponseEntity.status(HttpStatus.OK)
