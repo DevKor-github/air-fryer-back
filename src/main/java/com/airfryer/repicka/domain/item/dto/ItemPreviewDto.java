@@ -35,10 +35,9 @@ public class ItemPreviewDto
     private TradeMethod[] tradeMethods; // 거래 방법
     private int likeCount;          // 좋아요 개수
     private int chatRoomCount;      // 채팅방 개수
-    private boolean isAvailable;    // 대여 및 구매 가능 여부
     private LocalDateTime repostDate; // 게시 날짜
 
-    public static ItemPreviewDto from(Item item, String thumbnailUrl, boolean isAvailable)
+    public static ItemPreviewDto from(Item item, String thumbnailUrl)
     {
         return ItemPreviewDto.builder()
                 .itemId(item.getId())
@@ -55,7 +54,6 @@ public class ItemPreviewDto
                 .tradeMethods(item.getTradeMethods())
                 .likeCount(item.getLikeCount())
                 .chatRoomCount(item.getChatRoomCount())
-                .isAvailable(isAvailable)
                 .repostDate(item.getRepostDate())
                 .build();
     }

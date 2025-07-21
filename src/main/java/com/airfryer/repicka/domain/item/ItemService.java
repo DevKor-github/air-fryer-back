@@ -163,12 +163,8 @@ public class ItemService
         // 제품 정보를 정제하여 반환
         List<ItemPreviewDto> itemPreviewDtoList = searchResult.getItems().stream()
             .map(item -> {
-                // 날짜 필터가 있을 때만 가용성 체크, 없으면 항상 available = true
-                boolean isAvailable = (condition.getStartDate() == null) 
-                    ? appointmentService.isItemAvailableOnDate(item.getId(), LocalDateTime.now())
-                    : true;  // 날짜 필터 없으면 항상 사용 가능으로 표시
                 String thumbnailUrl = thumbnailMap.get(item.getId()); // 대표 사진
-                return ItemPreviewDto.from(item, thumbnailUrl, isAvailable);
+                return ItemPreviewDto.from(item, thumbnailUrl);
             })
             .toList();
 
