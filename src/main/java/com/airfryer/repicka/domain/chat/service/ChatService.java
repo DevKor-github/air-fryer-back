@@ -4,6 +4,7 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
+import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRepository;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -108,5 +110,37 @@ public class ChatService
                 hasNext,
                 isAvailable
         );
+    }
+
+    // 채팅 전송
+    @Transactional
+    public Mono<Void> sendMessage(User user, SendChatDto dto)
+    {
+        /// 채팅방 조회
+
+        // 채팅방 조회
+        ChatRoom chatRoom = chatRoomRepository.findById(dto.getChatRoomId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, dto.getChatRoomId()));
+
+        /// 예외 처리
+
+        // 이미 종료된 채팅방인지 확인
+        if(chatRoom.getIsFinished()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_FINISHED_CHATROOM, null);
+        }
+
+        // 채팅방 관계자인지 확인
+        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
+            throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
+        }
+
+        // 채팅 저장
+        Chat chat = Chat.builder()
+                .chatRoomId(dto.getChatRoomId())
+                .userId(user.getId())
+                .content(dto.getContent())
+                .build();
+
+        return chatRepository.save(chat).then();
     }
 }
