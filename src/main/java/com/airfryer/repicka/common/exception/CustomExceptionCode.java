@@ -14,6 +14,7 @@ public enum CustomExceptionCode
     ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "접근 인가에 실패하였습니다."),
 
     // 토큰 관련 예외
+    ACCESS_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Access token이 존재하지 않습니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Refresh token이 존재하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Refresh token입니다."),
 
@@ -60,6 +61,7 @@ public enum CustomExceptionCode
     // 채팅 관련 예외
     NOT_CHATROOM_PARTICIPANT(HttpStatus.FORBIDDEN, "채팅방 관계자가 아닙니다."),
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방 데이터를 찾을 수 없습니다."),
+    INVALID_CHAT_MESSAGE(HttpStatus.BAD_REQUEST, "유효하지 않은 채팅 메시지 형식입니다."),
     ALREADY_FINISHED_CHATROOM(HttpStatus.CONFLICT, "이미 종료된 채팅방입니다."),
 
     // 내부 로직 오류 (발생하면 안됨!)
