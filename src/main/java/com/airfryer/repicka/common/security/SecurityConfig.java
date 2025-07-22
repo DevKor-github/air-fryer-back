@@ -129,7 +129,8 @@ public class SecurityConfig
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://devkor-github.github.io"
+                "https://devkor-github.github.io",
+                "https://repicka.netlify.app/"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setExposedHeaders(List.of("Set-Cookie"));
