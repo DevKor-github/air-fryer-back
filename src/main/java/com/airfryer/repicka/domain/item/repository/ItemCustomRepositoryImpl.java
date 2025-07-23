@@ -38,7 +38,7 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
 
         // 제품 타입 필터링
         if (condition.getProductTypes() != null && condition.getProductTypes().length > 0) {
-            whereBuilder.append("AND i.product_types && ANY(?::text[]) ");
+            whereBuilder.append("AND i.product_types && ?::text[] ");
             parameters.add(Arrays.stream(condition.getProductTypes())
                     .map(Enum::name)
                     .toArray(String[]::new));

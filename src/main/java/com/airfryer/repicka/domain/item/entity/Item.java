@@ -70,7 +70,7 @@ public class Item extends BaseEntity
     private String title;
 
     // 설명
-    @Column(columnDefinition = "TEXT", length = 1024)
+    @Column(length = 1024)
     private String description;
 
     // 색상
