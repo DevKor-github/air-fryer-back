@@ -39,7 +39,7 @@ public class CreateItemReq
     @Range(min = 0, max = 999999, message = "보증금은 0원 이상 999,999원 이하이어야 합니다.")
     private int deposit = 0;
 
-    @Size(max = 255, message = "장소는 최대 255자까지 입력할 수 있습니다.")
+    @Size(max = 100, message = "장소는 최대 100자까지 입력할 수 있습니다.")
     private String location;
 
     @NotNull(message = "거래 방식을 입력해주세요.")
