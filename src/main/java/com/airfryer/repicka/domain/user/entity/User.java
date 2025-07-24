@@ -41,7 +41,6 @@ public class User extends BaseEntity
     @Enumerated(EnumType.STRING)
     private Role role; // 권한
 
-    @NotNull
     private String profileImageUrl; // 프로필 이미지 URL
 
     @NotNull

@@ -33,3 +33,6 @@ application.properties
 # 문서
 README.md
 *.md
+
+# 환경변수
+.env

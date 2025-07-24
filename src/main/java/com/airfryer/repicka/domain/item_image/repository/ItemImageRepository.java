@@ -22,4 +22,7 @@ public interface ItemImageRepository extends JpaRepository<ItemImage, Long>
 
     // 상품 별 이미지 목록 찾기
     List<ItemImage> findAllByItemId(Long itemId);
+
+    // 상품 별 이미지 삭제
+    void deleteAllByItemId(Long itemId);
 }
