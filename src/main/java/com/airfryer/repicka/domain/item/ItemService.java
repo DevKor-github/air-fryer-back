@@ -102,9 +102,13 @@ public class ItemService
         // 제품 수정
         item.updateItem(dto);
 
-        // TODO: 제품 이미지 수정
+        // 기존 제품 이미지 삭제
+        itemImageService.deleteItemImage(itemId);
 
-        return ItemDetailRes.from(item, itemImageService.getItemImageUrls(item), user, false);
+        // 새로운 제품 이미지 저장
+        List<String> itemImages= itemImageService.createItemImage(dto.getImages(), item);
+
+        return ItemDetailRes.from(item, itemImages, user, false);
     }
 
     // 제품 삭제
@@ -142,7 +146,7 @@ public class ItemService
         }
 
         // 제품 이미지 조회
-        List<String> imageUrls = itemImageService.getItemImageUrls(item);
+        List<String> imageUrls = itemImageService.getItemImages(item);
 
         // 좋아요 여부 조회
         boolean isLiked = (user != null) && (itemLikeRepository.findByItemIdAndLikerId(itemId, user.getId()).isPresent());
@@ -163,9 +167,8 @@ public class ItemService
         // 제품 정보를 정제하여 반환
         List<ItemPreviewDto> itemPreviewDtoList = searchResult.getItems().stream()
             .map(item -> {
-                boolean isAvailable = appointmentService.isItemAvailableOnDate(item.getId(), condition.getDate());  // 원하는 날짜에 대여나 구매 가능 여부
                 String thumbnailUrl = thumbnailMap.get(item.getId()); // 대표 사진
-                return ItemPreviewDto.from(item, thumbnailUrl, isAvailable);
+                return ItemPreviewDto.from(item, thumbnailUrl);
             })
             .toList();
 

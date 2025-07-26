@@ -10,7 +10,6 @@ import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRepository;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
-import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.user.entity.User;
@@ -35,7 +34,6 @@ public class ChatService
     private final ItemImageRepository itemImageRepository;
 
     private final AppointmentService appointmentService;
-    private final ItemImageService itemImageService;
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -66,9 +64,6 @@ public class ChatService
         // 썸네일 데이터 조회
         ItemImage thumbnail = itemImageRepository.findFirstByItemId(chatRoom.getItem().getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_IMAGE_NOT_FOUND, chatRoom.getItem().getId()));
-
-        // 썸네일 URL 조회
-        String thumbnailUrl = itemImageService.getFullImageUrl(thumbnail);
 
         /// 제품의 현재 대여 및 구매 가능 여부 조회
 
@@ -104,7 +99,7 @@ public class ChatService
         return EnterChatRoomRes.of(
                 chatRoom,
                 user,
-                thumbnailUrl,
+                thumbnail.getFileKey(),
                 chatPage,
                 chatCursorId,
                 hasNext,

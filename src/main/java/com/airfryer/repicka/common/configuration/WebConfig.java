@@ -17,8 +17,9 @@ public class WebConfig implements WebMvcConfigurer
                 .allowedOrigins(
                         "http://localhost:5173",
                         "http://localhost:63342",
-                        "https://devkor-github.github.io"
+                        "https://devkor-github.github.io",
+                        "https://repicka.netlify.app/"
                 )
-                .allowedMethods("*");
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
     }
 }

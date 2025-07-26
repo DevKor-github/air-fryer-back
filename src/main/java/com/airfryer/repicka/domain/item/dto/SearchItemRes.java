@@ -10,5 +10,5 @@ import java.util.List;
 public class SearchItemRes
 {
     List<ItemPreviewDto> items;     // 제품 정보 리스트
-    int totalCount;                 // 결과 개수
+    Integer totalCount;                 // 결과 개수
 }

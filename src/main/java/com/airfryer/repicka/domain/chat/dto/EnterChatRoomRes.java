@@ -29,7 +29,7 @@ public class EnterChatRoomRes
     {
         return EnterChatRoomRes.builder()
                 .chatRoom(ChatRoomDto.from(chatRoom, me))
-                .item(ItemPreviewDto.from(chatRoom.getItem(), imageUrl, isAvailable))
+                .item(ItemPreviewDto.from(chatRoom.getItem(), imageUrl))
                 .chat(ChatPageDto.of(chatList, chatCursorId, chatHasNext))
                 .build();
     }
