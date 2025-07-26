@@ -10,8 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -39,10 +42,10 @@ public class ChatController
     }
 
     // 채팅 전송
-    @MessageMapping("/chat/send")
-    public void send(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                     SendChatDto dto)
+    @MessageMapping("/chat")
+    public void send(Principal principal, SendChatDto dto)
     {
+        CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
         User user = oAuth2User.getUser();
         chatService.sendMessage(user, dto);
     }

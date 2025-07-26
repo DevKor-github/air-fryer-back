@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -65,6 +64,7 @@ public class SecurityConfig
         // URL 기반 권한 설정
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
+
                         // 로그인
                         .requestMatchers("/login/**", "/oauth2/**").permitAll()
 
@@ -91,9 +91,11 @@ public class SecurityConfig
                         // Chat
                         .requestMatchers("/api/v1/chatroom/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/api/v1/chat/**").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/ws/**").hasAnyAuthority("USER", "ADMIN")
 
                         // Test
                         .requestMatchers("/api/test/is-login").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/chatTest.html").permitAll()
 
                         .anyRequest().authenticated()
                 );
@@ -129,6 +131,7 @@ public class SecurityConfig
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
+                "http://localhost:63342",
                 "https://devkor-github.github.io"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
