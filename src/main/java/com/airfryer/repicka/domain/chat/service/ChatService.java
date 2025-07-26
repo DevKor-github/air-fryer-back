@@ -133,6 +133,11 @@ public class ChatService
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
 
+        // 비어있는 메시지인지 확인
+        if(dto.getContent().isEmpty()) {
+            throw new CustomException(CustomExceptionCode.INVALID_CHAT_MESSAGE, null);
+        }
+
         // 채팅 저장
         Chat chat = Chat.builder()
                 .chatRoomId(dto.getChatRoomId())
