@@ -47,9 +47,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         // 리다이렉트
-        response.sendRedirect(frontendURI + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);
+        // response.sendRedirect(frontendURI + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);
 
         // 로컬에서 WebSocket 채팅 전송 테스트 시, 리다이렉트 경로
-        // response.sendRedirect("http://localhost:8080/chatTest.html" + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);
+        response.sendRedirect("http://localhost:8080/chatTest.html" + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);
     }
 }

@@ -3,6 +3,7 @@ package com.airfryer.repicka.domain.chat.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.chat.dto.ChatMessageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.entity.Chat;
@@ -138,6 +139,8 @@ public class ChatService
             throw new CustomException(CustomExceptionCode.INVALID_CHAT_MESSAGE, null);
         }
 
+        /// 채팅 저장
+
         // 채팅 저장
         Chat chat = Chat.builder()
                 .chatRoomId(dto.getChatRoomId())
@@ -147,9 +150,17 @@ public class ChatService
 
         chatRepository.save(chat);
 
-        // 구독 중인 사용자에게 메시지 전송
+        /// 구독자에게 메시지 전송
+
+        ChatMessageDto message = ChatMessageDto.builder()
+                .chatId(chat.getId())
+                .userId(user.getId())
+                .content(dto.getContent())
+                .build();
+
+        // 구독자에게 메시지 전송
         try {
-            messagingTemplate.convertAndSend("/sub/chatroom/" + dto.getChatRoomId(), dto);
+            messagingTemplate.convertAndSend("/sub/chatroom/" + dto.getChatRoomId(), message);
         } catch (Exception e) {
             throw new CustomException(CustomExceptionCode.INTERNAL_CHAT_ERROR, e.getMessage());
         }

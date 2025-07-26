@@ -81,7 +81,17 @@
 
     function displayMessage(msg) {
         const chatBox = document.getElementById("chatBox");
-        const line = `<div><strong>방 ${msg.chatRoomId}:</strong> ${msg.content}</div>`;
+
+        // ChatMessageDto 형식에 맞게 출력
+        const line = `
+            <div>
+                🆔 <strong>${msg.chatId.timestamp}</strong> |
+                🆔 <strong>${msg.chatId.date}</strong> |
+                👤 사용자 <strong>${msg.userId}</strong>:
+                ${msg.content}
+            </div>
+        `;
+
         chatBox.innerHTML += line;
         chatBox.scrollTop = chatBox.scrollHeight;
     }
