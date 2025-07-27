@@ -80,6 +80,9 @@ dependencies {
 
 	// .env 파일 지원
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {
