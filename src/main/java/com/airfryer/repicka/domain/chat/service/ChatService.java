@@ -141,17 +141,14 @@ public class ChatService
                 .chatRoomId(dto.getChatRoomId())
                 .userId(user.getId())
                 .content(dto.getContent())
+                .isPick(false)
                 .build();
 
         chatRepository.save(chat);
 
         /// 구독자에게 메시지 전송
 
-        ChatMessageDto message = ChatMessageDto.builder()
-                .chatId(chat.getId())
-                .userId(user.getId())
-                .content(dto.getContent())
-                .build();
+        ChatMessageDto message = ChatMessageDto.from(chat);
 
         // 구독자에게 메시지 전송
         try {

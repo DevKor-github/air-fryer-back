@@ -12,6 +12,7 @@ public class ChatMessageDto
     private ObjectId chatId;    // 채팅 ID
     private Long userId;        // 사용자 ID
     private String content;     // 내용
+    private Boolean isPick;     // PICK 여부
 
     public static ChatMessageDto from(Chat chat)
     {
@@ -19,6 +20,7 @@ public class ChatMessageDto
                 .chatId(chat.getId())
                 .userId(chat.getUserId())
                 .content(chat.getContent())
+                .isPick(chat.getIsPick())
                 .build();
     }
 }
