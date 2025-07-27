@@ -1,6 +1,9 @@
 package com.airfryer.repicka.common.redis;
 
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
+import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
+import com.airfryer.repicka.common.firebase.type.NotificationType;
+import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +27,7 @@ public class DelayedQueueService {
     
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
-    
+    private final FCMService fcmService;
     private static final String DELAYED_TASK_PREFIX = "delayed:task:";
     private static final String TASK_DATA_PREFIX = "taskdata:";
     
@@ -141,6 +145,7 @@ public class DelayedQueueService {
     
     // 예약 알림 발송
     private void sendAppointmentReminder(AppointmentTask task) {
-        // TODO: 예약 알림 발송 로직
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMINDER, task.getAppointmentId(), task.getItemName());
+        fcmService.sendNotificationToMultiple(List.of(task.getOwnerFcmToken(), task.getRequesterFcmToken()), notificationReq);
     }
 } 

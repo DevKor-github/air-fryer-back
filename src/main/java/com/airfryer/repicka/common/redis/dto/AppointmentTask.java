@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
-import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 
 @Getter
 @Setter
@@ -17,17 +16,17 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 @Builder
 public class AppointmentTask {
     private Long appointmentId; // 예약 아이디
-    private AppointmentType transactionType; // 거래 유형
-    private Long ownerId; // 소유자 아이디
-    private Long requesterId; // 요청자 아이디
+    private String itemName; // 아이템 이름
+    private String ownerFcmToken; // 소유자 FCM 토큰
+    private String requesterFcmToken; // 요청자 FCM 토큰
     private String taskType; // "EXPIRE", "REMIND"
 
     public static AppointmentTask from(Appointment appointment, String taskType) {
         return AppointmentTask.builder()
                 .appointmentId(appointment.getId())
-                .transactionType(appointment.getType())
-                .ownerId(appointment.getOwner().getId())
-                .requesterId(appointment.getRequester().getId())
+                .itemName(appointment.getItem().getTitle())
+                .ownerFcmToken(appointment.getOwner().getFcmToken())
+                .requesterFcmToken(appointment.getRequester().getFcmToken())
                 .taskType(taskType)
                 .build();
     }

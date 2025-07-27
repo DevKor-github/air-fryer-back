@@ -2,7 +2,10 @@ package com.airfryer.repicka.domain.appointment.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
+import com.airfryer.repicka.common.firebase.type.NotificationType;
 import com.airfryer.repicka.common.redis.DelayedQueueService;
+import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
@@ -33,6 +36,8 @@ public class AppointmentService
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final DelayedQueueService delayedQueueService;
+    private final FCMService fcmService;
+
     /// 서비스
 
     // 대여 약속 제시
@@ -259,6 +264,10 @@ public class AppointmentService
         // 약속 상태 변경
         appointment.confirmAppointment();
 
+        // 약속 확정 알림
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRMATION, appointment.getId(), appointment.getItem().getTitle());
+        fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+
         // 약속 알림 발송 예약
         delayedQueueService.addDelayedTask(
                 "appointment",
@@ -444,6 +453,10 @@ public class AppointmentService
 
         // 약속 데이터 저장
         appointmentRepository.save(newAppointment);
+
+        // 약속 확정 알림
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRMATION, newAppointment.getId(), newAppointment.getItem().getTitle());
+        fcmService.sendNotification(newAppointment.getCreator().getFcmToken(), notificationReq);
 
         // 약속 알림 발송 예약
         delayedQueueService.addDelayedTask(
