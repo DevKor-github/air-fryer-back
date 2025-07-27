@@ -74,3 +74,8 @@ file:
 logging:
   level:
     org.springframework.security: DEBUG
+
+## Firebase 설정
+firebase:
+  config:
+    path: firebase/repicka-firebase-adminsdk.json

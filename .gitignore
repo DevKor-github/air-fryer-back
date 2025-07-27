@@ -46,3 +46,4 @@ docker-compose.yml
 
 ## .env 파일
 .env
+**/repicka-firebase-adminsdk.json
