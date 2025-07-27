@@ -27,43 +27,6 @@ public class DelayedQueueService {
     private static final String DELAYED_TASK_PREFIX = "delayed:task:";
     private static final String TASK_DATA_PREFIX = "taskdata:";
     
-    // 지연 작업을 Redis TTL로 등록
-    public boolean addDelayedTask(String queueName, AppointmentTask taskData, LocalDateTime executeAt) {
-        try {
-            // 의미있는 작업 ID 생성 (appointmentId 기반)
-            String taskId = queueName + ":" + taskData.getAppointmentId();
-            
-            // 실행 시간까지의 지연 시간 계산
-            long executeTimestamp = executeAt.toEpochSecond(ZoneOffset.UTC) * 1000;
-            long delayMs = executeTimestamp - System.currentTimeMillis();
-            
-            if (delayMs <= 0) {
-                // 이미 시간이 지났으면 즉시 실행
-                executeTask(taskData);
-                return true;
-            }
-            
-            // 작업 데이터를 별도로 저장
-            String taskDataKey = TASK_DATA_PREFIX + taskId;
-            String taskJson = objectMapper.writeValueAsString(taskData);
-            redisTemplate.opsForValue().set(taskDataKey, taskJson);
-            
-            // TTL 키 생성 (만료 시 이벤트 발생)
-            String delayedKey = DELAYED_TASK_PREFIX + taskId;
-            redisTemplate.opsForValue().set(
-                delayedKey, 
-                queueName, // 큐 이름 저장
-                Duration.ofMillis(delayMs)
-            );
-            
-            return true;
-            
-        } catch (JsonProcessingException e) {
-            log.error("작업 데이터 직렬화 실패", e);
-            return false;
-        }
-    }
-    
     // Redis 키 만료 이벤트 리스너 설정
     @Bean
     public KeyExpirationEventMessageListener keyExpirationEventMessageListener(
@@ -103,6 +66,56 @@ public class DelayedQueueService {
                 }
             }
         };
+    }
+
+    // 지연 작업을 Redis TTL로 등록
+    public boolean addDelayedTask(String queueName, AppointmentTask taskData, LocalDateTime executeAt) {
+        try {
+            // 의미있는 작업 ID 생성 (appointmentId 기반)
+            String taskId = queueName + ":" + taskData.getAppointmentId();
+            
+            // 실행 시간까지의 지연 시간 계산
+            long executeTimestamp = executeAt.toEpochSecond(ZoneOffset.UTC) * 1000;
+            long delayMs = executeTimestamp - System.currentTimeMillis();
+            
+            if (delayMs <= 0) {
+                // 이미 시간이 지났으면 즉시 실행
+                executeTask(taskData);
+                return true;
+            }
+            
+            // 작업 데이터를 별도로 저장
+            String taskDataKey = TASK_DATA_PREFIX + taskId;
+            String taskJson = objectMapper.writeValueAsString(taskData);
+            redisTemplate.opsForValue().set(taskDataKey, taskJson);
+            
+            // TTL 키 생성 (만료 시 이벤트 발생)
+            String delayedKey = DELAYED_TASK_PREFIX + taskId;
+            redisTemplate.opsForValue().set(
+                delayedKey, 
+                queueName, // 큐 이름 저장
+                Duration.ofMillis(delayMs)
+            );
+            
+            return true;
+            
+        } catch (JsonProcessingException e) {
+            log.error("작업 데이터 직렬화 실패", e);
+            return false;
+        }
+    }
+
+    // 지연 작업 취소
+    public boolean cancelDelayedTask(String queueName, Long appointmentId) {
+        String taskId = queueName + ":" + appointmentId;
+        String taskDataKey = TASK_DATA_PREFIX + taskId;
+        String delayedKey = DELAYED_TASK_PREFIX + taskId;
+
+        // 작업 데이터 정리
+        redisTemplate.delete(taskDataKey);
+        redisTemplate.delete(delayedKey);
+
+        return true;
     }
     
     // 작업 실행 로직

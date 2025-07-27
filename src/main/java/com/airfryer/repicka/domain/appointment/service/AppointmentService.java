@@ -306,11 +306,13 @@ public class AppointmentService
 
         appointment.cancelAppointment();
 
+        // 약속 알림 발송 예약 취소
+        delayedQueueService.cancelDelayedTask("appointment", appointmentId);
+
         // TODO: 사용자 피드백 요청
         // TODO: 채팅방 제거
 
-        /// 약속 데이터 반환
-
+        // 약속 데이터 반환
         return AppointmentRes.from(appointment, item);
     }
 
