@@ -2,6 +2,8 @@ package com.airfryer.repicka.domain.appointment.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.common.redis.DelayedQueueService;
+import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
@@ -10,7 +12,6 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
-import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
@@ -31,9 +32,7 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
-
-    private final ItemImageService itemImageService;
-
+    private final DelayedQueueService delayedQueueService;
     /// 서비스
 
     // 대여 약속 제시
@@ -257,12 +256,17 @@ public class AppointmentService
             item.confirmSale(LocalDateTime.now());
         }
 
-        /// 약속 상태 변경
-
+        // 약속 상태 변경
         appointment.confirmAppointment();
 
-        /// 약속 데이터 반환
+        // 약속 알림 발송 예약
+        delayedQueueService.addDelayedTask(
+                "appointment",
+                AppointmentTask.from(appointment, "REMIND"),
+                appointment.getRentalDate().minusDays(1)
+        );
 
+        // 약속 데이터 반환
         return AppointmentRes.from(appointment, item);
     }
 
@@ -439,8 +443,14 @@ public class AppointmentService
         // 약속 데이터 저장
         appointmentRepository.save(newAppointment);
 
-        /// 약속 데이터 반환
+        // 약속 알림 발송 예약
+        delayedQueueService.addDelayedTask(
+                "appointment",
+                AppointmentTask.from(newAppointment, "REMIND"),
+                newAppointment.getRentalDate().minusDays(1)
+        );
 
+        // 약속 데이터 반환
         return AppointmentRes.from(newAppointment, item);
     }
 
