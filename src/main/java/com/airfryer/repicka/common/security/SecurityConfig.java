@@ -71,6 +71,9 @@ public class SecurityConfig
                         // Access token 재발급
                         .requestMatchers("/api/v1/refresh-token").permitAll()
 
+                        // User
+                        .requestMatchers("/api/v1/user/**").hasAnyAuthority("USER", "ADMIN")
+
                         // Appointment
                         .requestMatchers("/api/v1/appointment/**").hasAnyAuthority("USER", "ADMIN")
 
