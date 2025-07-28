@@ -131,7 +131,7 @@ jobs:
 
       - name: Restore Firebase Admin SDK file
         run: |
-          mkdir -p ./src/main/resources/firebase
+          mkdir -p ./build/resources/main/firebase
           echo "${{ secrets.FIREBASE_ADMIN_JSON }}" | base64 -d > ./src/main/resources/firebase/firebase-admin-sdk.json
 
       - name: Login to GitHub Container Registry
