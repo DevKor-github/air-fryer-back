@@ -4,7 +4,6 @@ import com.airfryer.repicka.common.security.jwt.JwtUtil;
 import com.airfryer.repicka.common.security.jwt.Token;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +48,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler
 
         // 리다이렉트
         response.sendRedirect(frontendURI + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);
+
+        // 로컬에서 WebSocket 채팅 전송 테스트 시, 리다이렉트 경로
+        // response.sendRedirect("http://localhost:8080/chatTest.html" + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);
     }
 }

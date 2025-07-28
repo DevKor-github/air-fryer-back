@@ -28,4 +28,8 @@ public class Chat
     // 내용
     @NotBlank
     private String content;
+
+    // PICK 여부
+    @NotNull
+    private Boolean isPick;
 }

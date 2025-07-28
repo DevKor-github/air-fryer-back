@@ -3,7 +3,9 @@ package com.airfryer.repicka.domain.chat.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.chat.dto.ChatMessageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
+import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRepository;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,8 @@ public class ChatService
     private final ItemImageRepository itemImageRepository;
 
     private final AppointmentService appointmentService;
+
+    private final SimpMessagingTemplate messagingTemplate;
 
     // 나의 채팅 페이지에서 채팅방 입장
     @Transactional(readOnly = true)
@@ -70,10 +75,7 @@ public class ChatService
         Pageable pageable = PageRequest.of(0, pageSize + 1);
 
         // 채팅 페이지 조회
-        List<Chat> chatPage = chatRepository
-                .findByChatRoomIdOrderByIdDesc(chatRoomId, pageable)
-                .collectList()
-                .block();
+        List<Chat> chatPage = chatRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
 
         if(chatPage == null) {
             chatPage = new ArrayList<>();
@@ -103,5 +105,56 @@ public class ChatService
                 hasNext,
                 isAvailable
         );
+    }
+
+    // 채팅 전송
+    @Transactional
+    public void sendMessage(User user, SendChatDto dto)
+    {
+        /// 채팅방 조회
+
+        // 채팅방 조회
+        ChatRoom chatRoom = chatRoomRepository.findById(dto.getChatRoomId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, dto.getChatRoomId()));
+
+        /// 예외 처리
+
+        // 이미 종료된 채팅방인지 확인
+        if(chatRoom.getIsFinished()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_FINISHED_CHATROOM, null);
+        }
+
+        // 채팅방 관계자인지 확인
+        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
+            throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
+        }
+
+        // 비어있는 메시지인지 확인
+        if(dto.getContent().isEmpty()) {
+            throw new CustomException(CustomExceptionCode.INVALID_CHAT_MESSAGE, null);
+        }
+
+        /// 채팅 저장
+
+        // 채팅 저장
+        Chat chat = Chat.builder()
+                .chatRoomId(dto.getChatRoomId())
+                .userId(user.getId())
+                .content(dto.getContent())
+                .isPick(false)
+                .build();
+
+        chatRepository.save(chat);
+
+        /// 구독자에게 메시지 전송
+
+        ChatMessageDto message = ChatMessageDto.from(chat);
+
+        // 구독자에게 메시지 전송
+        try {
+            messagingTemplate.convertAndSend("/sub/chatroom/" + dto.getChatRoomId(), message);
+        } catch (Exception e) {
+            throw new CustomException(CustomExceptionCode.INTERNAL_CHAT_ERROR, e.getMessage());
+        }
     }
 }

@@ -72,11 +72,8 @@ dependencies {
 	// 소켓
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-	// WebFlux
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-
 	// MongoDB
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
 	// .env 파일 지원
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
