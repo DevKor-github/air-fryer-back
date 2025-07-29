@@ -18,6 +18,10 @@ public class FCMService {
 
     // 단일 기기에 푸시 알림 전송
     public void sendNotification(String token, FCMNotificationReq request) {
+        if (token == null || token.isEmpty()) {
+            return;
+        }
+
         try {
             Message message = Message.builder()
                     .setToken(token)
@@ -38,6 +42,15 @@ public class FCMService {
 
     // 여러 기기에 푸시 알림 전송
     public void sendNotificationToMultiple(List<String> tokens, FCMNotificationReq request) {
+        // 존재하는 토큰만 필터링
+        tokens = tokens.stream()
+                .filter(token -> token != null && !token.isEmpty())
+                .toList();
+        
+        if (tokens.isEmpty()) {
+            return;
+        }
+
         try {
             MulticastMessage message = MulticastMessage.builder()
                     .addAllTokens(tokens)
