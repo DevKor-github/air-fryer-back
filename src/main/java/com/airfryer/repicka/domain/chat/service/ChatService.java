@@ -3,9 +3,7 @@ package com.airfryer.repicka.domain.chat.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
-import com.airfryer.repicka.domain.chat.dto.ChatMessageDto;
-import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
-import com.airfryer.repicka.domain.chat.dto.SendChatDto;
+import com.airfryer.repicka.domain.chat.dto.*;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRepository;
@@ -24,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -156,5 +155,65 @@ public class ChatService
         } catch (Exception e) {
             throw new CustomException(CustomExceptionCode.INTERNAL_CHAT_ERROR, e.getMessage());
         }
+    }
+
+    // 내 채팅방 페이지 조회
+    @Transactional(readOnly = true)
+    public ChatRoomListDto getMyChatRoomPage(User user, GetMyChatRoomPageReq dto)
+    {
+        /// 채팅방 페이지 조회
+
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(0, dto.getPageSize() + 1);
+
+        // 채팅방 페이지
+        List<ChatRoom> chatRoomList;
+
+        // 채팅방 페이지 조회
+        if(dto.getCursorCreatedAt() == null || dto.getCursorId() == null) {
+            chatRoomList = chatRoomRepository.findFirstPageByUserId(user.getId(), pageable);
+        } else {
+            chatRoomList = chatRoomRepository.findPageByUserId(user.getId(), dto.getCursorCreatedAt(), dto.getCursorId(), pageable);
+        }
+
+        /// 커서 데이터 계산
+
+        // 채팅방: 다음 페이지가 존재하는가?
+        boolean hasNext = chatRoomList.size() > dto.getPageSize();
+
+        // 채팅방: 커서 데이터
+        LocalDateTime cursorCreatedAt = hasNext ? chatRoomList.getLast().getCreatedAt() : null;
+        Long cursorId = hasNext ? chatRoomList.getLast().getId() : null;
+
+        // 다음 페이지가 존재한다면, 마지막 아이템 제거
+        if(hasNext) {
+            chatRoomList.removeLast();
+        }
+
+        /// ChatRoomDto 리스트 생성
+
+        List<ChatRoomDto> chatRoomDtoList = chatRoomList.stream().map(chatRoom -> {
+
+            // 가장 최근 채팅
+            Optional<Chat> chat = chatRepository.findFirstByChatRoomIdOrderByIdDesc(chatRoom.getId());
+
+            return ChatRoomDto.from(
+                    chatRoom,
+                    user,
+                    chat.map(Chat::getContent).orElse(null)
+            );
+
+        }).toList();
+
+        // TODO: 읽지 않은 채팅 개수 구현
+
+        /// 데이터 반환
+
+        return ChatRoomListDto.builder()
+                .chatRooms(chatRoomDtoList)
+                .hasNext(hasNext)
+                .cursorCreatedAt(cursorCreatedAt)
+                .cursorId(cursorId)
+                .build();
     }
 }
