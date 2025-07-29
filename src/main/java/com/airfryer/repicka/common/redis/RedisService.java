@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -82,7 +82,7 @@ public class RedisService {
             TaskKeys keys = generateTaskKeys(queueName, taskData.getAppointmentId());
             
             // 실행 시간까지의 지연 시간 계산
-            long executeTimestamp = executeAt.toEpochSecond(ZoneOffset.UTC) * 1000;
+            long executeTimestamp = executeAt.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000;
             long delayMs = executeTimestamp - System.currentTimeMillis();
             
             if (delayMs <= 0) {
