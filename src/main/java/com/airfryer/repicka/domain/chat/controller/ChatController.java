@@ -54,16 +54,23 @@ public class ChatController
     }
 
     // 내 채팅방 페이지 조회
+    // 내 제품의 채팅방 페이지 조회
     @GetMapping("/chatroom")
     public ResponseEntity<SuccessResponseDto> getMyChatRoomPage(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                @RequestParam(required = false) Long itemId,
                                                                 @Valid GetMyChatRoomPageReq dto)
     {
         User user = oAuth2User.getUser();
-        ChatRoomListDto data = chatService.getMyChatRoomPage(user, dto);
+
+        ChatRoomListDto data = itemId == null ?
+                chatService.getMyChatRoomPage(user, dto) :
+                chatService.getMyChatRoomPageByItem(user, itemId, dto);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
-                        .message("내 채팅방 리스트를 성공적으로 조회하였습니다.")
+                        .message(itemId == null ?
+                                "내 채팅방 페이지를 성공적으로 조회하였습니다." :
+                                "내 제품의 채팅방 페이지를 성공적으로 조회하였습니다.")
                         .data(data)
                         .build());
     }

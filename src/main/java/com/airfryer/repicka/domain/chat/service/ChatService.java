@@ -8,6 +8,8 @@ import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRepository;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
+import com.airfryer.repicka.domain.item.entity.Item;
+import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.user.entity.User;
@@ -30,11 +32,14 @@ public class ChatService
 {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
+    private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
 
     private final AppointmentService appointmentService;
 
     private final SimpMessagingTemplate messagingTemplate;
+
+    /// 서비스
 
     // 나의 채팅 페이지에서 채팅방 입장
     @Transactional(readOnly = true)
@@ -176,10 +181,55 @@ public class ChatService
             chatRoomList = chatRoomRepository.findPageByUserId(user.getId(), dto.getCursorCreatedAt(), dto.getCursorId(), pageable);
         }
 
+        /// 데이터 반환
+
+        return createChatRoomListDto(user, chatRoomList, dto.getPageSize());
+    }
+
+    // 내 제품의 채팅방 페이지 조회
+    @Transactional(readOnly = true)
+    public ChatRoomListDto getMyChatRoomPageByItem(User user, Long itemId, GetMyChatRoomPageReq dto)
+    {
+        /// 제품 조회
+
+        // 제품 조회
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        // 제품 소유자가 아닌 경우, 예외 처리
+        if(!item.getOwner().equals(user)) {
+            throw new CustomException(CustomExceptionCode.NOT_ITEM_OWNER, null);
+        }
+
+        /// 채팅방 페이지 조회
+
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(0, dto.getPageSize() + 1);
+
+        // 채팅방 페이지
+        List<ChatRoom> chatRoomList;
+
+        // 채팅방 페이지 조회
+        if(dto.getCursorCreatedAt() == null || dto.getCursorId() == null) {
+            chatRoomList = chatRoomRepository.findFirstPageByItemId(itemId, pageable);
+        } else {
+            chatRoomList = chatRoomRepository.findPageByItemId(itemId, dto.getCursorCreatedAt(), dto.getCursorId(), pageable);
+        }
+
+        /// 데이터 반환
+
+        return createChatRoomListDto(user, chatRoomList, dto.getPageSize());
+    }
+
+    /// 공통 로직
+
+    // ChatRoomListDto 생성
+    private ChatRoomListDto createChatRoomListDto(User user, List<ChatRoom> chatRoomList, int pageSize)
+    {
         /// 커서 데이터 계산
 
         // 채팅방: 다음 페이지가 존재하는가?
-        boolean hasNext = chatRoomList.size() > dto.getPageSize();
+        boolean hasNext = chatRoomList.size() > pageSize;
 
         // 채팅방: 커서 데이터
         LocalDateTime cursorCreatedAt = hasNext ? chatRoomList.getLast().getCreatedAt() : null;
