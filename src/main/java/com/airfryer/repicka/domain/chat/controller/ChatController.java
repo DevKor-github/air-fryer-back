@@ -26,7 +26,7 @@ public class ChatController
     // TODO: 제품 페이지에서 채팅방 입장
 
     // 나의 채팅 페이지에서 채팅방 입장
-    @PostMapping("/chatroom/{chatRoomId}/enter")
+    @GetMapping("/chatroom/{chatRoomId}/enter")
     public ResponseEntity<SuccessResponseDto> enterChatRoom(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                             @PathVariable Long chatRoomId,
                                                             @RequestParam int pageSize)
