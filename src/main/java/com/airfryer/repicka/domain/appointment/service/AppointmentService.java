@@ -4,7 +4,7 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.type.NotificationType;
-import com.airfryer.repicka.common.redis.DelayedQueueService;
+import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
@@ -35,7 +35,7 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
-    private final DelayedQueueService delayedQueueService;
+    private final RedisService delayedQueueService;
     private final FCMService fcmService;
 
     /// 서비스
