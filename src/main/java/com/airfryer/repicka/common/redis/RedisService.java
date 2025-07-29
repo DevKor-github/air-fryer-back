@@ -124,10 +124,10 @@ public class RedisService {
     // 작업 실행 로직
     private void executeTask(AppointmentTask task) {
         switch (task.getTaskType()) {
-            case "EXPIRE":
+            case EXPIRE:
                 expireAppointment(task);
                 break;
-            case "REMIND":
+            case REMIND:
                 sendAppointmentReminder(task);
                 break;
             default:

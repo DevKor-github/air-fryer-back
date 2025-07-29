@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import com.airfryer.repicka.common.redis.type.TaskType;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 
 @Getter
@@ -19,9 +20,9 @@ public class AppointmentTask {
     private String itemName; // 아이템 이름
     private String ownerFcmToken; // 소유자 FCM 토큰
     private String requesterFcmToken; // 요청자 FCM 토큰
-    private String taskType; // "EXPIRE", "REMIND"
+    private TaskType taskType; // 작업 타입 (EXPIRE, REMIND)
 
-    public static AppointmentTask from(Appointment appointment, String taskType) {
+    public static AppointmentTask from(Appointment appointment, TaskType taskType) {
         return AppointmentTask.builder()
                 .appointmentId(appointment.getId())
                 .itemName(appointment.getItem().getTitle())

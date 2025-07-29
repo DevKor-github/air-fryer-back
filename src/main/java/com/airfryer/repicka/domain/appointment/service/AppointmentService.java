@@ -7,6 +7,7 @@ import com.airfryer.repicka.common.firebase.type.NotificationType;
 import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
+import com.airfryer.repicka.common.redis.type.TaskType;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
@@ -271,7 +272,7 @@ public class AppointmentService
         // 약속 알림 발송 예약
         delayedQueueService.addDelayedTask(
                 "appointment",
-                AppointmentTask.from(appointment, "REMIND"),
+                AppointmentTask.from(appointment, TaskType.REMIND),
                 appointment.getRentalDate().minusDays(1)
         );
 
@@ -461,7 +462,7 @@ public class AppointmentService
         // 약속 알림 발송 예약
         delayedQueueService.addDelayedTask(
                 "appointment",
-                AppointmentTask.from(newAppointment, "REMIND"),
+                AppointmentTask.from(newAppointment, TaskType.REMIND),
                 newAppointment.getRentalDate().minusDays(1)
         );
 
