@@ -42,4 +42,34 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
             @Param("cursorId") Long cursorId,
             Pageable pageable
     );
+
+    /// 제품 ID로 채팅방 페이지 조회
+
+    // 첫 페이지 조회
+    @Query("""
+        SELECT cr FROM ChatRoom cr
+        WHERE cr.item.id = :itemId
+        ORDER BY cr.createdAt DESC, cr.id DESC
+    """)
+    List<ChatRoom> findFirstPageByItemId(
+            @Param("itemId") Long itemId,
+            Pageable pageable
+    );
+
+    // 처음 이후 페이지 조회
+    @Query("""
+        SELECT cr FROM ChatRoom cr
+        WHERE (cr.item.id = :itemId)
+          AND (
+            cr.createdAt < :cursorCreatedAt
+            OR (cr.createdAt = :cursorCreatedAt AND cr.id <= :cursorId)
+          )
+        ORDER BY cr.createdAt DESC, cr.id DESC
+    """)
+    List<ChatRoom> findPageByItemId(
+            @Param("itemId") Long itemId,
+            @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
 }
