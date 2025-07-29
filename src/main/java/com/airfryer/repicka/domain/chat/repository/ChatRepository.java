@@ -4,9 +4,9 @@ import com.airfryer.repicka.domain.chat.entity.Chat;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChatRepository extends MongoRepository<Chat, ObjectId>
 {
@@ -18,4 +18,8 @@ public interface ChatRepository extends MongoRepository<Chat, ObjectId>
 
     // 첫 페이지 조회
     List<Chat> findByChatRoomIdOrderByIdDesc(Long chatRoomId, Pageable pageable);
+
+    /// 채팅방 ID로 가장 최근 채팅 조회
+
+    Optional<Chat> findFirstByChatRoomIdOrderByIdDesc(Long chatRoomId);
 }
