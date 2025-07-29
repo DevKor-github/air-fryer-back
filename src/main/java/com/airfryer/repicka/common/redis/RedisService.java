@@ -29,6 +29,18 @@ public class RedisService {
     private static final String DELAYED_TASK_PREFIX = "delayed:task:";
     private static final String TASK_DATA_PREFIX = "taskdata:";
     
+    // 키 쌍을 담는 record
+    public record TaskKeys(String taskDataKey, String delayedKey) {}
+    
+    // 키 생성 유틸리티 메서드
+    private TaskKeys generateTaskKeys(String queueName, Long appointmentId) {
+        String taskId = queueName + ":" + appointmentId;
+        return new TaskKeys(
+            TASK_DATA_PREFIX + taskId,
+            DELAYED_TASK_PREFIX + taskId
+        );
+    }
+    
     // Redis 키 만료 이벤트 처리
     @EventListener
     public void handleKeyExpired(KeyExpiredEvent event) {
@@ -66,8 +78,8 @@ public class RedisService {
     // 지연 작업을 Redis TTL로 등록
     public boolean addDelayedTask(String queueName, AppointmentTask taskData, LocalDateTime executeAt) {
         try {
-            // 의미있는 작업 ID 생성 (appointmentId 기반)
-            String taskId = queueName + ":" + taskData.getAppointmentId();
+            // 필요한 키들 생성
+            TaskKeys keys = generateTaskKeys(queueName, taskData.getAppointmentId());
             
             // 실행 시간까지의 지연 시간 계산
             long executeTimestamp = executeAt.toEpochSecond(ZoneOffset.UTC) * 1000;
@@ -80,14 +92,12 @@ public class RedisService {
             }
             
             // 작업 데이터를 별도로 저장
-            String taskDataKey = TASK_DATA_PREFIX + taskId;
             String taskJson = objectMapper.writeValueAsString(taskData);
-            redisTemplate.opsForValue().set(taskDataKey, taskJson);
+            redisTemplate.opsForValue().set(keys.taskDataKey(), taskJson);
             
             // TTL 키 생성 (만료 시 이벤트 발생)
-            String delayedKey = DELAYED_TASK_PREFIX + taskId;
             redisTemplate.opsForValue().set(
-                delayedKey, 
+                keys.delayedKey(), 
                 queueName, // 큐 이름 저장
                 Duration.ofMillis(delayMs)
             );
@@ -102,13 +112,11 @@ public class RedisService {
 
     // 지연 작업 취소
     public boolean cancelDelayedTask(String queueName, Long appointmentId) {
-        String taskId = queueName + ":" + appointmentId;
-        String taskDataKey = TASK_DATA_PREFIX + taskId;
-        String delayedKey = DELAYED_TASK_PREFIX + taskId;
+        TaskKeys keys = generateTaskKeys(queueName, appointmentId);
 
         // 작업 데이터 정리
-        redisTemplate.delete(taskDataKey);
-        redisTemplate.delete(delayedKey);
+        redisTemplate.delete(keys.taskDataKey());
+        redisTemplate.delete(keys.delayedKey());
 
         return true;
     }
