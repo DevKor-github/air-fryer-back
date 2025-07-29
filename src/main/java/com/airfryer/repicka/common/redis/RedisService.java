@@ -1,6 +1,7 @@
 package com.airfryer.repicka.common.redis;
 
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
+import com.airfryer.repicka.common.redis.dto.KeyExpiredEvent;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.type.NotificationType;
 import com.airfryer.repicka.common.firebase.service.FCMService;
@@ -8,11 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.connection.Message;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.KeyExpirationEventMessageListener;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -23,7 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class DelayedQueueService {
+public class RedisService {
     
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
@@ -31,45 +29,38 @@ public class DelayedQueueService {
     private static final String DELAYED_TASK_PREFIX = "delayed:task:";
     private static final String TASK_DATA_PREFIX = "taskdata:";
     
-    // Redis 키 만료 이벤트 리스너 설정
-    @Bean
-    public KeyExpirationEventMessageListener keyExpirationEventMessageListener(
-            RedisMessageListenerContainer listenerContainer) {
-        
-        return new KeyExpirationEventMessageListener(listenerContainer) {
-            @Override
-            public void onMessage(Message message, byte[] pattern) {
-                String expiredKey = message.toString();
+    // Redis 키 만료 이벤트 처리
+    @EventListener
+    public void handleKeyExpired(KeyExpiredEvent event) {
+        String expiredKey = event.getExpiredKey();
 
-                // 지연 작업 키가 아닌 경우 처리하지 않음
-                if (!expiredKey.startsWith(DELAYED_TASK_PREFIX)) {
-                    return;
-                }
-                
-                // 작업 데이터 조회 및 실행
-                try {
-                    // 작업 ID 추출
-                    String taskId = expiredKey.substring(DELAYED_TASK_PREFIX.length());
-                    String taskDataKey = TASK_DATA_PREFIX + taskId;
-                    
-                    // 작업 데이터 조회
-                    String taskJson = (String) redisTemplate.opsForValue().get(taskDataKey);
-                    if (taskJson == null) {
-                        log.warn("작업 데이터를 찾을 수 없음: {}", taskId);
-                        return;
-                    }
-                    
-                    // 작업 실행
-                    AppointmentTask taskData = objectMapper.readValue(taskJson, AppointmentTask.class);
-                    executeTask(taskData);
-                    
-                    // 작업 데이터 정리
-                    redisTemplate.delete(taskDataKey);
-                } catch (Exception e) {
-                    log.error("키 만료 처리 중 오류: {}", expiredKey, e);
-                }
+        // 지연 작업 키가 아닌 경우 처리하지 않음
+        if (!expiredKey.startsWith(DELAYED_TASK_PREFIX)) {
+            return;
+        }
+        
+        // 작업 데이터 조회 및 실행
+        try {
+            // 작업 ID 추출
+            String taskId = expiredKey.substring(DELAYED_TASK_PREFIX.length());
+            String taskDataKey = TASK_DATA_PREFIX + taskId;
+            
+            // 작업 데이터 조회
+            String taskJson = (String) redisTemplate.opsForValue().get(taskDataKey);
+            if (taskJson == null) {
+                log.warn("작업 데이터를 찾을 수 없음: {}", taskId);
+                return;
             }
-        };
+            
+            // 작업 실행
+            AppointmentTask taskData = objectMapper.readValue(taskJson, AppointmentTask.class);
+            executeTask(taskData);
+            
+            // 작업 데이터 정리
+            redisTemplate.delete(taskDataKey);
+        } catch (Exception e) {
+            log.error("키 만료 처리 중 오류: {}", expiredKey, e);
+        }
     }
 
     // 지연 작업을 Redis TTL로 등록

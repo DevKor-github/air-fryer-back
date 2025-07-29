@@ -1,13 +1,17 @@
 package com.airfryer.repicka.common.configuration;
 
+import com.airfryer.repicka.common.redis.dto.KeyExpiredEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.KeyExpirationEventMessageListener;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -19,6 +23,7 @@ import jakarta.annotation.PostConstruct;
 @Slf4j
 public class RedisConfig {
     private final RedisProperties redisProperties;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
@@ -54,6 +59,17 @@ public class RedisConfig {
         
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
+        
+        // 키 만료 이벤트 리스너 추가
+        new KeyExpirationEventMessageListener(container) {
+            @Override
+            public void onMessage(Message message, byte[] pattern) {
+                String expiredKey = message.toString();
+                
+                // 키 만료 이벤트 발행
+                eventPublisher.publishEvent(new KeyExpiredEvent(this, expiredKey));
+            }
+        };
         
         return container;
     }
