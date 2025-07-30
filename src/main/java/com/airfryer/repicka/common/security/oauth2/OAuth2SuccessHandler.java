@@ -65,9 +65,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler
         // 세션에서 리다이렉트 경로 제거
         session.removeAttribute(CustomAuthorizationRequestResolver.REDIRECT_URI_PARAMETER_NAME);
 
-        System.out.println("나는 성공 핸들러!!!");
-        System.out.println("redirectURI : " + redirectURI);
-
         // 리다이렉트
         response.sendRedirect(redirectURI + "?access-token=" + accessToken + "&refresh-token=" + refreshToken);
 
