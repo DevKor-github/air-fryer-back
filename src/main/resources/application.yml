@@ -18,6 +18,9 @@ spring:
   data:
     mongodb:
       uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_DATABASE}?authSource=${MONGODB_DATABASE}
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
   ## OAuth 설정
   security:
@@ -71,3 +74,8 @@ file:
 logging:
   level:
     org.springframework.security: DEBUG
+
+## Firebase 설정
+firebase:
+  config:
+    path: firebase/repicka-firebase-adminsdk.json
