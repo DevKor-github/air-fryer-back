@@ -3,6 +3,7 @@ package com.airfryer.repicka.domain.chat.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.domain.chat.dto.ChatMessageDto;
+import com.airfryer.repicka.domain.chat.dto.ChatPageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.entity.Chat;
@@ -13,6 +14,7 @@ import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -141,5 +143,52 @@ public class ChatService
         } catch (Exception e) {
             throw new CustomException(CustomExceptionCode.INTERNAL_CHAT_ERROR, e.getMessage());
         }
+    }
+
+    // 채팅 불러오기
+    @Transactional(readOnly = true)
+    public ChatPageDto loadChat(User user, Long chatRoomId, int pageSize, String cursorId)
+    {
+        /// 채팅방 조회
+
+        // 채팅방 조회
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
+
+        /// 예외 처리
+
+        // 채팅방 관계자인지 확인
+        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
+            throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
+        }
+
+        /// 채팅 페이지 조회
+
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(0, pageSize + 1);
+
+        // 채팅 페이지 조회
+        List<Chat> chatPage = chatRepository.findByChatRoomIdAndIdLessThanEqualOrderByIdDesc(chatRoomId, new ObjectId(cursorId), pageable);
+
+        /// 채팅 페이지 정보 계산
+
+        // 채팅: 다음 페이지가 존재하는가?
+        boolean hasNext = chatPage.size() > pageSize;
+
+        // 커서 데이터
+        String nextCursorId = hasNext ? chatPage.getLast().getId().toHexString() : null;
+
+        // 다음 페이지가 존재한다면, 마지막 아이템 제거
+        if(hasNext) {
+            chatPage.removeLast();
+        }
+
+        /// 데이터 반환
+
+        return ChatPageDto.of(
+                chatPage,
+                nextCursorId,
+                hasNext
+        );
     }
 }

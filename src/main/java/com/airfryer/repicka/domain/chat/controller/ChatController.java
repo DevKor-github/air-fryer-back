@@ -2,6 +2,7 @@ package com.airfryer.repicka.domain.chat.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
+import com.airfryer.repicka.domain.chat.dto.ChatPageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.service.ChatService;
@@ -48,5 +49,22 @@ public class ChatController
         CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
         User user = oAuth2User.getUser();
         chatService.sendMessage(user, dto);
+    }
+
+    // 채팅 불러오기
+    @GetMapping("/chatroom/{chatRoomId}/load-chat")
+    public ResponseEntity<SuccessResponseDto> loadChat(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                       @PathVariable Long chatRoomId,
+                                                       @RequestParam int pageSize,
+                                                       @RequestParam String cursorId)
+    {
+        User user = oAuth2User.getUser();
+        ChatPageDto data = chatService.loadChat(user, chatRoomId, pageSize, cursorId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("채팅을 성공적으로 불러왔습니다.")
+                        .data(data)
+                        .build());
     }
 }
