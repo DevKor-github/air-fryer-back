@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.chat.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.chat.dto.ChatMessageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.dto.SendChatDto;
@@ -14,15 +13,12 @@ import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,8 +28,6 @@ public class ChatService
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
     private final ItemImageRepository itemImageRepository;
-
-    private final AppointmentService appointmentService;
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -65,10 +59,6 @@ public class ChatService
         ItemImage thumbnail = itemImageRepository.findFirstByItemId(chatRoom.getItem().getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_IMAGE_NOT_FOUND, chatRoom.getItem().getId()));
 
-        /// 제품의 현재 대여 및 구매 가능 여부 조회
-
-        boolean isAvailable = appointmentService.isItemAvailableOnDate(chatRoom.getItem().getId(), LocalDateTime.now());
-
         /// 채팅 페이지 조회
 
         // Pageable 객체 생성
@@ -77,17 +67,13 @@ public class ChatService
         // 채팅 페이지 조회
         List<Chat> chatPage = chatRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
 
-        if(chatPage == null) {
-            chatPage = new ArrayList<>();
-        }
-
         /// 채팅 페이지 정보 계산
 
         // 채팅: 다음 페이지가 존재하는가?
         boolean hasNext = chatPage.size() > pageSize;
 
         // 커서 데이터
-        ObjectId chatCursorId = hasNext ? chatPage.getLast().getId() : null;
+        String chatCursorId = hasNext ? chatPage.getLast().getId().toHexString() : null;
 
         // 다음 페이지가 존재한다면, 마지막 아이템 제거
         if(hasNext) {
@@ -102,8 +88,7 @@ public class ChatService
                 thumbnail.getFileKey(),
                 chatPage,
                 chatCursorId,
-                hasNext,
-                isAvailable
+                hasNext
         );
     }
 
