@@ -53,6 +53,10 @@ public class User extends BaseEntity
     private Integer weight; // 몸무게
     private String fcmToken; // 푸시알림 토큰
 
+    @Builder.Default
+    @NotNull
+    private Boolean isPushEnabled = false; // 푸시알림 활성화 여부
+
     @NotNull
     private int todayPostCount; // 오늘 등록한 게시글 개수
 
@@ -76,5 +80,15 @@ public class User extends BaseEntity
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    // fcm 토큰 업데이트
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    // 푸시 알림 활성화 여부 업데이트
+    public void setIsPushEnabled(Boolean isPushEnabled) {
+        this.isPushEnabled = isPushEnabled;
     }
 }
