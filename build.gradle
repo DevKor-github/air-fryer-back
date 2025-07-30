@@ -77,6 +77,12 @@ dependencies {
 
 	// .env 파일 지원
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// Firebase Cloud Messaging
+	implementation 'com.google.firebase:firebase-admin:9.2.0'
 }
 
 tasks.named('test') {
