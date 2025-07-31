@@ -87,6 +87,11 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
+      - name: Restore Firebase Admin SDK file
+        run: |
+          mkdir -p ./src/main/resources/firebase
+          echo "${{ secrets.FIREBASE_ADMIN_JSON }}" | base64 -d > ./src/main/resources/firebase/repicka-firebase-adminsdk.json
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -140,11 +145,6 @@ jobs:
           echo "MONGODB_DATABASE=${{ secrets.MONGODB_DATABASE }}" >> .env
           echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
           echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
-
-      - name: Restore Firebase Admin SDK file
-        run: |
-          mkdir -p ./src/main/resources/firebase
-          echo "${{ secrets.FIREBASE_ADMIN_JSON }}" | base64 -d > ./src/main/resources/firebase/repicka-firebase-adminsdk.json
 
       - name: Login to GitHub Container Registry
         run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u kyeahxx19 --password-stdin
