@@ -14,10 +14,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  ## MongoDB 연동
   data:
+
+    ## MongoDB 연동
     mongodb:
       uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_DATABASE}?authSource=${MONGODB_DATABASE}
+
+    ## Redis
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
