@@ -19,7 +19,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
     @Query("""
         SELECT cr FROM ChatRoom cr
         WHERE cr.requester.id = :userId OR cr.owner.id = :userId
-        ORDER BY cr.createdAt DESC, cr.id DESC
+        ORDER BY cr.lastChatAt DESC, cr.id DESC
     """)
     List<ChatRoom> findFirstPageByUserId(
             @Param("userId") Long userId,
@@ -31,14 +31,14 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
         SELECT cr FROM ChatRoom cr
         WHERE (cr.requester.id = :userId OR cr.owner.id = :userId)
           AND (
-            cr.createdAt < :cursorCreatedAt
-            OR (cr.createdAt = :cursorCreatedAt AND cr.id <= :cursorId)
+            cr.lastChatAt < :cursorLastChatAt
+            OR (cr.lastChatAt = :cursorLastChatAt AND cr.id <= :cursorId)
           )
-        ORDER BY cr.createdAt DESC, cr.id DESC
+        ORDER BY cr.lastChatAt DESC, cr.id DESC
     """)
     List<ChatRoom> findPageByUserId(
             @Param("userId") Long userId,
-            @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
+            @Param("cursorLastChatAt") LocalDateTime cursorLastChatAt,
             @Param("cursorId") Long cursorId,
             Pageable pageable
     );
@@ -49,7 +49,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
     @Query("""
         SELECT cr FROM ChatRoom cr
         WHERE cr.item.id = :itemId
-        ORDER BY cr.createdAt DESC, cr.id DESC
+        ORDER BY cr.lastChatAt DESC, cr.id DESC
     """)
     List<ChatRoom> findFirstPageByItemId(
             @Param("itemId") Long itemId,
@@ -61,14 +61,14 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
         SELECT cr FROM ChatRoom cr
         WHERE (cr.item.id = :itemId)
           AND (
-            cr.createdAt < :cursorCreatedAt
-            OR (cr.createdAt = :cursorCreatedAt AND cr.id <= :cursorId)
+            cr.lastChatAt < :cursorLastChatAt
+            OR (cr.lastChatAt = :cursorLastChatAt AND cr.id <= :cursorId)
           )
-        ORDER BY cr.createdAt DESC, cr.id DESC
+        ORDER BY cr.lastChatAt DESC, cr.id DESC
     """)
     List<ChatRoom> findPageByItemId(
             @Param("itemId") Long itemId,
-            @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
+            @Param("cursorLastChatAt") LocalDateTime cursorLastChatAt,
             @Param("cursorId") Long cursorId,
             Pageable pageable
     );
