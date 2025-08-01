@@ -2,10 +2,13 @@ package com.airfryer.repicka.domain.chat.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
+import com.airfryer.repicka.domain.chat.dto.ChatRoomListDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
+import com.airfryer.repicka.domain.chat.dto.GetMyChatRoomPageReq;
 import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.service.ChatService;
 import com.airfryer.repicka.domain.user.entity.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +29,7 @@ public class ChatController
     // TODO: 제품 페이지에서 채팅방 입장
 
     // 나의 채팅 페이지에서 채팅방 입장
-    @PostMapping("/chatroom/{chatRoomId}/enter")
+    @GetMapping("/chatroom/{chatRoomId}/enter")
     public ResponseEntity<SuccessResponseDto> enterChatRoom(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                             @PathVariable Long chatRoomId,
                                                             @RequestParam int pageSize)
@@ -48,5 +51,27 @@ public class ChatController
         CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
         User user = oAuth2User.getUser();
         chatService.sendMessage(user, dto);
+    }
+
+    // 내 채팅방 페이지 조회
+    // 내 제품의 채팅방 페이지 조회
+    @GetMapping("/chatroom")
+    public ResponseEntity<SuccessResponseDto> getMyChatRoomPage(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                @RequestParam(required = false) Long itemId,
+                                                                @Valid GetMyChatRoomPageReq dto)
+    {
+        User user = oAuth2User.getUser();
+
+        ChatRoomListDto data = itemId == null ?
+                chatService.getMyChatRoomPage(user, dto) :
+                chatService.getMyChatRoomPageByItem(user, itemId, dto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message(itemId == null ?
+                                "내 채팅방 페이지를 성공적으로 조회하였습니다." :
+                                "내 제품의 채팅방 페이지를 성공적으로 조회하였습니다.")
+                        .data(data)
+                        .build());
     }
 }
