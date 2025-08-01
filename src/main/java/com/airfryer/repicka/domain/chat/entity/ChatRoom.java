@@ -45,7 +45,9 @@ public class ChatRoom extends BaseEntity
     private Boolean isFinished = false;
 
     // 마지막 채팅 시점
-    private LocalDateTime lastChatAt;
+    @NotNull
+    @Builder.Default
+    private LocalDateTime lastChatAt = LocalDateTime.now();
 
     /// 마지막 채팅 시점 갱신
 
