@@ -19,6 +19,6 @@ public class GetMyChatRoomPageReq
     private int pageSize;
 
     // 커서 데이터
-    private LocalDateTime cursorCreatedAt;  // 채팅방 생성 날짜
+    private LocalDateTime cursorLastChatAt; // 채팅방 마지막 채팅 시점
     private Long cursorId;                  // 채팅방 ID
 }
