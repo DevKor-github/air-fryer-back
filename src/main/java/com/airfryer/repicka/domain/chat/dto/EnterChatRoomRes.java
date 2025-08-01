@@ -7,7 +7,6 @@ import com.airfryer.repicka.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import org.bson.types.ObjectId;
 
 import java.util.List;
 
@@ -23,9 +22,8 @@ public class EnterChatRoomRes
                                       User me,
                                       String imageUrl,
                                       List<Chat> chatList,
-                                      ObjectId chatCursorId,
-                                      boolean chatHasNext,
-                                      boolean isAvailable)
+                                      String chatCursorId,
+                                      boolean chatHasNext)
     {
         return EnterChatRoomRes.builder()
                 .chatRoom(ChatRoomDto.from(chatRoom, me))

@@ -144,7 +144,7 @@ public class RedisService {
     
     // 예약 알림 발송
     private void sendAppointmentReminder(AppointmentTask task) {
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMINDER, task.getAppointmentId(), task.getItemName());
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMINDER, task.getAppointmentId().toString(), task.getItemName());
         fcmService.sendNotificationToMultiple(List.of(task.getOwnerFcmToken(), task.getRequesterFcmToken()), notificationReq);
     }
 } 

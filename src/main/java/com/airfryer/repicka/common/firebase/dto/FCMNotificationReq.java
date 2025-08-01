@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FCMNotificationReq {
     private NotificationType notificationType;
-    private Object relatedId;  // appointmentId(Long) 또는 chatId(ObjectId) 등
+    private String relatedId;  // appointmentId, chatId 등
     private String relatedName;  // 약속 관련 아이템 이름 또는 채팅 상대 이름
     
     // 제목 생성
@@ -26,7 +26,7 @@ public class FCMNotificationReq {
         return notificationType.getFormattedBody(relatedName);
     }
 
-    public static FCMNotificationReq of(NotificationType notificationType, Object id, String name) {
+    public static FCMNotificationReq of(NotificationType notificationType, String id, String name) {
         return FCMNotificationReq.builder()
             .notificationType(notificationType)
             .relatedId(id)

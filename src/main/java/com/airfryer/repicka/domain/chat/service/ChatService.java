@@ -2,7 +2,10 @@ package com.airfryer.repicka.domain.chat.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.chat.dto.ChatMessageDto;
+import com.airfryer.repicka.domain.chat.dto.ChatPageDto;
+import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
+import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.dto.*;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
@@ -22,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,8 +36,6 @@ public class ChatService
     private final ChatRepository chatRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
-
-    private final AppointmentService appointmentService;
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -69,10 +69,6 @@ public class ChatService
         ItemImage thumbnail = itemImageRepository.findFirstByItemId(chatRoom.getItem().getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_IMAGE_NOT_FOUND, chatRoom.getItem().getId()));
 
-        /// 제품의 현재 대여 및 구매 가능 여부 조회
-
-        boolean isAvailable = appointmentService.isItemAvailableOnDate(chatRoom.getItem().getId(), LocalDateTime.now());
-
         /// 채팅 페이지 조회
 
         // Pageable 객체 생성
@@ -81,17 +77,13 @@ public class ChatService
         // 채팅 페이지 조회
         List<Chat> chatPage = chatRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
 
-        if(chatPage == null) {
-            chatPage = new ArrayList<>();
-        }
-
         /// 채팅 페이지 정보 계산
 
         // 채팅: 다음 페이지가 존재하는가?
         boolean hasNext = chatPage.size() > pageSize;
 
         // 커서 데이터
-        ObjectId chatCursorId = hasNext ? chatPage.getLast().getId() : null;
+        String chatCursorId = hasNext ? chatPage.getLast().getId().toHexString() : null;
 
         // 다음 페이지가 존재한다면, 마지막 아이템 제거
         if(hasNext) {
@@ -106,8 +98,7 @@ public class ChatService
                 thumbnail.getFileKey(),
                 chatPage,
                 chatCursorId,
-                hasNext,
-                isAvailable
+                hasNext
         );
     }
 
@@ -265,5 +256,52 @@ public class ChatService
                 .cursorCreatedAt(cursorCreatedAt)
                 .cursorId(cursorId)
                 .build();
+    }
+
+    // 채팅 불러오기
+    @Transactional(readOnly = true)
+    public ChatPageDto loadChat(User user, Long chatRoomId, int pageSize, String cursorId)
+    {
+        /// 채팅방 조회
+
+        // 채팅방 조회
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
+
+        /// 예외 처리
+
+        // 채팅방 관계자인지 확인
+        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
+            throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
+        }
+
+        /// 채팅 페이지 조회
+
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(0, pageSize + 1);
+
+        // 채팅 페이지 조회
+        List<Chat> chatPage = chatRepository.findByChatRoomIdAndIdLessThanEqualOrderByIdDesc(chatRoomId, new ObjectId(cursorId), pageable);
+
+        /// 채팅 페이지 정보 계산
+
+        // 채팅: 다음 페이지가 존재하는가?
+        boolean hasNext = chatPage.size() > pageSize;
+
+        // 커서 데이터
+        String nextCursorId = hasNext ? chatPage.getLast().getId().toHexString() : null;
+
+        // 다음 페이지가 존재한다면, 마지막 아이템 제거
+        if(hasNext) {
+            chatPage.removeLast();
+        }
+
+        /// 데이터 반환
+
+        return ChatPageDto.of(
+                chatPage,
+                nextCursorId,
+                hasNext
+        );
     }
 }
