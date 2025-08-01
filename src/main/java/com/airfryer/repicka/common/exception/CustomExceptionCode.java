@@ -24,6 +24,7 @@ public enum CustomExceptionCode
     // 제품(Item) 관련 예외
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "제품 데이터를 찾을 수 없습니다."),
     ITEM_ACCESS_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 제품에 대한 수정/삭제 권한이 없습니다."),
+    NOT_ITEM_OWNER(HttpStatus.FORBIDDEN, "제품을 소유하고 있지 않습니다."),
     DEAL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "가격 협의가 불가능한 제품입니다."),
     CANNOT_RENTAL_ITEM(HttpStatus.BAD_REQUEST, "대여가 불가능한 제품입니다."),
     CANNOT_SALE_ITEM(HttpStatus.BAD_REQUEST, "구매가 불가능한 제품입니다."),
