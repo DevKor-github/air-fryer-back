@@ -147,6 +147,10 @@ public class ChatService
 
         chatRepository.save(chat);
 
+        /// 채팅방 마지막 채팅 시점 갱신
+
+        chatRoom.renewLastChatAt();
+
         /// 구독자에게 메시지 및 푸시 알림 전송
 
         ChatMessageDto message = ChatMessageDto.from(chat);
