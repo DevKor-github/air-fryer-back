@@ -2,6 +2,9 @@ package com.airfryer.repicka.domain.chat.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
+import com.airfryer.repicka.common.firebase.service.FCMService;
+import com.airfryer.repicka.common.firebase.type.NotificationType;
 import com.airfryer.repicka.domain.chat.dto.ChatMessageDto;
 import com.airfryer.repicka.domain.chat.dto.ChatPageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -38,6 +42,8 @@ public class ChatService
     private final ItemImageRepository itemImageRepository;
 
     private final SimpMessagingTemplate messagingTemplate;
+
+    private final FCMService fcmService;
 
     /// 서비스
 
@@ -141,13 +147,22 @@ public class ChatService
 
         chatRepository.save(chat);
 
-        /// 구독자에게 메시지 전송
+        /// 구독자에게 메시지 및 푸시 알림 전송
 
         ChatMessageDto message = ChatMessageDto.from(chat);
 
-        // 구독자에게 메시지 전송
         try {
+
+            // 구독자에게 메시지 전송
             messagingTemplate.convertAndSend("/sub/chatroom/" + dto.getChatRoomId(), message);
+
+            // 채팅 상대방 정보
+            User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+            // 푸시 알림 전송
+            FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.CHAT_MESSAGE, chat.getId().toHexString(), user.getNickname());
+            fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
+
         } catch (Exception e) {
             throw new CustomException(CustomExceptionCode.INTERNAL_CHAT_ERROR, e.getMessage());
         }
