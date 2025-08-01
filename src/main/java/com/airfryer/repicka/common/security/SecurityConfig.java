@@ -5,6 +5,7 @@ import com.airfryer.repicka.common.security.exception.CustomAuthenticationEntryP
 import com.airfryer.repicka.common.security.jwt.JwtFilter;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2UserService;
 import com.airfryer.repicka.common.security.oauth2.OAuth2SuccessHandler;
+import com.airfryer.repicka.common.security.redirect.CustomAuthorizationRequestResolver;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -34,8 +36,11 @@ public class SecurityConfig
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
-    // JWT 필터
+    // 필터
     private final JwtFilter jwtFilter;
+
+    // 리다이렉트
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
     // 예외 처리 클래스
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -51,11 +56,16 @@ public class SecurityConfig
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(HeadersConfigurer::disable)
                 .sessionManagement(c -> c.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS));
+                        SessionCreationPolicy.IF_REQUIRED));
 
         // Oauth 2.0 설정
         httpSecurity
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(config -> config
+                                .authorizationRequestResolver(
+                                        new CustomAuthorizationRequestResolver(clientRegistrationRepository)
+                                )
+                        )
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
@@ -109,7 +119,7 @@ public class SecurityConfig
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler));
 
-        // JWT 필터 추가
+        // 필터 추가
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
