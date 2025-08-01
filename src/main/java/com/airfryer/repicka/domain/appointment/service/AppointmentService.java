@@ -266,7 +266,7 @@ public class AppointmentService
         appointment.confirmAppointment();
 
         // 약속 확정 알림
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRMATION, appointment.getId(), appointment.getItem().getTitle());
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRMATION, appointment.getId().toString(), appointment.getItem().getTitle());
         fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
 
         // 약속 알림 발송 예약
@@ -357,15 +357,14 @@ public class AppointmentService
 
         /// 대표 이미지 리스트 조회
 
-        List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentPage.stream().map(appointment -> {
-            return appointment.getItem().getId();
-        }).toList());
+        // 대표 이미지 리스트 조회
+        List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentPage.stream().map(appointment -> appointment.getItem().getId()).toList());
 
         // Map(제품 ID, 대표 이미지 URL) 생성
         Map<Long, String> thumbnailUrlMap = thumbnailList.stream()
                 .collect(Collectors.toMap(
                         itemImage -> itemImage.getItem().getId(),
-                        itemImage -> itemImage.getFileKey()
+                        ItemImage::getFileKey
                 ));
 
         // Map(약속, 대표 이미지 URL) 생성
@@ -456,7 +455,7 @@ public class AppointmentService
         appointmentRepository.save(newAppointment);
 
         // 약속 확정 알림
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRMATION, newAppointment.getId(), newAppointment.getItem().getTitle());
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRMATION, newAppointment.getId().toString(), newAppointment.getItem().getTitle());
         fcmService.sendNotification(newAppointment.getCreator().getFcmToken(), notificationReq);
 
         // 약속 알림 발송 예약

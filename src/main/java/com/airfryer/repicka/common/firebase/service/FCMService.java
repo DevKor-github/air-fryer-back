@@ -30,7 +30,7 @@ public class FCMService {
                             .setBody(request.getBody())
                             .build())
                     .putData("notificationType", request.getNotificationType().name())
-                    .putData("relatedId", request.getRelatedId().toString())
+                    .putData("relatedId", request.getRelatedId())
                     .build();
 
             firebaseMessaging.send(message);
@@ -59,7 +59,7 @@ public class FCMService {
                             .setBody(request.getBody())
                             .build())
                     .putData("notificationType", request.getNotificationType().name())
-                    .putData("relatedId", request.getRelatedId().toString())
+                    .putData("relatedId", request.getRelatedId())
                     .build();
 
             firebaseMessaging.sendEachForMulticast(message);
