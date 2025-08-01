@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "chat_room")
 @Getter
@@ -41,4 +43,7 @@ public class ChatRoom extends BaseEntity
     @NotNull
     @Builder.Default
     private Boolean isFinished = false;
+
+    // 마지막 채팅 시점
+    private LocalDateTime lastChatAt;
 }
