@@ -60,6 +60,14 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
                     .toArray(String[]::new));
         }
 
+        // 품질 조건
+        if (condition.getQualities() != null && condition.getQualities().length > 0) {
+            whereBuilder.append("AND i.quality = ANY(?::text[]) ");
+            parameters.add(Arrays.stream(condition.getQualities())
+                    .map(Enum::name)
+                    .toArray(String[]::new));
+        }
+
         // 거래 타입 조건
         if (condition.getTransactionTypes() != null && condition.getTransactionTypes().length == 1) {
             whereBuilder.append("AND i.transaction_types && ?::text[] ");
@@ -221,6 +229,14 @@ public class ItemCustomRepositoryImpl implements ItemCustomRepository
         if (condition.getColors() != null && condition.getColors().length > 0) {
             whereBuilder.append("AND i.color = ANY(?::text[]) ");
             parameters.add(Arrays.stream(condition.getColors())
+                    .map(Enum::name)
+                    .toArray(String[]::new));
+        }
+
+        // 품질 조건
+        if (condition.getQualities() != null && condition.getQualities().length > 0) {
+            whereBuilder.append("AND i.quality = ANY(?::text[]) ");
+            parameters.add(Arrays.stream(condition.getQualities())
                     .map(Enum::name)
                     .toArray(String[]::new));
         }

@@ -31,6 +31,9 @@ public class SearchItemCountReq
     // 제품 색상
     private ItemColor[] colors;
 
+    // 제품 품질
+    private ItemQuality[] qualities;
+
     // 거래 방식
     private TradeMethod[] tradeMethods;
 
