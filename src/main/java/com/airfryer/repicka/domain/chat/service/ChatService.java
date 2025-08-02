@@ -147,6 +147,10 @@ public class ChatService
 
         chatRepository.save(chat);
 
+        /// 채팅방 마지막 채팅 시점 갱신
+
+        chatRoom.renewLastChatAt();
+
         /// 구독자에게 메시지 및 푸시 알림 전송
 
         ChatMessageDto message = ChatMessageDto.from(chat);
@@ -181,10 +185,10 @@ public class ChatService
         List<ChatRoom> chatRoomList;
 
         // 채팅방 페이지 조회
-        if(dto.getCursorCreatedAt() == null || dto.getCursorId() == null) {
+        if(dto.getCursorLastChatAt() == null || dto.getCursorId() == null) {
             chatRoomList = chatRoomRepository.findFirstPageByUserId(user.getId(), pageable);
         } else {
-            chatRoomList = chatRoomRepository.findPageByUserId(user.getId(), dto.getCursorCreatedAt(), dto.getCursorId(), pageable);
+            chatRoomList = chatRoomRepository.findPageByUserId(user.getId(), dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
         }
 
         /// 데이터 반환
@@ -216,10 +220,10 @@ public class ChatService
         List<ChatRoom> chatRoomList;
 
         // 채팅방 페이지 조회
-        if(dto.getCursorCreatedAt() == null || dto.getCursorId() == null) {
+        if(dto.getCursorLastChatAt() == null || dto.getCursorId() == null) {
             chatRoomList = chatRoomRepository.findFirstPageByItemId(itemId, pageable);
         } else {
-            chatRoomList = chatRoomRepository.findPageByItemId(itemId, dto.getCursorCreatedAt(), dto.getCursorId(), pageable);
+            chatRoomList = chatRoomRepository.findPageByItemId(itemId, dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
         }
 
         /// 데이터 반환
@@ -285,7 +289,7 @@ public class ChatService
         boolean hasNext = chatRoomList.size() > pageSize;
 
         // 채팅방: 커서 데이터
-        LocalDateTime cursorCreatedAt = hasNext ? chatRoomList.getLast().getCreatedAt() : null;
+        LocalDateTime cursorLastChatAt = hasNext ? chatRoomList.getLast().getLastChatAt() : null;
         Long cursorId = hasNext ? chatRoomList.getLast().getId() : null;
 
         // 다음 페이지가 존재한다면, 마지막 아이템 제거
@@ -315,7 +319,7 @@ public class ChatService
         return ChatRoomListDto.builder()
                 .chatRooms(chatRoomDtoList)
                 .hasNext(hasNext)
-                .cursorCreatedAt(cursorCreatedAt)
+                .cursorLastChatAt(cursorLastChatAt)
                 .cursorId(cursorId)
                 .build();
     }

@@ -5,6 +5,7 @@ import com.airfryer.repicka.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -19,6 +20,7 @@ public class ChatRoomDto
     private Boolean isOpponentKorean;       // 상대방의 고려대 인증 여부
     private Boolean isFinished;             // 채팅방 종료 여부
     private String mostRecentChat;          // 가장 최근 채팅
+    private LocalDateTime lastChatAt;       // 마지막 채팅 시점
 
     // 가장 최근 채팅이 필요하지 않을 때
     public static ChatRoomDto from(ChatRoom chatRoom, User me)
@@ -34,6 +36,7 @@ public class ChatRoomDto
                 .isOpponentKorean(opponent.getIsKoreaUnivVerified())
                 .isFinished(chatRoom.getIsFinished())
                 .mostRecentChat(null)
+                .lastChatAt(chatRoom.getLastChatAt())
                 .build();
     }
 
@@ -51,6 +54,7 @@ public class ChatRoomDto
                 .isOpponentKorean(opponent.getIsKoreaUnivVerified())
                 .isFinished(chatRoom.getIsFinished())
                 .mostRecentChat(mostRecentChat)
+                .lastChatAt(chatRoom.getLastChatAt())
                 .build();
     }
 }
