@@ -1,5 +1,6 @@
-package com.airfryer.repicka.domain.item.dto;
+package com.airfryer.repicka.domain.item.dto.res;
 
+import com.airfryer.repicka.domain.item.dto.BaseItemDto;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.user.dto.BaseUserDto;
 import com.airfryer.repicka.domain.user.entity.User;
