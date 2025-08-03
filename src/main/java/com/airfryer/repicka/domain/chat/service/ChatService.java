@@ -62,11 +62,6 @@ public class ChatService
 
         /// 예외 처리
 
-        // 이미 종료된 채팅방인지 확인
-        if(chatRoom.getIsFinished()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_FINISHED_CHATROOM, null);
-        }
-
         // 채팅방 관계자인지 확인
         if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
