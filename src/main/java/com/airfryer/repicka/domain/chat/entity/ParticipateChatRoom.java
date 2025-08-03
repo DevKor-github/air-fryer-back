@@ -29,8 +29,8 @@ public class ParticipateChatRoom extends BaseEntity
     // 사용자
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user")
-    private User user;
+    @JoinColumn(name = "participant")
+    private User participant;
 
     // 마지막 입장 시점
     @NotNull
