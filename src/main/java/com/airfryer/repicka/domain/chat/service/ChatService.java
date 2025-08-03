@@ -236,15 +236,18 @@ public class ChatService
             // 가장 최근 채팅
             Optional<Chat> chat = chatRepository.findFirstByChatRoomIdOrderByIdDesc(chatRoom.getId());
 
+            // 채팅방 참여 정보
+            ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
             return ChatRoomDto.from(
                     chatRoom,
                     user,
+                    participateChatRoom.getUnreadChatCount(),
                     chat.map(Chat::getContent).orElse(null)
             );
 
         }).toList();
-
-        // TODO: 읽지 않은 채팅 개수 구현
 
         /// 데이터 반환
 

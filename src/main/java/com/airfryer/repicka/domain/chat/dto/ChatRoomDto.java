@@ -21,9 +21,10 @@ public class ChatRoomDto
     private Boolean isFinished;             // 채팅방 종료 여부
     private String mostRecentChat;          // 가장 최근 채팅
     private LocalDateTime lastChatAt;       // 마지막 채팅 시점
+    private int unreadChatCount;            // 읽지 않은 채팅 개수
 
     // 가장 최근 채팅이 필요하지 않을 때
-    public static ChatRoomDto from(ChatRoom chatRoom, User me)
+    public static ChatRoomDto from(ChatRoom chatRoom, User me, int unreadChatCount)
     {
         User opponent = Objects.equals(chatRoom.getRequester().getId(), me.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
@@ -37,11 +38,12 @@ public class ChatRoomDto
                 .isFinished(chatRoom.getIsFinished())
                 .mostRecentChat(null)
                 .lastChatAt(chatRoom.getLastChatAt())
+                .unreadChatCount(unreadChatCount)
                 .build();
     }
 
     // 가장 최근 채팅이 필요할 때
-    public static ChatRoomDto from(ChatRoom chatRoom, User me, String mostRecentChat)
+    public static ChatRoomDto from(ChatRoom chatRoom, User me, int unreadChatCount, String mostRecentChat)
     {
         User opponent = Objects.equals(chatRoom.getRequester().getId(), me.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
@@ -55,6 +57,7 @@ public class ChatRoomDto
                 .isFinished(chatRoom.getIsFinished())
                 .mostRecentChat(mostRecentChat)
                 .lastChatAt(chatRoom.getLastChatAt())
+                .unreadChatCount(unreadChatCount)
                 .build();
     }
 }
