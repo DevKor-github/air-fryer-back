@@ -70,7 +70,7 @@ public class ChatService
         /// 채팅방 참여 정보 갱신
 
         // 채팅방 참여 정보 조회
-        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndUserId(chatRoomId, user.getId())
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, user.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         // 채팅방 참여 정보 갱신

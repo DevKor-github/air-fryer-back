@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface ParticipateChatRoomRepository extends JpaRepository<ParticipateChatRoom, Long>
 {
     /// 채팅방 ID, 사용자 ID로 채팅방 참여 정보 조회
-    Optional<ParticipateChatRoom> findByChatRoomIdAndUserId(Long chatRoomId, Long userId);
+    Optional<ParticipateChatRoom> findByChatRoomIdAndParticipantId(Long chatRoomId, Long participantId);
 }
