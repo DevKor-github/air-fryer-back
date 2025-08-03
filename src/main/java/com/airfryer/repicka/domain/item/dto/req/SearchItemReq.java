@@ -1,5 +1,6 @@
-package com.airfryer.repicka.domain.item.dto;
+package com.airfryer.repicka.domain.item.dto.req;
 
+import com.airfryer.repicka.domain.item.dto.ItemOrder;
 import com.airfryer.repicka.domain.item.entity.*;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
 
@@ -12,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -26,9 +28,15 @@ public class SearchItemReq
     @NotNull(message = "페이지 크기는 필수 입력 값입니다.")
     private int pageSize;
     
-    // 커서 기반 페이지네이션을 위한 필드들
+    // 커서 기반 페이지네이션을 위한 필드 조건
+    @AssertTrue(message = "커서 기반 페이지네이션을 위한 필드 조건을 충족하지 못했습니다.")
+    private boolean isValidCursor() {
+        if (cursorId == null) return true;
+        return cursorLike != null && cursorDate != null;
+    }
+    
     private Long cursorId;              // 마지막 아이템의 ID
-    private Integer cursorValue;        // 마지막 아이템의 정렬 기준 값 (like_count, rental_fee, sale_price)
+    private Integer cursorLike;    // 마지막 아이템의 좋아요 개수 (LIKE 정렬용)
     private LocalDateTime cursorDate;   // 마지막 아이템의 repost_date (RECENT 정렬용)
 
     // 검색 키워드
@@ -45,6 +53,9 @@ public class SearchItemReq
 
     // 제품 색상
     private ItemColor[] colors;
+
+    // 제품 품질
+    private ItemQuality[] qualities;
 
     // 거래 방식
     private TradeMethod[] tradeMethods;

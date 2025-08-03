@@ -1,8 +1,13 @@
 package com.airfryer.repicka.domain.item.repository;
 
-import com.airfryer.repicka.domain.item.dto.SearchItemResult;
-import com.airfryer.repicka.domain.item.dto.SearchItemReq;
+import com.airfryer.repicka.domain.item.dto.req.SearchItemCountReq;
+import com.airfryer.repicka.domain.item.dto.req.SearchItemReq;
+import com.airfryer.repicka.domain.item.entity.Item;
+
+import java.util.List;
 
 public interface ItemCustomRepository {
-    SearchItemResult findItemsByCondition(SearchItemReq condition);
+    List<Item> findItemsByConditionWithoutCount(SearchItemReq condition);
+    
+    int countItemsByCondition(SearchItemCountReq condition);
 }

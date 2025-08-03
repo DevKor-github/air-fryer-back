@@ -11,7 +11,9 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
-import com.airfryer.repicka.domain.item.dto.*;
+import com.airfryer.repicka.domain.item.dto.req.*;
+import com.airfryer.repicka.domain.item.dto.res.*;
+import com.airfryer.repicka.domain.item.dto.ItemPreviewDto;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
@@ -159,25 +161,40 @@ public class ItemService
     public SearchItemRes searchItemList(SearchItemReq condition)
     {
         // 태그로 제품 리스트 찾기
-        SearchItemResult searchResult = itemCustomRepository.findItemsByCondition(condition);
+        List<Item> searchResult = itemCustomRepository.findItemsByConditionWithoutCount(condition);
 
         // 제품 각각의 썸네일 조회
-        Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(searchResult.getItems());
+        Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(searchResult);
 
         // 제품 정보를 정제하여 반환
-        List<ItemPreviewDto> itemPreviewDtoList = searchResult.getItems().stream()
+        List<ItemPreviewDto> itemPreviewDtoList = searchResult.stream()
             .map(item -> {
                 String thumbnailUrl = thumbnailMap.get(item.getId()); // 대표 사진
                 return ItemPreviewDto.from(item, thumbnailUrl);
             })
             .toList();
 
+        // 다음 페이지 존재 여부 확인
+        boolean hasNext = searchResult.size() > condition.getPageSize();
+
         return SearchItemRes.builder()
-                .items(itemPreviewDtoList)
-                .totalCount(searchResult.getTotalCount())
-                .build();
+            .items(hasNext ? itemPreviewDtoList.subList(0, condition.getPageSize()) : itemPreviewDtoList)
+            .hasNext(hasNext)
+            .cursorId(hasNext ? searchResult.get(condition.getPageSize()).getId() : null)
+            .cursorLike(hasNext ? searchResult.get(condition.getPageSize()).getLikeCount() : null)
+            .cursorDate(hasNext ? searchResult.get(condition.getPageSize()).getRepostDate() : null)
+            .build();
     }
-    
+
+    // 제품 목록 검색 결과 개수 조회
+    @Transactional(readOnly = true)
+    public SearchItemCountRes searchItemCount(SearchItemCountReq condition)
+    {
+        return SearchItemCountRes.builder()
+            .totalCount(itemCustomRepository.countItemsByCondition(condition))
+            .build();
+    }
+
     // 제품 끌올
     @Transactional
     public LocalDateTime repostItem(Long itemId, User user)

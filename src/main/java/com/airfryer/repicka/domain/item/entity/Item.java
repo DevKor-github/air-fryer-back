@@ -1,8 +1,7 @@
 package com.airfryer.repicka.domain.item.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
-import com.airfryer.repicka.domain.item.dto.CreateItemReq;
-
+import com.airfryer.repicka.domain.item.dto.req.CreateItemReq;
 import com.airfryer.repicka.domain.user.entity.User;
 import io.hypersistence.utils.hibernate.type.array.EnumArrayType;
 import jakarta.persistence.*;
