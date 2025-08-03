@@ -151,17 +151,30 @@ public class ChatService
 
         chatRoom.renewLastChatAt();
 
-        /// 구독자에게 메시지 및 푸시 알림 전송
+        /// 구독자에게 소켓 메시지 및 푸시 알림 전송
 
+        // 메시지 생성
         ChatMessageDto message = ChatMessageDto.from(chat);
+        ChatMessageWithRoomDto messageWithRoom = ChatMessageWithRoomDto.from(chat);
 
         try {
 
-            // 구독자에게 메시지 전송
+            /// 소켓 메시지 전송
+
+            // 채팅방 구독자에게 소켓 메시지 전송
             messagingTemplate.convertAndSend("/sub/chatroom/" + dto.getChatRoomId(), message);
 
             // 채팅 상대방 정보
             User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+            // 채팅 상대방에게 소켓 메시지 전송
+            messagingTemplate.convertAndSendToUser(
+                    opponent.getId().toString(),
+                    "/sub",
+                    messageWithRoom
+            );
+
+            /// 푸시 알림 전송
 
             // 푸시 알림 전송
             FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.CHAT_MESSAGE, chat.getId().toHexString(), user.getNickname());
@@ -302,13 +315,23 @@ public class ChatService
         List<ChatRoomDto> chatRoomDtoList = chatRoomList.stream().map(chatRoom -> {
 
             // 가장 최근 채팅
-            Optional<Chat> chat = chatRepository.findFirstByChatRoomIdOrderByIdDesc(chatRoom.getId());
+            Optional<Chat> chatOptional = chatRepository.findFirstByChatRoomIdOrderByIdDesc(chatRoom.getId());
 
-            return ChatRoomDto.from(
-                    chatRoom,
-                    user,
-                    chat.map(Chat::getContent).orElse(null)
-            );
+            if(chatOptional.isPresent())
+            {
+                return ChatRoomDto.from(
+                        chatRoom,
+                        user,
+                        chatOptional.get()
+                );
+            }
+            else
+            {
+                return ChatRoomDto.from(
+                        chatRoom,
+                        user
+                );
+            }
 
         }).toList();
 

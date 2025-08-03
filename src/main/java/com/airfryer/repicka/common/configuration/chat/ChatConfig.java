@@ -39,6 +39,9 @@ public class ChatConfig implements WebSocketMessageBrokerConfigurer
 
         // 메시지를 구독하는 요청 엔드포인트
         registry.enableSimpleBroker("/sub");
+
+        // 사용자별 구독을 처리할 엔드포인트
+        registry.setUserDestinationPrefix("/user");
     }
 
     // 구독 권한 체크 설정
