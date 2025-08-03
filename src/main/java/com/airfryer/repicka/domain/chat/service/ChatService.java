@@ -160,15 +160,16 @@ public class ChatService
 
         /// 구독자에게 메시지 및 푸시 알림 전송
 
+        // 메시지 생성
         ChatMessageDto message = ChatMessageDto.from(chat);
+
+        // 채팅 상대방 정보
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
         try {
 
             // 구독자에게 메시지 전송
             messagingTemplate.convertAndSend("/sub/chatroom/" + dto.getChatRoomId(), message);
-
-            // 채팅 상대방 정보
-            User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
             // 푸시 알림 전송
             FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.CHAT_MESSAGE, chat.getId().toHexString(), user.getNickname());
@@ -177,6 +178,15 @@ public class ChatService
         } catch (Exception e) {
             throw new CustomException(CustomExceptionCode.INTERNAL_CHAT_ERROR, e.getMessage());
         }
+
+        /// 채팅 상대방의 읽지 않은 채팅 개수 증가
+
+        // 상대방의 채팅방 참여 정보 조회
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(dto.getChatRoomId(), opponent.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 읽지 않은 채팅 개수 증가
+        opponentParticipateChatRoom.increaseUnreadChatCount();
     }
 
     // 내 채팅방 페이지 조회
