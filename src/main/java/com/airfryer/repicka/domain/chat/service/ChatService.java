@@ -12,8 +12,10 @@ import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.dto.*;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRepository;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
+import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
@@ -38,6 +40,7 @@ public class ChatService
 {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
+    private final ParticipateChatRoomRepository participateChatRoomRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
 
@@ -68,6 +71,15 @@ public class ChatService
         if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
+
+        /// 채팅방 참여 정보 갱신
+
+        // 채팅방 참여 정보 조회
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndUserId(chatRoomId, user.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 채팅방 참여 정보 갱신
+        participateChatRoom.renew();
 
         /// 제품 썸네일 URL 조회
 

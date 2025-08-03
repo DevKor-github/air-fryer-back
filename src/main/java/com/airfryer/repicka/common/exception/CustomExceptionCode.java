@@ -62,6 +62,7 @@ public enum CustomExceptionCode
     // 채팅 관련 예외
     NOT_CHATROOM_PARTICIPANT(HttpStatus.FORBIDDEN, "채팅방 관계자가 아닙니다."),
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방 데이터를 찾을 수 없습니다."),
+    PARTICIPATE_CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방 참여 정보 데이터를 찾을 수 없습니다."),
     INVALID_CHAT_MESSAGE(HttpStatus.BAD_REQUEST, "유효하지 않은 채팅 메시지 형식입니다."),
     ALREADY_FINISHED_CHATROOM(HttpStatus.CONFLICT, "이미 종료된 채팅방입니다."),
     INTERNAL_CHAT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 오류로 인해 채팅이 정상적으로 전송되지 않았습니다."),
