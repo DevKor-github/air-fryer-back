@@ -51,7 +51,7 @@ public class ChatService
     /// 서비스
 
     // 나의 채팅 페이지에서 채팅방 입장
-    @Transactional(readOnly = true)
+    @Transactional
     public EnterChatRoomRes enterChatRoom(User user, Long chatRoomId, int pageSize)
     {
         /// 채팅방 조회
