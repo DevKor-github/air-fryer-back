@@ -9,12 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -39,24 +35,6 @@ public class ChatController
                         .message("채팅방에 성공적으로 입장하였습니다.")
                         .data(data)
                         .build());
-    }
-
-    // 채팅 전송
-    @MessageMapping("/chat")
-    public void send(Principal principal, SendChatDto dto)
-    {
-        CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
-        User user = oAuth2User.getUser();
-        chatService.sendMessage(user, dto);
-    }
-
-    // 채팅방 참여 정보 갱신
-    @MessageMapping("/participate-chatroom/renew")
-    public void renewParticipateChatRoom(Principal principal, RenewParticipateChatRoomDto dto)
-    {
-        CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
-        User user = oAuth2User.getUser();
-        chatService.renewParticipateChatRoom(user, dto);
     }
 
     // 내 채팅방 페이지 조회
