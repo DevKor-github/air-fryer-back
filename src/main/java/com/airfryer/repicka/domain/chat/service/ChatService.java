@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -92,12 +93,22 @@ public class ChatService
             chatPage.removeLast();
         }
 
+        /// 상대방의 채팅방 참여 정보 조회
+
+        // 채팅 상대방 정보
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+        // 채팅방 참여 정보 조회
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, opponent.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
         /// 데이터 반환
 
         return EnterChatRoomRes.of(
                 chatRoom,
                 user,
                 thumbnail.getFileKey(),
+                opponentParticipateChatRoom.getLastEnterAt(),
                 chatPage,
                 chatCursorId,
                 hasNext
@@ -201,10 +212,21 @@ public class ChatService
             chatPage.removeLast();
         }
 
+        /// 상대방의 채팅방 참여 정보 조회
+
+        // 채팅 상대방 정보
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+        // 채팅방 참여 정보 조회
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, opponent.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
         /// 데이터 반환
 
         return ChatPageDto.of(
                 chatPage,
+                user,
+                opponentParticipateChatRoom.getLastEnterAt(),
                 nextCursorId,
                 hasNext
         );
