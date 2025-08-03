@@ -4,26 +4,21 @@ import com.airfryer.repicka.domain.chat.entity.Chat;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
-
 @Getter
 @SuperBuilder
-public class ChatMessageDto
+public class ChatMessageWithRoomDto extends ChatMessageDto
 {
-    private String chatId;      // 채팅 ID
-    private Long userId;        // 사용자 ID
-    private String content;     // 내용
-    private Boolean isPick;     // PICK 여부
-    private Date createdAt;     // 채팅 생성 날짜
+    private Long chatRoomId;
 
-    public static ChatMessageDto from(Chat chat)
+    public static ChatMessageWithRoomDto from(Chat chat)
     {
-        return ChatMessageDto.builder()
+        return ChatMessageWithRoomDto.builder()
                 .chatId(chat.getId().toHexString())
                 .userId(chat.getUserId())
                 .content(chat.getContent())
                 .isPick(chat.getIsPick())
                 .createdAt(chat.getId().getDate())
+                .chatRoomId(chat.getChatRoomId())
                 .build();
     }
 }
