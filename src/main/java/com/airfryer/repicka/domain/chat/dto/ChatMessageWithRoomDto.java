@@ -17,6 +17,7 @@ public class ChatMessageWithRoomDto extends ChatMessageDto
                 .userId(chat.getUserId())
                 .content(chat.getContent())
                 .isPick(chat.getIsPick())
+                .isRead(null)
                 .createdAt(chat.getId().getDate())
                 .chatRoomId(chat.getChatRoomId())
                 .build();
