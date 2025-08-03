@@ -5,7 +5,8 @@ import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
-import com.airfryer.repicka.domain.item.dto.*;
+import com.airfryer.repicka.domain.item.dto.req.*;
+import com.airfryer.repicka.domain.item.dto.res.*;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -106,6 +107,19 @@ public class ItemController
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("조건에 따른 제품 목록을 성공적으로 조회하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
+    // 제품 목록 검색 결과 개수 조회
+    @GetMapping("/search/count")
+    public ResponseEntity<SuccessResponseDto> searchItemCount(@Valid SearchItemCountReq req)
+    {
+        SearchItemCountRes data = itemService.searchItemCount(req);
+        
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("조건에 따른 제품 목록 검색 결과 개수를 성공적으로 조회하였습니다.")
                         .data(data)
                         .build());
     }

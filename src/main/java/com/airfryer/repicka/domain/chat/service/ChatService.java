@@ -256,18 +256,29 @@ public class ChatService
         List<ChatRoomDto> chatRoomDtoList = chatRoomList.stream().map(chatRoom -> {
 
             // 가장 최근 채팅
-            Optional<Chat> chat = chatRepository.findFirstByChatRoomIdOrderByIdDesc(chatRoom.getId());
+            Optional<Chat> chatOptional = chatRepository.findFirstByChatRoomIdOrderByIdDesc(chatRoom.getId());
 
             // 채팅방 참여 정보
             ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
                     .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-            return ChatRoomDto.from(
-                    chatRoom,
-                    user,
-                    participateChatRoom.getUnreadChatCount(),
-                    chat.map(Chat::getContent).orElse(null)
-            );
+            if(chatOptional.isPresent())
+            {
+                return ChatRoomDto.from(
+                        chatRoom,
+                        user,
+                        chatOptional.get(),
+                        participateChatRoom.getUnreadChatCount()
+                );
+            }
+            else
+            {
+                return ChatRoomDto.from(
+                        chatRoom,
+                        user,
+                        participateChatRoom.getUnreadChatCount()
+                );
+            }
 
         }).toList();
 

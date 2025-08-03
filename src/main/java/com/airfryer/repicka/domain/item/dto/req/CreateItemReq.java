@@ -1,4 +1,4 @@
-package com.airfryer.repicka.domain.item.dto;
+package com.airfryer.repicka.domain.item.dto.req;
 
 import com.airfryer.repicka.domain.item.entity.*;
 import jakarta.validation.constraints.NotBlank;

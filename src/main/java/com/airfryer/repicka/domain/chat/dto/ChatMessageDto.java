@@ -2,15 +2,15 @@ package com.airfryer.repicka.domain.chat.dto;
 
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.user.entity.User;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
 @Getter
-@Builder
+@SuperBuilder
 public class ChatMessageDto
 {
     private String chatId;      // 채팅 ID
