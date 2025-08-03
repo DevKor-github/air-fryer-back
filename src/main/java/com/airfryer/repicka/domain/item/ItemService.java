@@ -180,9 +180,9 @@ public class ItemService
         return SearchItemRes.builder()
             .items(hasNext ? itemPreviewDtoList.subList(0, condition.getPageSize()) : itemPreviewDtoList)
             .hasNext(hasNext)
-            .cursorId(hasNext ? searchResult.get(searchResult.size() - 1).getId() : null)
-            .cursorLike(hasNext ? searchResult.get(searchResult.size() - 1).getLikeCount() : null)
-            .cursorDate(hasNext ? searchResult.get(searchResult.size() - 1).getRepostDate() : null)
+            .cursorId(hasNext ? searchResult.get(condition.getPageSize()).getId() : null)
+            .cursorLike(hasNext ? searchResult.get(condition.getPageSize()).getLikeCount() : null)
+            .cursorDate(hasNext ? searchResult.get(condition.getPageSize()).getRepostDate() : null)
             .build();
     }
 
