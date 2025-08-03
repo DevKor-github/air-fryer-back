@@ -5,8 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SendChatDto
+public class RenewParticipateChatRoomDto
 {
     private Long chatRoomId;    // 채팅방 ID
-    private String content;     // 내용
 }
