@@ -3,7 +3,6 @@ package com.airfryer.repicka.common.security.oauth2;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -42,6 +41,6 @@ public class CustomOAuth2User implements OAuth2User
 
     @Override
     public String getName() {
-        return user.getNickname();
+        return user.getId().toString();
     }
 }
