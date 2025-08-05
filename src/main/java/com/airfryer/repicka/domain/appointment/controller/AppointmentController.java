@@ -136,6 +136,21 @@ public class AppointmentController
                         .build());
     }
 
+    // 협의 중인 약속 수정
+    @PatchMapping("/pending")
+    public ResponseEntity<SuccessResponseDto> updatePendingAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                       @RequestBody @Valid UpdateAppointmentReq dto)
+    {
+        User user = oAuth2User.getUser();
+        AppointmentRes data = appointmentService.updatePendingAppointment(user, dto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("협의 중인 약속을 성공적으로 수정하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
     // 확정된 약속 수정
     @PatchMapping("/confirmed")
     public ResponseEntity<SuccessResponseDto> updateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,

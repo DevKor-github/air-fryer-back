@@ -49,8 +49,7 @@ public enum CustomExceptionCode
     CURRENT_APPOINTMENT_EXIST(HttpStatus.CONFLICT, "완료되지 않은 약속이 존재합니다."),
     ALREADY_RENTAL_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 대여 약속이 예정되어 있습니다."),
     ALREADY_SALE_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 판매 약속이 예정되어 있습니다."),
-    NOT_PENDING_APPOINTMENT(HttpStatus.CONFLICT, "제시 중인 약속이 아닙니다."),
-    NOT_CONFIRMED_APPOINTMENT(HttpStatus.CONFLICT, "확정된 약속이 아닙니다."),
+    CONFLICT_APPOINTMENT_STATE(HttpStatus.CONFLICT, "현재 약속 상태는 해당 요청을 처리할 수 없습니다."),
     NOT_IN_PROGRESS_APPOINTMENT(HttpStatus.CONFLICT, "대여 중인 약속이 아닙니다."),
     APPOINTMENT_CANNOT_CANCELLED(HttpStatus.CONFLICT, "취소할 수 없는 상태입니다."),
 

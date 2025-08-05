@@ -204,7 +204,7 @@ public class AppointmentService
 
         // 협의 중인 약속인지 체크
         if(appointment.getState() != AppointmentState.PENDING) {
-            throw new CustomException(CustomExceptionCode.NOT_PENDING_APPOINTMENT, null);
+            throw new CustomException(CustomExceptionCode.CONFLICT_APPOINTMENT_STATE, appointment.getState());
         }
 
         // 동의하는 사용자가 약속을 생성한 사용자와 다른지 체크
@@ -424,6 +424,38 @@ public class AppointmentService
         }
     }
 
+    // 협의 중인 약속 수정
+    @Transactional
+    public AppointmentRes updatePendingAppointment(User user, UpdateAppointmentReq dto)
+    {
+        /// 약속 데이터 조회
+
+        Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
+
+        /// 제품 데이터 조회
+
+        Item item = appointment.getItem();
+
+        /// 약속 수정이 가능한지 체크
+
+        checkUpdateAppointmentPossibility(
+                appointment,
+                item,
+                user,
+                dto,
+                AppointmentState.PENDING
+        );
+
+        /// 약속 변경
+
+        // 약속 데이터 변경
+        appointment.updateAppointment(user, dto, appointment.getType() == AppointmentType.RENTAL);
+
+        // 약속 데이터 반환
+        return AppointmentRes.from(appointment);
+    }
+
     // 확정된 약속 수정
     @Transactional
     public AppointmentRes updateConfirmedAppointment(User user, UpdateAppointmentReq dto)
@@ -433,29 +465,19 @@ public class AppointmentService
         Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
 
-        // 확정된 약속인지 체크
-        if(appointment.getState() != AppointmentState.CONFIRMED) {
-            throw new CustomException(CustomExceptionCode.NOT_CONFIRMED_APPOINTMENT, appointment.getState());
-        }
-
-        // 요청자가 약속 관계자인지 체크
-        if(!Objects.equals(user.getId(), appointment.getOwner().getId()) && !Objects.equals(user.getId(), appointment.getRequester().getId())) {
-            throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
-        }
-
         /// 제품 데이터 조회
 
         Item item = appointment.getItem();
 
-        // 제품 삭제 여부 확인
-        if(item.getIsDeleted()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
-        }
+        /// 약속 수정이 가능한지 체크
 
-        // 가격 협의가 불가능한데 가격을 바꿔서 요청을 보내는 경우, 예외 처리
-        if(!item.getCanDeal() && (dto.getPrice() != appointment.getPrice() || dto.getDeposit() != appointment.getDeposit())) {
-            throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
-        }
+        checkUpdateAppointmentPossibility(
+                appointment,
+                item,
+                user,
+                dto,
+                AppointmentState.CONFIRMED
+        );
 
         /// 기존 약속 취소
 
@@ -465,28 +487,10 @@ public class AppointmentService
         // 약속 알림 발송 예약 취소
         delayedQueueService.cancelDelayedTask("appointment", appointment.getId());
 
+        // 제품의 판매 예정 날짜 초기화
+        item.cancelSale();
+
         /// 새로운 약속 생성
-
-        // 대여 게시글의 경우
-        if(appointment.getType() == AppointmentType.RENTAL)
-        {
-            // 반납 일시와 반납 장소 정보가 존재하는지 확인
-            if(dto.getRentalDate() == null || dto.getRentalLocation() == null || dto.getDeposit() == null) {
-                throw new CustomException(CustomExceptionCode.INVALID_RENTAL_INFORMATION, null);
-            }
-
-            // 대여 구간 가능 여부 체크
-            checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
-        }
-        // 판매 게시글의 경우
-        else
-        {
-            // 제품의 판매 예정 날짜 변경
-            item.cancelSale();
-
-            // 구매 날짜 가능 여부 체크
-            checkSaleDatePossibility(dto.getRentalDate(), item);
-        }
 
         // 새로운 약속 데이터 생성
         Appointment newAppointment = appointment.clone();
@@ -628,6 +632,53 @@ public class AppointmentService
                     "requestSaleDate", saleDate,
                     "firstAvailableSaleDate", firstSaleAvailableDate
             ));
+        }
+    }
+
+    /// 약속 수정 가능 여부 체크
+
+    private void checkUpdateAppointmentPossibility(Appointment appointment,
+                                                   Item item,
+                                                   User user,
+                                                   UpdateAppointmentReq dto,
+                                                   AppointmentState state)
+    {
+        // 약속 상태 체크
+        if(appointment.getState() != state) {
+            throw new CustomException(CustomExceptionCode.CONFLICT_APPOINTMENT_STATE, appointment.getState());
+        }
+
+        // 요청자가 약속 관계자인지 체크
+        if(!Objects.equals(user.getId(), appointment.getOwner().getId()) && !Objects.equals(user.getId(), appointment.getRequester().getId())) {
+            throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
+        }
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
+        // 가격 협의가 불가능한데 가격을 바꿔서 요청을 보내는 경우, 예외 처리
+        if(!item.getCanDeal() && (dto.getPrice() != appointment.getPrice() || dto.getDeposit() != appointment.getDeposit())) {
+            throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
+        }
+
+        // 대여 게시글의 경우
+        if(appointment.getType() == AppointmentType.RENTAL)
+        {
+            // 반납 일시와 반납 장소 정보가 존재하는지 확인
+            if(dto.getRentalDate() == null || dto.getRentalLocation() == null || dto.getDeposit() == null) {
+                throw new CustomException(CustomExceptionCode.INVALID_RENTAL_INFORMATION, null);
+            }
+
+            // 대여 구간 가능 여부 체크
+            checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
+        }
+        // 판매 게시글의 경우
+        else
+        {
+            // 구매 날짜 가능 여부 체크
+            checkSaleDatePossibility(dto.getRentalDate(), item);
         }
     }
 }
