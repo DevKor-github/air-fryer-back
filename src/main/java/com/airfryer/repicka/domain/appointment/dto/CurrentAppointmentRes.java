@@ -1,4 +1,4 @@
-package com.airfryer.repicka.domain.chat.dto;
+package com.airfryer.repicka.domain.appointment.dto;
 
 import lombok.AccessLevel;
 import lombok.Builder;
