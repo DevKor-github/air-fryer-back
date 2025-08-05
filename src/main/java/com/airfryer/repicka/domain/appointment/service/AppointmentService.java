@@ -202,7 +202,7 @@ public class AppointmentService
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
 
-        // 제시 중인 약속인지 체크
+        // 협의 중인 약속인지 체크
         if(appointment.getState() != AppointmentState.PENDING) {
             throw new CustomException(CustomExceptionCode.NOT_PENDING_APPOINTMENT, null);
         }
@@ -275,7 +275,7 @@ public class AppointmentService
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
 
-        // 제시 중이거나 확정된 약속인지 체크
+        // 협의 중이거나 확정된 약속인지 체크
         if(appointment.getState() != AppointmentState.PENDING && appointment.getState() != AppointmentState.CONFIRMED) {
             throw new CustomException(CustomExceptionCode.APPOINTMENT_CANNOT_CANCELLED, appointment.getState());
         }
@@ -457,8 +457,15 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
 
-        // 약속 상태 변경
+        /// 기존 약속 취소
+
+        // 약속 취소
         appointment.cancelAppointment();
+
+        // 약속 알림 발송 예약 취소
+        delayedQueueService.cancelDelayedTask("appointment", appointment.getId());
+
+        /// 새로운 약속 생성
 
         // 대여 게시글의 경우
         if(appointment.getType() == AppointmentType.RENTAL)
@@ -481,25 +488,12 @@ public class AppointmentService
             checkSaleDatePossibility(dto.getRentalDate(), item);
         }
 
-        /// 새로운 약속 데이터 생성
-
         // 새로운 약속 데이터 생성
         Appointment newAppointment = appointment.clone();
         newAppointment.updateAppointment(user, dto, appointment.getType() == AppointmentType.RENTAL);
 
         // 약속 데이터 저장
         appointmentRepository.save(newAppointment);
-
-        // 약속 확정 알림
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRMATION, newAppointment.getId().toString(), newAppointment.getItem().getTitle());
-        fcmService.sendNotification(newAppointment.getCreator().getFcmToken(), notificationReq);
-
-        // 약속 알림 발송 예약
-        delayedQueueService.addDelayedTask(
-                "appointment",
-                AppointmentTask.from(newAppointment, TaskType.REMIND),
-                newAppointment.getRentalDate().minusDays(1)
-        );
 
         // 약속 데이터 반환
         return AppointmentRes.from(newAppointment);
