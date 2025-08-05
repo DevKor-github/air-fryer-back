@@ -74,52 +74,38 @@ public class AppointmentService
         // 대여 구간 가능 여부 체크
         checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
 
-        /// 게시글 작성자와 대여자 간의 협의 중인 약속 데이터가 이미 존재한다면, 기존 약속 데이터를 수정
-        /// 게시글 작성자와 대여자 간의 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 약속 데이터를 생성
-
-        // 게시글 작성자와 대여자 간의 협의 중인 약속 데이터 조회
-        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateAndType(
+        // 게시글 작성자와 대여자 간의 완료되지 않은 약속 데이터가 존재하지 않는지 체크
+        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
                 item.getId(),
                 item.getOwner().getId(),
                 borrower.getId(),
-                AppointmentState.PENDING,
-                AppointmentType.RENTAL
+                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
         );
 
-        // 협의 중인 약속 데이터가 존재하는 경우, 기존 약속 데이터를 수정
-        if(!pendingAppointmentOptional.isEmpty())
-        {
-            // 기존에 존재하던 약속 데이터
-            Appointment pendingAppointment = pendingAppointmentOptional.getFirst();
-
-            // 약속 데이터 수정
-            pendingAppointment.updateAppointment(dto);
-
-            // 약속 데이터 저장
-            appointmentRepository.save(pendingAppointment);
+        if(!pendingAppointmentOptional.isEmpty()) {
+            throw new CustomException(CustomExceptionCode.CURRENT_APPOINTMENT_EXIST, null);
         }
-        // 협의 중인 약속 데이터가 존재하지 않는 경우, 새로운 약속 데이터를 생성
-        else
-        {
-            // 새로운 약속 데이터 생성
-            Appointment appointment = Appointment.builder()
-                    .item(item)
-                    .requester(borrower)
-                    .owner(item.getOwner())
-                    .creator(borrower)
-                    .type(AppointmentType.RENTAL)
-                    .state(AppointmentState.PENDING)
-                    .rentalDate(dto.getRentalDate())
-                    .returnDate(dto.getReturnDate())
-                    .rentalLocation(dto.getRentalLocation().trim())
-                    .returnLocation(dto.getReturnLocation().trim())
-                    .price(dto.getRentalFee())
-                    .deposit(dto.getDeposit())
-                    .build();
 
-            // 약속 데이터 저장
-            appointmentRepository.save(appointment);
-        }
+        /// 새로운 약속 데이터 생성
+
+        // 새로운 약속 데이터
+        Appointment appointment = Appointment.builder()
+                .item(item)
+                .requester(borrower)
+                .owner(item.getOwner())
+                .creator(borrower)
+                .type(AppointmentType.RENTAL)
+                .state(AppointmentState.PENDING)
+                .rentalDate(dto.getRentalDate())
+                .returnDate(dto.getReturnDate())
+                .rentalLocation(dto.getRentalLocation().trim())
+                .returnLocation(dto.getReturnLocation().trim())
+                .price(dto.getRentalFee())
+                .deposit(dto.getDeposit())
+                .build();
+
+        // 약속 데이터 저장
+        appointmentRepository.save(appointment);
 
         // TODO: 채팅방 데이터와 약속 데이터를 반환해야 함.
     }
@@ -157,52 +143,38 @@ public class AppointmentService
         // 구매 날짜 가능 여부 체크
         checkSaleDatePossibility(dto.getSaleDate(), item);
 
-        /// 게시글 작성자와 구매자 간의 협의 중인 약속 데이터가 이미 존재한다면, 기존 약속 데이터를 수정
-        /// 게시글 작성자와 구매자 간의 협의 중인 약속 데이터가 존재하지 않는다면, 새로운 약속 데이터를 생성
-
-        // 게시글 작성자와 구매자 간의 협의 중인 약속 데이터 조회
-        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateAndType(
+        // 게시글 작성자와 대여자 간의 완료되지 않은 약속 데이터가 존재하지 않는지 체크
+        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
                 item.getId(),
                 item.getOwner().getId(),
                 buyer.getId(),
-                AppointmentState.PENDING,
-                AppointmentType.SALE
+                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
         );
 
-        // 협의 중인 약속 데이터가 존재하는 경우, 기존 약속 데이터를 수정
-        if(!pendingAppointmentOptional.isEmpty())
-        {
-            // 기존에 존재하던 약속 데이터
-            Appointment pendingAppointment = pendingAppointmentOptional.getFirst();
-
-            // 약속 데이터 수정
-            pendingAppointment.updateAppointment(dto);
-
-            // 약속 데이터 저장
-            appointmentRepository.save(pendingAppointment);
+        if(!pendingAppointmentOptional.isEmpty()) {
+            throw new CustomException(CustomExceptionCode.CURRENT_APPOINTMENT_EXIST, null);
         }
-        // 협의 중인 약속 데이터가 존재하지 않는 경우, 새로운 약속 데이터를 생성
-        else
-        {
-            // 새로운 약속 데이터 생성
-            Appointment appointment = Appointment.builder()
-                    .item(item)
-                    .requester(buyer)
-                    .owner(item.getOwner())
-                    .creator(buyer)
-                    .type(AppointmentType.SALE)
-                    .state(AppointmentState.PENDING)
-                    .rentalDate(dto.getSaleDate())
-                    .returnDate(null)
-                    .rentalLocation(dto.getSaleLocation().trim())
-                    .returnLocation(null)
-                    .price(dto.getSalePrice())
-                    .deposit(0)
-                    .build();
 
-            // 약속 데이터 저장
-            appointmentRepository.save(appointment);
-        }
+        /// 새로운 약속 데이터 생성
+
+        // 새로운 약속 데이터
+        Appointment appointment = Appointment.builder()
+                .item(item)
+                .requester(buyer)
+                .owner(item.getOwner())
+                .creator(buyer)
+                .type(AppointmentType.SALE)
+                .state(AppointmentState.PENDING)
+                .rentalDate(dto.getSaleDate())
+                .returnDate(null)
+                .rentalLocation(dto.getSaleLocation().trim())
+                .returnLocation(null)
+                .price(dto.getSalePrice())
+                .deposit(0)
+                .build();
+
+        // 약속 데이터 저장
+        appointmentRepository.save(appointment);
 
         // TODO: 채팅방 데이터와 약속 데이터를 반환해야 함.
     }
