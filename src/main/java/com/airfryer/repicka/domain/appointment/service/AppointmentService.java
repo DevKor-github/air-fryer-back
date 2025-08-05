@@ -74,7 +74,7 @@ public class AppointmentService
         // 대여 구간 가능 여부 체크
         checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
 
-        // 게시글 작성자와 대여자 간의 완료되지 않은 약속 데이터가 존재하지 않는지 체크
+        // 완료되지 않은 약속 데이터가 존재하지 않는지 체크
         List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
                 item.getId(),
                 item.getOwner().getId(),
@@ -145,7 +145,7 @@ public class AppointmentService
         // 구매 날짜 가능 여부 체크
         checkSaleDatePossibility(dto.getSaleDate(), item);
 
-        // 게시글 작성자와 대여자 간의 완료되지 않은 약속 데이터가 존재하지 않는지 체크
+        // 완료되지 않은 약속 데이터가 존재하지 않는지 체크
         List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
                 item.getId(),
                 item.getOwner().getId(),
