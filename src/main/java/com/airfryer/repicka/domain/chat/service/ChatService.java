@@ -50,6 +50,12 @@ public class ChatService
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
 
+        return enterChatRoom(user, chatRoom, pageSize);
+    }
+
+    @Transactional
+    public EnterChatRoomRes enterChatRoom(User user, ChatRoom chatRoom, int pageSize)
+    {
         /// 예외 처리
 
         // 채팅방 관계자인지 확인
@@ -60,7 +66,7 @@ public class ChatService
         /// 채팅방 참여 정보 갱신
 
         // 채팅방 참여 정보 조회
-        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, user.getId())
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         // 채팅방 참여 정보 갱신
@@ -78,7 +84,7 @@ public class ChatService
         Pageable pageable = PageRequest.of(0, pageSize + 1);
 
         // 채팅 페이지 조회
-        List<Chat> chatPage = chatRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
+        List<Chat> chatPage = chatRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId(), pageable);
 
         /// 채팅 페이지 정보 계산
 
@@ -99,7 +105,7 @@ public class ChatService
         User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
         // 채팅방 참여 정보 조회
-        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, opponent.getId())
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         /// 데이터 반환

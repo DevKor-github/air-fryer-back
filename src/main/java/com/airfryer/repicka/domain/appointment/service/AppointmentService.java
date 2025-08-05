@@ -14,6 +14,7 @@ import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.service.ChatService;
 import com.airfryer.repicka.domain.item.entity.Item;
@@ -47,7 +48,7 @@ public class AppointmentService
 
     // 대여 약속 제시
     @Transactional
-    public Long offerRentalAppointment(User borrower, OfferRentalAppointmentReq dto)
+    public EnterChatRoomRes offerRentalAppointment(User borrower, OfferRentalAppointmentReq dto)
     {
         /// 제품 데이터 조회
 
@@ -106,19 +107,20 @@ public class AppointmentService
         // 약속 데이터 저장
         appointmentRepository.save(appointment);
 
-        // TODO: PICK 메시지 전송
+        /// 채팅방 조회 (존재하지 않으면 생성)
 
-        /// 채팅방 ID 반환
-
-        // 채팅방 조회 (존재하지 않으면 생성)
         ChatRoom chatRoom = chatService.createChatRoom(item, borrower);
 
-        return chatRoom.getId();
+        // TODO: PICK 메시지 전송
+
+        /// 채팅방 입장 데이터 반환
+
+        return chatService.enterChatRoom(borrower, chatRoom, 1);
     }
 
     // 구매 약속 제시
     @Transactional
-    public Long offerSaleAppointment(User buyer, OfferSaleAppointmentReq dto)
+    public EnterChatRoomRes offerSaleAppointment(User buyer, OfferSaleAppointmentReq dto)
     {
         /// 제품 데이터 조회
 
@@ -177,14 +179,15 @@ public class AppointmentService
         // 약속 데이터 저장
         appointmentRepository.save(appointment);
 
-        // TODO: PICK 메시지 전송
+        /// 채팅방 조회 (존재하지 않으면 생성)
 
-        /// 채팅방 ID 반환
-
-        // 채팅방 조회 (존재하지 않으면 생성)
         ChatRoom chatRoom = chatService.createChatRoom(item, buyer);
 
-        return chatRoom.getId();
+        // TODO: PICK 메시지 전송
+
+        /// 채팅방 입장 데이터 반환
+
+        return chatService.enterChatRoom(buyer, chatRoom, 1);
     }
 
     // 약속 확정
