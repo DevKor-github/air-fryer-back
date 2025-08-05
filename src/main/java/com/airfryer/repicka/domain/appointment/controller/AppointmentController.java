@@ -46,7 +46,7 @@ public class AppointmentController
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
-                        .message("판매 약속을 성공적으로 제시하였습니다.")
+                        .message("구매 약속을 성공적으로 제시하였습니다.")
                         .data(data)
                         .build());
     }
