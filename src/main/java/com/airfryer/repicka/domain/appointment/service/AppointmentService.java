@@ -107,7 +107,8 @@ public class AppointmentService
         // 약속 데이터 저장
         appointmentRepository.save(appointment);
 
-        // TODO: 채팅방 데이터와 약속 데이터를 반환해야 함.
+        // TODO: PICK 메시지 전송
+        // TODO: 채팅방 데이터 반환
     }
 
     // 구매 약속 제시
@@ -176,7 +177,8 @@ public class AppointmentService
         // 약속 데이터 저장
         appointmentRepository.save(appointment);
 
-        // TODO: 채팅방 데이터와 약속 데이터를 반환해야 함.
+        // TODO: PICK 메시지 전송
+        // TODO: 채팅방 데이터 반환
     }
 
     // 약속 확정
