@@ -59,4 +59,21 @@ public class AppointmentRes
                 .deposit(updateInProgressAppointment.getAppointment().getDeposit())
                 .build();
     }
+
+    public static AppointmentRes createPreview(Appointment appointment)
+    {
+        return AppointmentRes.builder()
+                .appointmentId(appointment.getId())
+                .itemId(null)
+                .ownerId(null)
+                .borrowerId(null)
+                .type(appointment.getType())
+                .rentalDate(appointment.getRentalDate())
+                .returnDate(appointment.getReturnDate())
+                .rentalLocation(appointment.getRentalLocation())
+                .returnLocation(appointment.getReturnLocation())
+                .price(appointment.getPrice())
+                .deposit(appointment.getDeposit())
+                .build();
+    }
 }
