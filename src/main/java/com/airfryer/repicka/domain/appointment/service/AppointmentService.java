@@ -424,7 +424,7 @@ public class AppointmentService
         }
     }
 
-    // 확정된 약속 변경 제시
+    // 확정된 약속 수정
     @Transactional
     public AppointmentRes offerToUpdateConfirmedAppointment(User user, OfferToUpdateConfirmedAppointmentReq dto)
     {
