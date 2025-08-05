@@ -136,7 +136,7 @@ public class AppointmentController
                         .build());
     }
 
-    // 확정된 약속 변경 제시
+    // 확정된 약속 수정
     @PatchMapping("/confirmed")
     public ResponseEntity<SuccessResponseDto> offerToUpdateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                 @RequestBody @Valid OfferToUpdateConfirmedAppointmentReq dto)
