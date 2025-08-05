@@ -3,7 +3,6 @@ package com.airfryer.repicka.domain.appointment.dto;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
-import com.airfryer.repicka.domain.item.entity.Item;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,11 +26,11 @@ public class AppointmentRes
     private int price;                  // 대여료(판매값)
     private int deposit;                // 보증금
 
-    public static AppointmentRes from(Appointment appointment, Item item)
+    public static AppointmentRes from(Appointment appointment)
     {
         return AppointmentRes.builder()
                 .appointmentId(appointment.getId())
-                .itemId(item.getId())
+                .itemId(appointment.getItem().getId())
                 .ownerId(appointment.getOwner().getId())
                 .borrowerId(appointment.getRequester().getId())
                 .type(appointment.getType())
@@ -44,11 +43,11 @@ public class AppointmentRes
                 .build();
     }
 
-    public static AppointmentRes from(UpdateInProgressAppointment updateInProgressAppointment, Item item)
+    public static AppointmentRes from(UpdateInProgressAppointment updateInProgressAppointment)
     {
         return AppointmentRes.builder()
                 .appointmentId(updateInProgressAppointment.getAppointment().getId())
-                .itemId(item.getId())
+                .itemId(updateInProgressAppointment.getAppointment().getItem().getId())
                 .ownerId(updateInProgressAppointment.getAppointment().getOwner().getId())
                 .borrowerId(updateInProgressAppointment.getAppointment().getRequester().getId())
                 .type(updateInProgressAppointment.getAppointment().getType())

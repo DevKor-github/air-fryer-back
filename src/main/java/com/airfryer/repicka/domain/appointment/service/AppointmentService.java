@@ -258,7 +258,7 @@ public class AppointmentService
         );
 
         // 약속 데이터 반환
-        return AppointmentRes.from(appointment, item);
+        return AppointmentRes.from(appointment);
     }
 
     // 약속 취소
@@ -304,7 +304,7 @@ public class AppointmentService
         // TODO: 채팅방 제거
 
         // 약속 데이터 반환
-        return AppointmentRes.from(appointment, item);
+        return AppointmentRes.from(appointment);
     }
 
     // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
@@ -447,7 +447,7 @@ public class AppointmentService
         );
 
         // 약속 데이터 반환
-        return AppointmentRes.from(newAppointment, item);
+        return AppointmentRes.from(newAppointment);
     }
 
     /// ============================ 공통 로직 ============================

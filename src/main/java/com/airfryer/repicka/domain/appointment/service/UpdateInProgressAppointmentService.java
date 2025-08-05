@@ -94,7 +94,7 @@ public class UpdateInProgressAppointmentService
 
         /// 약속 데이터 반환
 
-        return AppointmentRes.from(updateInProgressAppointment, appointment.getItem());
+        return AppointmentRes.from(updateInProgressAppointment);
     }
 
     // 대여 중인 약속 변경 제시 데이터 조회
