@@ -29,7 +29,7 @@ public class AppointmentController
         User borrower = oAuth2User.getUser();
         ChatRoomDto data = appointmentService.offerRentalAppointment(borrower, dto);
 
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
                         .message("대여 약속을 성공적으로 제시하였습니다.")
                         .data(data)
@@ -44,7 +44,7 @@ public class AppointmentController
         User buyer = oAuth2User.getUser();
         ChatRoomDto data = appointmentService.offerSaleAppointment(buyer, dto);
 
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
                         .message("판매 약속을 성공적으로 제시하였습니다.")
                         .data(data)
