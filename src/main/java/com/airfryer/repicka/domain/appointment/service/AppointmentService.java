@@ -14,7 +14,6 @@ import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
-import com.airfryer.repicka.domain.chat.dto.ChatRoomDto;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.service.ChatService;
 import com.airfryer.repicka.domain.item.entity.Item;
@@ -48,7 +47,7 @@ public class AppointmentService
 
     // 대여 약속 제시
     @Transactional
-    public ChatRoomDto offerRentalAppointment(User borrower, OfferRentalAppointmentReq dto)
+    public Long offerRentalAppointment(User borrower, OfferRentalAppointmentReq dto)
     {
         /// 제품 데이터 조회
 
@@ -109,17 +108,17 @@ public class AppointmentService
 
         // TODO: PICK 메시지 전송
 
-        /// 채팅방 데이터 반환
+        /// 채팅방 ID 반환
 
         // 채팅방 조회 (존재하지 않으면 생성)
         ChatRoom chatRoom = chatService.createChatRoom(item, borrower);
 
-        return ChatRoomDto.from(chatRoom, borrower, 0);
+        return chatRoom.getId();
     }
 
     // 구매 약속 제시
     @Transactional
-    public ChatRoomDto offerSaleAppointment(User buyer, OfferSaleAppointmentReq dto)
+    public Long offerSaleAppointment(User buyer, OfferSaleAppointmentReq dto)
     {
         /// 제품 데이터 조회
 
@@ -180,12 +179,12 @@ public class AppointmentService
 
         // TODO: PICK 메시지 전송
 
-        /// 채팅방 데이터 반환
+        /// 채팅방 ID 반환
 
         // 채팅방 조회 (존재하지 않으면 생성)
         ChatRoom chatRoom = chatService.createChatRoom(item, buyer);
 
-        return ChatRoomDto.from(chatRoom, buyer, 0);
+        return chatRoom.getId();
     }
 
     // 약속 확정

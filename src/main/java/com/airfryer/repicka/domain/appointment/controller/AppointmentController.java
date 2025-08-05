@@ -5,7 +5,6 @@ import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
-import com.airfryer.repicka.domain.chat.dto.ChatRoomDto;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ public class AppointmentController
                                                                      @RequestBody @Valid OfferRentalAppointmentReq dto)
     {
         User borrower = oAuth2User.getUser();
-        ChatRoomDto data = appointmentService.offerRentalAppointment(borrower, dto);
+        Long data = appointmentService.offerRentalAppointment(borrower, dto);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
@@ -42,7 +41,7 @@ public class AppointmentController
                                                                    @RequestBody @Valid OfferSaleAppointmentReq dto)
     {
         User buyer = oAuth2User.getUser();
-        ChatRoomDto data = appointmentService.offerSaleAppointment(buyer, dto);
+        Long data = appointmentService.offerSaleAppointment(buyer, dto);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
