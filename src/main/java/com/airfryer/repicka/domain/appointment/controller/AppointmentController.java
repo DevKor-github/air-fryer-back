@@ -139,7 +139,7 @@ public class AppointmentController
     // 확정된 약속 수정
     @PatchMapping("/confirmed")
     public ResponseEntity<SuccessResponseDto> updateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                                @RequestBody @Valid OfferToUpdateConfirmedAppointmentReq dto)
+                                                                         @RequestBody @Valid UpdateAppointmentReq dto)
     {
         User user = oAuth2User.getUser();
         AppointmentRes data = appointmentService.updateConfirmedAppointment(user, dto);

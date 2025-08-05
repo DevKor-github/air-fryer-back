@@ -3,7 +3,7 @@ package com.airfryer.repicka.domain.appointment.entity;
 import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.appointment.dto.OfferRentalAppointmentReq;
 import com.airfryer.repicka.domain.appointment.dto.OfferSaleAppointmentReq;
-import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateConfirmedAppointmentReq;
+import com.airfryer.repicka.domain.appointment.dto.UpdateAppointmentReq;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -104,7 +104,7 @@ public class Appointment extends BaseEntity
         this.deposit = 0;
     }
 
-    public void updateAppointment(User user, OfferToUpdateConfirmedAppointmentReq dto, boolean isRental)
+    public void updateAppointment(User user, UpdateAppointmentReq dto, boolean isRental)
     {
         this.creator = user;
         this.rentalLocation = dto.getRentalLocation();
