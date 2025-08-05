@@ -22,4 +22,13 @@ public class CurrentAppointmentRes
                 .appointment(isPresent ? AppointmentRes.createPreview(appointment) : null)
                 .build();
     }
+
+    public static CurrentAppointmentRes from(boolean isPresent, Appointment appointment)
+    {
+        return CurrentAppointmentRes.builder()
+                .isPresent(isPresent)
+                .chatRoomId(null)
+                .appointment(isPresent ? AppointmentRes.createPreview(appointment) : null)
+                .build();
+    }
 }

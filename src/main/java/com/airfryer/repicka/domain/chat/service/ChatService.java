@@ -2,6 +2,9 @@ package com.airfryer.repicka.domain.chat.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.domain.appointment.entity.Appointment;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.chat.dto.ChatPageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.dto.*;
@@ -37,6 +40,7 @@ public class ChatService
     private final ParticipateChatRoomRepository participateChatRoomRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
+    private final AppointmentRepository appointmentRepository;
 
     /// 서비스
 
@@ -108,6 +112,15 @@ public class ChatService
         ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
+        /// 완료되지 않은 약속 조회
+
+        List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
+                chatRoom.getItem().getId(),
+                chatRoom.getOwner().getId(),
+                chatRoom.getRequester().getId(),
+                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
+        );
+
         /// 데이터 반환
 
         return EnterChatRoomRes.of(
@@ -116,6 +129,8 @@ public class ChatService
                 thumbnail.getFileKey(),
                 opponentParticipateChatRoom.getLastEnterAt(),
                 chatPage,
+                !currentAppointmentOptional.isEmpty(),
+                !currentAppointmentOptional.isEmpty() ? currentAppointmentOptional.getFirst() : null,
                 chatCursorId,
                 hasNext
         );
