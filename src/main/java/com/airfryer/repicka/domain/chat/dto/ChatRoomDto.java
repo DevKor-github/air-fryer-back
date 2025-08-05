@@ -20,8 +20,8 @@ public class ChatRoomDto
     private String opponentProfileImageUrl; // 상대방의 프로필 이미지 URL
     private Boolean isOpponentKorean;       // 상대방의 고려대 인증 여부
     private Boolean isFinished;             // 채팅방 종료 여부
-    private String mostRecentChatContent;       // 가장 최근 채팅 내용
-    private Boolean mostRecentChatIsPick;       // 가장 최근 채팅 PICK 메시지 여부
+    private String mostRecentChatContent;   // 가장 최근 채팅 내용
+    private Boolean mostRecentChatIsPick;   // 가장 최근 채팅 PICK 메시지 여부
     private LocalDateTime lastChatAt;       // 마지막 채팅 시점
     private int unreadChatCount;            // 읽지 않은 채팅 개수
 

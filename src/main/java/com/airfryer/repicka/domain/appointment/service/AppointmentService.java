@@ -14,6 +14,9 @@ import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.chat.dto.ChatRoomDto;
+import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.service.ChatService;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
@@ -36,6 +39,8 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
+
+    private final ChatService chatService;
     private final RedisService delayedQueueService;
     private final FCMService fcmService;
 
@@ -43,7 +48,7 @@ public class AppointmentService
 
     // 대여 약속 제시
     @Transactional
-    public void offerRentalAppointment(User borrower, OfferRentalAppointmentReq dto)
+    public ChatRoomDto offerRentalAppointment(User borrower, OfferRentalAppointmentReq dto)
     {
         /// 제품 데이터 조회
 
@@ -59,11 +64,6 @@ public class AppointmentService
         // 대여가 가능한 제품인지 확인
         if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL)) {
             throw new CustomException(CustomExceptionCode.CANNOT_RENTAL_ITEM, null);
-        }
-
-        // 게시글 작성자와 대여자가 다른 사용자인지 체크
-        if(Objects.equals(item.getOwner().getId(), borrower.getId())) {
-            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
         // 가격 협의가 불가능한데 가격을 바꾸지는 않았는지 체크
@@ -108,12 +108,18 @@ public class AppointmentService
         appointmentRepository.save(appointment);
 
         // TODO: PICK 메시지 전송
-        // TODO: 채팅방 데이터 반환
+
+        /// 채팅방 데이터 반환
+
+        // 채팅방 조회 (존재하지 않으면 생성)
+        ChatRoom chatRoom = chatService.createChatRoom(item, borrower);
+
+        return ChatRoomDto.from(chatRoom, borrower, 0);
     }
 
     // 구매 약속 제시
     @Transactional
-    public void offerSaleAppointment(User buyer, OfferSaleAppointmentReq dto)
+    public ChatRoomDto offerSaleAppointment(User buyer, OfferSaleAppointmentReq dto)
     {
         /// 제품 데이터 조회
 
@@ -129,11 +135,6 @@ public class AppointmentService
         // 구매가 가능한 제품인지 확인
         if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.SALE)) {
             throw new CustomException(CustomExceptionCode.CANNOT_SALE_ITEM, null);
-        }
-
-        // 게시글 작성자와 대여자가 다른 사용자인지 체크
-        if(Objects.equals(item.getOwner().getId(), buyer.getId())) {
-            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
         // 가격 협의가 불가능한데 가격을 바꾸지는 않았는지 체크
@@ -178,7 +179,13 @@ public class AppointmentService
         appointmentRepository.save(appointment);
 
         // TODO: PICK 메시지 전송
-        // TODO: 채팅방 데이터 반환
+
+        /// 채팅방 데이터 반환
+
+        // 채팅방 조회 (존재하지 않으면 생성)
+        ChatRoom chatRoom = chatService.createChatRoom(item, buyer);
+
+        return ChatRoomDto.from(chatRoom, buyer, 0);
     }
 
     // 약속 확정

@@ -291,4 +291,54 @@ public class ChatService
                 .cursorId(cursorId)
                 .build();
     }
+
+    // 채팅방 조회 (존재하지 않으면 생성)
+    @Transactional
+    public ChatRoom createChatRoom(Item item, User requester)
+    {
+        /// 예외 처리
+
+        // 요청자와 제품 소유자가 다른 사용자인지 체크
+        if(Objects.equals(item.getOwner().getId(), requester.getId())) {
+            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
+        }
+
+        // 채팅방 조회
+        Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(item.getId(), item.getOwner().getId(), requester.getId());
+
+        // 채팅방이 이미 존재한다면 기존 채팅방 반환
+        // 채팅방이 존재하지 않는다면 새로 생성하여 반환
+        if(chatRoomOptional.isPresent())
+        {
+            return chatRoomOptional.get();
+        }
+        else
+        {
+            /// 채팅방 생성
+
+            ChatRoom chatRoom = ChatRoom.builder()
+                    .item(item)
+                    .requester(requester)
+                    .owner(item.getOwner())
+                    .build();
+
+            chatRoomRepository.save(chatRoom);
+
+            /// 채팅방 참여 정보 생성
+
+            // 요청자 참여 정보 생성
+            participateChatRoomRepository.save(ParticipateChatRoom.builder()
+                    .chatRoom(chatRoom)
+                    .participant(requester)
+                    .build());
+
+            // 제품 소유자 참여 정보 생성
+            participateChatRoomRepository.save(ParticipateChatRoom.builder()
+                    .chatRoom(chatRoom)
+                    .participant(item.getOwner())
+                    .build());
+
+            return chatRoom;
+        }
+    }
 }

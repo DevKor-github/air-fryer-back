@@ -5,6 +5,7 @@ import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.chat.dto.ChatRoomDto;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,12 @@ public class AppointmentController
                                                                      @RequestBody @Valid OfferRentalAppointmentReq dto)
     {
         User borrower = oAuth2User.getUser();
-        appointmentService.offerRentalAppointment(borrower, dto);
+        ChatRoomDto data = appointmentService.offerRentalAppointment(borrower, dto);
 
-        // TODO: 채팅방 데이터를 응답해야 함.
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("대여 약속을 성공적으로 제시하였습니다.")
-                        .data(null)
+                        .data(data)
                         .build());
     }
 
@@ -42,13 +42,12 @@ public class AppointmentController
                                                                    @RequestBody @Valid OfferSaleAppointmentReq dto)
     {
         User buyer = oAuth2User.getUser();
-        appointmentService.offerSaleAppointment(buyer, dto);
+        ChatRoomDto data = appointmentService.offerSaleAppointment(buyer, dto);
 
-        // TODO: 채팅방 데이터를 응답해야 함.
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("판매 약속을 성공적으로 제시하였습니다.")
-                        .data(null)
+                        .data(data)
                         .build());
     }
 
