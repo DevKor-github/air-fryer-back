@@ -13,7 +13,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class ChatConfig implements WebSocketMessageBrokerConfigurer
 {
-    private final ChatRoomAccessInterceptor chatRoomAccessInterceptor;
+    private final WebSocketAccessInterceptor chatRoomAccessInterceptor;
 
     // STOMP 설정
     @Override
