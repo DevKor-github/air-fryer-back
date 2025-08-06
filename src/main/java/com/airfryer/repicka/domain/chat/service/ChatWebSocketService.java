@@ -67,6 +67,7 @@ public class ChatWebSocketService
         Chat chat = Chat.builder()
                 .chatRoomId(dto.getChatRoomId())
                 .userId(user.getId())
+                .nickname(user.getNickname())
                 .content(dto.getContent())
                 .isPick(false)
                 .build();

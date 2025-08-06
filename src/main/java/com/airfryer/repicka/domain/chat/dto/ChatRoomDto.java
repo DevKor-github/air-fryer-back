@@ -21,6 +21,7 @@ public class ChatRoomDto
     private Boolean isOpponentKorean;       // 상대방의 고려대 인증 여부
     private Boolean isFinished;             // 채팅방 종료 여부
     private String mostRecentChatContent;   // 가장 최근 채팅 내용
+    private String mostRecentChatNickname;  // 가장 최근 채팅을 보낸 사용자 닉네임
     private Boolean mostRecentChatIsPick;   // 가장 최근 채팅 PICK 메시지 여부
     private LocalDateTime lastChatAt;       // 마지막 채팅 시점
     private int unreadChatCount;            // 읽지 않은 채팅 개수
@@ -39,6 +40,7 @@ public class ChatRoomDto
                 .isOpponentKorean(opponent.getIsKoreaUnivVerified())
                 .isFinished(chatRoom.getIsFinished())
                 .mostRecentChatContent(null)
+                .mostRecentChatNickname(null)
                 .mostRecentChatIsPick(null)
                 .lastChatAt(chatRoom.getLastChatAt())
                 .unreadChatCount(0)
@@ -59,6 +61,7 @@ public class ChatRoomDto
                 .isOpponentKorean(opponent.getIsKoreaUnivVerified())
                 .isFinished(chatRoom.getIsFinished())
                 .mostRecentChatContent(mostRecentChat.getContent())
+                .mostRecentChatNickname(mostRecentChat.getNickname())
                 .mostRecentChatIsPick(mostRecentChat.getIsPick())
                 .lastChatAt(chatRoom.getLastChatAt())
                 .unreadChatCount(unreadChatCount)
