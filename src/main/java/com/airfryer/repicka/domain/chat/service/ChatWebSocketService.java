@@ -7,7 +7,6 @@ import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.firebase.type.NotificationType;
 import com.airfryer.repicka.domain.chat.dto.ChatMessageDto;
 import com.airfryer.repicka.domain.chat.dto.ChatMessageWithRoomDto;
-import com.airfryer.repicka.domain.chat.dto.RenewParticipateChatRoomDto;
 import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
@@ -119,32 +118,5 @@ public class ChatWebSocketService
 
         // 읽지 않은 채팅 개수 증가
         opponentParticipateChatRoom.increaseUnreadChatCount();
-    }
-
-    // 채팅방 참여 정보 갱신
-    @Transactional
-    public void renewParticipateChatRoom(User user, RenewParticipateChatRoomDto dto)
-    {
-        /// 채팅방 조회
-
-        // 채팅방 조회
-        ChatRoom chatRoom = chatRoomRepository.findById(dto.getChatRoomId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, dto.getChatRoomId()));
-
-        /// 예외 처리
-
-        // 채팅방 관계자인지 확인
-        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
-            throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
-        }
-
-        /// 채팅방 참여 정보 갱신
-
-        // 채팅방 참여 정보 조회
-        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(dto.getChatRoomId(), user.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
-        // 채팅방 참여 정보 갱신
-        participateChatRoom.renew();
     }
 }

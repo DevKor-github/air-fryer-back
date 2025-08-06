@@ -1,7 +1,6 @@
 package com.airfryer.repicka.domain.chat.controller;
 
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.chat.dto.RenewParticipateChatRoomDto;
 import com.airfryer.repicka.domain.chat.dto.SendChatDto;
 import com.airfryer.repicka.domain.chat.service.ChatWebSocketService;
 import com.airfryer.repicka.domain.user.entity.User;
@@ -25,14 +24,5 @@ public class ChatWebSocketController
         CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
         User user = oAuth2User.getUser();
         chatWebSocketService.sendMessage(user, dto);
-    }
-
-    // 채팅방 참여 정보 갱신
-    @MessageMapping("/participate-chatroom/renew")
-    public void renewParticipateChatRoom(Principal principal, RenewParticipateChatRoomDto dto)
-    {
-        CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
-        User user = oAuth2User.getUser();
-        chatWebSocketService.renewParticipateChatRoom(user, dto);
     }
 }
