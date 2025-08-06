@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -22,7 +21,6 @@ public class EnterChatRoomRes
     public static EnterChatRoomRes of(ChatRoom chatRoom,
                                       User me,
                                       String imageUrl,
-                                      LocalDateTime opponentLastEnterAt,
                                       List<Chat> chatList,
                                       String chatCursorId,
                                       boolean chatHasNext)
@@ -30,7 +28,7 @@ public class EnterChatRoomRes
         return EnterChatRoomRes.builder()
                 .chatRoom(ChatRoomDto.from(chatRoom, me))
                 .item(ItemPreviewDto.from(chatRoom.getItem(), imageUrl))
-                .chat(ChatPageDto.of(chatList, me, opponentLastEnterAt, chatCursorId, chatHasNext))
+                .chat(ChatPageDto.of(chatList, chatCursorId, chatHasNext))
                 .build();
     }
 }

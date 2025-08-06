@@ -1,12 +1,11 @@
 package com.airfryer.repicka.domain.chat.dto.message.sub;
 
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
-import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder(access = AccessLevel.PRIVATE)
+@SuperBuilder
 public class EnterOrExitMessage extends SubMessage
 {
     private Long chatRoomId;            // 채팅방 ID
