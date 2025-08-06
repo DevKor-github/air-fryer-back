@@ -97,7 +97,7 @@ public class ChatWebSocketService
             // 채팅 상대방에게 소켓 메시지 전송
             messagingTemplate.convertAndSendToUser(
                     opponent.getId().toString(),
-                    "/sub",
+                    "/chatroom",
                     messageWithRoom
             );
 
