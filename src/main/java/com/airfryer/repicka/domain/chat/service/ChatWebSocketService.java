@@ -99,7 +99,7 @@ public class ChatWebSocketService
 
             applicationEventPublisher.publishEvent(SubMessageEvent.builder()
                     .userId(opponent.getId())
-                    .destination("/chatroom")
+                    .destination("/sub")
                     .message(messageWithRoom)
                     .build());
 
