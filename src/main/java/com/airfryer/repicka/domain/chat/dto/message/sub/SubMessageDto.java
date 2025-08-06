@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.chat.dto.message.sub;
 
+import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,6 +26,22 @@ public class SubMessageDto
         return SubMessageDto.builder()
                 .type(SubMessageType.EXIT)
                 .message(EnterOrExitMessage.from(chatRoom, isRequesterOnline, isOwnerOnline))
+                .build();
+    }
+
+    public static SubMessageDto createChatMessage(Chat chat)
+    {
+        return SubMessageDto.builder()
+                .type(SubMessageType.EXIT)
+                .message(ChatMessage.from(chat))
+                .build();
+    }
+
+    public static SubMessageDto createChatMessageWithRoom(Chat chat)
+    {
+        return SubMessageDto.builder()
+                .type(SubMessageType.EXIT)
+                .message(ChatMessageWithRoom.from(chat))
                 .build();
     }
 }
