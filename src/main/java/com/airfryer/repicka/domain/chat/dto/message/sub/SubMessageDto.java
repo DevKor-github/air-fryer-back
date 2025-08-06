@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
 public class SubMessageDto
@@ -13,19 +15,27 @@ public class SubMessageDto
     private SubMessageType type;    // 구독 메시지 타입
     private SubMessage message;     // 구독 메시지
 
-    public static SubMessageDto createEnterMessage(ChatRoom chatRoom, boolean isRequesterOnline, boolean isOwnerOnline)
+    public static SubMessageDto createEnterMessage(ChatRoom chatRoom,
+                                                   boolean isRequesterOnline,
+                                                   boolean isOwnerOnline,
+                                                   LocalDateTime requesterLastEnterAt,
+                                                   LocalDateTime ownerLastEnterAt)
     {
         return SubMessageDto.builder()
                 .type(SubMessageType.ENTER)
-                .message(EnterOrExitMessage.from(chatRoom, isRequesterOnline, isOwnerOnline))
+                .message(EnterOrExitMessage.from(chatRoom, isRequesterOnline, isOwnerOnline, requesterLastEnterAt,  ownerLastEnterAt))
                 .build();
     }
 
-    public static SubMessageDto createExitMessage(ChatRoom chatRoom, boolean isRequesterOnline, boolean isOwnerOnline)
+    public static SubMessageDto createExitMessage(ChatRoom chatRoom,
+                                                  boolean isRequesterOnline,
+                                                  boolean isOwnerOnline,
+                                                  LocalDateTime requesterLastEnterAt,
+                                                  LocalDateTime ownerLastEnterAt)
     {
         return SubMessageDto.builder()
                 .type(SubMessageType.EXIT)
-                .message(EnterOrExitMessage.from(chatRoom, isRequesterOnline, isOwnerOnline))
+                .message(EnterOrExitMessage.from(chatRoom, isRequesterOnline, isOwnerOnline, requesterLastEnterAt,  ownerLastEnterAt))
                 .build();
     }
 

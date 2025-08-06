@@ -6,7 +6,9 @@ import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageDto;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
+import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
 import com.airfryer.repicka.domain.chat.service.MapSubscribeWithRoomManager;
 import com.airfryer.repicka.domain.chat.service.OnlineStatusManager;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,8 @@ import java.util.Objects;
 public class WebSocketAccessInterceptor implements ChannelInterceptor
 {
     private final ChatRoomRepository chatRoomRepository;
+    private final ParticipateChatRoomRepository participateChatRoomRepository;
+
     private final OnlineStatusManager onlineStatusManager;
     private final MapSubscribeWithRoomManager mapSubscribeWithRoomManager;
 
@@ -122,10 +126,16 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
         boolean isRequesterOnline = onlineStatusManager.isUserOnline(chatRoom.getId(), chatRoom.getRequester().getId());
         boolean isOwnerOnline = onlineStatusManager.isUserOnline(chatRoom.getId(), chatRoom.getOwner().getId());
 
+        // 마지막 채팅방 입장 시점 조회
+        ParticipateChatRoom requesterParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), chatRoom.getRequester().getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+        ParticipateChatRoom ownerParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), chatRoom.getOwner().getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
         // 입장/퇴장 메시지 생성
         SubMessageDto message = isEnter ?
-                SubMessageDto.createEnterMessage(chatRoom, isRequesterOnline, isOwnerOnline) :
-                SubMessageDto.createExitMessage(chatRoom, isRequesterOnline, isOwnerOnline);
+                SubMessageDto.createEnterMessage(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt()) :
+                SubMessageDto.createExitMessage(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt());
 
         // 입장/퇴장 이벤트 발생
         applicationEventPublisher.publishEvent(SubMessageEvent.builder()
