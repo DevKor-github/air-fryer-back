@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Getter
 @SuperBuilder
-public class ChatMessage
+public class ChatMessage extends SubMessage
 {
     private String chatId;      // 채팅 ID
     private Long userId;        // 사용자 ID
