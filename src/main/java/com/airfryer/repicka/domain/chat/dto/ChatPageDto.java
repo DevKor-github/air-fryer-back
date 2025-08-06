@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.chat.dto;
 
+import com.airfryer.repicka.domain.chat.dto.message.ChatMessageDto;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.Builder;

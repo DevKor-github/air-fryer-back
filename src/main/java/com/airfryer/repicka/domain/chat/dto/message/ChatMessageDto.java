@@ -1,4 +1,4 @@
-package com.airfryer.repicka.domain.chat.dto;
+package com.airfryer.repicka.domain.chat.dto.message;
 
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.user.entity.User;
