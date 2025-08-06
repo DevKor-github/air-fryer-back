@@ -7,6 +7,7 @@ import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.firebase.type.NotificationType;
 import com.airfryer.repicka.domain.chat.dto.message.pub.SendChatMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageDto;
+import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
@@ -15,7 +16,7 @@ import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,13 +30,13 @@ public class ChatWebSocketService
     private final ChatRepository chatRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     private final FCMService fcmService;
 
     // 채팅 전송
     @Transactional
-    public void sendMessage(User user, SendChatMessage dto)
+    public void sendChatMessage(User user, SendChatMessage dto)
     {
         /// 채팅방 조회
 
@@ -88,17 +89,19 @@ public class ChatWebSocketService
 
         try {
 
-            /// 소켓 메시지 전송
+            /// 채팅 전송 이벤트 발생
 
-            // 채팅방 구독자에게 소켓 메시지 전송
-            messagingTemplate.convertAndSend("/sub/chatroom/" + dto.getChatRoomId(), message);
+            applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                    .userId(null)
+                    .destination("/sub/chatroom/" + dto.getChatRoomId())
+                    .message(message)
+                    .build());
 
-            // 채팅 상대방에게 소켓 메시지 전송
-            messagingTemplate.convertAndSendToUser(
-                    opponent.getId().toString(),
-                    "/chatroom",
-                    messageWithRoom
-            );
+            applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                    .userId(opponent.getId())
+                    .destination("/chatroom")
+                    .message(messageWithRoom)
+                    .build());
 
             /// 푸시 알림 전송
 

@@ -4,14 +4,15 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageDto;
+import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.chat.service.MapSubscribeWithRoomManager;
 import com.airfryer.repicka.domain.chat.service.OnlineStatusManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -28,7 +29,8 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
     private final ChatRoomRepository chatRoomRepository;
     private final OnlineStatusManager onlineStatusManager;
     private final MapSubscribeWithRoomManager mapSubscribeWithRoomManager;
-    private final SimpMessagingTemplate messagingTemplate;
+
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     // STOMP 메시지가 서버로 들어올 때 실행하는 메서드
     @Override
@@ -125,8 +127,11 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 SubMessageDto.createEnterMessage(chatRoom, isRequesterOnline, isOwnerOnline) :
                 SubMessageDto.createExitMessage(chatRoom, isRequesterOnline, isOwnerOnline);
 
-        // 입장/퇴장 메시지 전송
-        messagingTemplate.convertAndSend("/sub/chatroom/" + chatRoom.getId(), message);
+        // 입장/퇴장 이벤트 발생
+        applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                .userId(null)
+                .destination("/sub/chatroom/" + chatRoom.getId())
+                .message(message)
+                .build());
     }
-
 }

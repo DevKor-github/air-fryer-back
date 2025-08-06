@@ -23,6 +23,6 @@ public class ChatWebSocketController
     {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
         User user = oAuth2User.getUser();
-        chatWebSocketService.sendMessage(user, dto);
+        chatWebSocketService.sendChatMessage(user, dto);
     }
 }
