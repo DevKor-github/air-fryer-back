@@ -1,4 +1,4 @@
-package com.airfryer.repicka.domain.chat.dto.message;
+package com.airfryer.repicka.domain.chat.dto.message.sub;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

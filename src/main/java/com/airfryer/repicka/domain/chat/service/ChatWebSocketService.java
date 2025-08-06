@@ -5,9 +5,9 @@ import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.firebase.type.NotificationType;
-import com.airfryer.repicka.domain.chat.dto.message.ChatMessageDto;
-import com.airfryer.repicka.domain.chat.dto.message.ChatMessageWithRoomDto;
-import com.airfryer.repicka.domain.chat.dto.SendChatDto;
+import com.airfryer.repicka.domain.chat.dto.message.sub.ChatMessage;
+import com.airfryer.repicka.domain.chat.dto.message.sub.ChatMessageWithRoom;
+import com.airfryer.repicka.domain.chat.dto.message.pub.SendChatMessage;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
@@ -36,7 +36,7 @@ public class ChatWebSocketService
 
     // 채팅 전송
     @Transactional
-    public void sendMessage(User user, SendChatDto dto)
+    public void sendMessage(User user, SendChatMessage dto)
     {
         /// 채팅방 조회
 
@@ -81,8 +81,8 @@ public class ChatWebSocketService
         /// 구독자에게 소켓 메시지 및 푸시 알림 전송
 
         // 메시지 생성
-        ChatMessageDto message = ChatMessageDto.from(chat);
-        ChatMessageWithRoomDto messageWithRoom = ChatMessageWithRoomDto.from(chat);
+        ChatMessage message = ChatMessage.from(chat);
+        ChatMessageWithRoom messageWithRoom = ChatMessageWithRoom.from(chat);
 
         // 채팅 상대방 정보
         User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();

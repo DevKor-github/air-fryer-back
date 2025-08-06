@@ -1,4 +1,4 @@
-package com.airfryer.repicka.domain.chat.dto.message;
+package com.airfryer.repicka.domain.chat.dto.message.sub;
 
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import lombok.Getter;
@@ -6,13 +6,13 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class ChatMessageWithRoomDto extends ChatMessageDto
+public class ChatMessageWithRoom extends ChatMessage
 {
     private Long chatRoomId;
 
-    public static ChatMessageWithRoomDto from(Chat chat)
+    public static ChatMessageWithRoom from(Chat chat)
     {
-        return ChatMessageWithRoomDto.builder()
+        return ChatMessageWithRoom.builder()
                 .chatId(chat.getId().toHexString())
                 .userId(chat.getUserId())
                 .content(chat.getContent())
