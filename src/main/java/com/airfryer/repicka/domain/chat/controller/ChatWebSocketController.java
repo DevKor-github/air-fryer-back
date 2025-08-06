@@ -8,13 +8,11 @@ import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
 
-@RestController
-@RequestMapping("/api/v1")
+@Controller
 @RequiredArgsConstructor
 public class ChatWebSocketController
 {
