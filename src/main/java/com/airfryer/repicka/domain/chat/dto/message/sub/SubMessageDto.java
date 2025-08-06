@@ -42,7 +42,7 @@ public class SubMessageDto
     public static SubMessageDto createChatMessage(Chat chat)
     {
         return SubMessageDto.builder()
-                .type(SubMessageType.EXIT)
+                .type(SubMessageType.CHAT)
                 .message(ChatMessage.from(chat))
                 .build();
     }
@@ -50,7 +50,7 @@ public class SubMessageDto
     public static SubMessageDto createChatMessageWithRoom(Chat chat)
     {
         return SubMessageDto.builder()
-                .type(SubMessageType.EXIT)
+                .type(SubMessageType.CHAT)
                 .message(ChatMessageWithRoom.from(chat))
                 .build();
     }
