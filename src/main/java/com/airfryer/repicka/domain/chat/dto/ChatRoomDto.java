@@ -20,13 +20,13 @@ public class ChatRoomDto
     private String opponentProfileImageUrl; // 상대방의 프로필 이미지 URL
     private Boolean isOpponentKorean;       // 상대방의 고려대 인증 여부
     private Boolean isFinished;             // 채팅방 종료 여부
-    private String mostRecentChatContent;       // 가장 최근 채팅 내용
-    private Boolean mostRecentChatIsPick;       // 가장 최근 채팅 PICK 메시지 여부
+    private String mostRecentChatContent;   // 가장 최근 채팅 내용
+    private Boolean mostRecentChatIsPick;   // 가장 최근 채팅 PICK 메시지 여부
     private LocalDateTime lastChatAt;       // 마지막 채팅 시점
     private int unreadChatCount;            // 읽지 않은 채팅 개수
 
     // 가장 최근 채팅이 필요하지 않을 때
-    public static ChatRoomDto from(ChatRoom chatRoom, User me, int unreadChatCount)
+    public static ChatRoomDto from(ChatRoom chatRoom, User me)
     {
         User opponent = Objects.equals(chatRoom.getRequester().getId(), me.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
@@ -41,7 +41,7 @@ public class ChatRoomDto
                 .mostRecentChatContent(null)
                 .mostRecentChatIsPick(null)
                 .lastChatAt(chatRoom.getLastChatAt())
-                .unreadChatCount(unreadChatCount)
+                .unreadChatCount(0)
                 .build();
     }
 

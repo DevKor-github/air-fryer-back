@@ -275,8 +275,7 @@ public class ChatService
             {
                 return ChatRoomDto.from(
                         chatRoom,
-                        user,
-                        participateChatRoom.getUnreadChatCount()
+                        user
                 );
             }
 

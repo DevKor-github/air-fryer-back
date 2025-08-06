@@ -28,7 +28,7 @@ public class EnterChatRoomRes
                                       boolean chatHasNext)
     {
         return EnterChatRoomRes.builder()
-                .chatRoom(ChatRoomDto.from(chatRoom, me, 0))
+                .chatRoom(ChatRoomDto.from(chatRoom, me))
                 .item(ItemPreviewDto.from(chatRoom.getItem(), imageUrl))
                 .chat(ChatPageDto.of(chatList, me, opponentLastEnterAt, chatCursorId, chatHasNext))
                 .build();
