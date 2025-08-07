@@ -1,4 +1,4 @@
-package com.airfryer.repicka.common.configuration.chat;
+package com.airfryer.repicka.common.configuration.websocket;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;

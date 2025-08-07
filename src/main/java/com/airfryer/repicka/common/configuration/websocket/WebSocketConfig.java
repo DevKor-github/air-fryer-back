@@ -1,4 +1,4 @@
-package com.airfryer.repicka.common.configuration.chat;
+package com.airfryer.repicka.common.configuration.websocket;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSocketMessageBroker
-public class ChatConfig implements WebSocketMessageBrokerConfigurer
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 {
     private final WebSocketAccessInterceptor webSocketAccessInterceptor;
 
@@ -25,7 +25,8 @@ public class ChatConfig implements WebSocketMessageBrokerConfigurer
                 .setAllowedOrigins(
                         "http://localhost:5173",
                         "http://localhost:63342",
-                        "https://devkor-github.github.io"
+                        "https://devkor-github.github.io",
+                        "https://repicka.netlify.app/"
                 )
                 .withSockJS();
     }

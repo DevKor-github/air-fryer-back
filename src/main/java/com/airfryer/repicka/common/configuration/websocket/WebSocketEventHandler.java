@@ -1,4 +1,4 @@
-package com.airfryer.repicka.common.configuration.chat;
+package com.airfryer.repicka.common.configuration.websocket;
 
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageDto;
