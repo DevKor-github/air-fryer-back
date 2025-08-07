@@ -32,6 +32,7 @@ public class WebSocketEventHandler
 
     private final SimpMessagingTemplate messagingTemplate;
 
+    // 채팅 메시지 전송 이벤트
     @EventListener
     public void handleSubMessage(SubMessageEvent event)
     {
@@ -42,6 +43,7 @@ public class WebSocketEventHandler
         }
     }
 
+    // 예기치 못한 소켓 연결 해제 이벤트
     @EventListener
     public void handleSessionDisconnect(SessionDisconnectEvent event)
     {

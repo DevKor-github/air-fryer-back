@@ -63,8 +63,10 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // (구독 ID, 채팅방 ID) 매핑 정보 저장
                 mappingSubWithRoomManager.set(accessor.getSessionId(), accessor.getSubscriptionId(), chatRoomId);
 
-                // 온라인 상태 변경 및 구독자들에게 입장 메시지 전송
+                // 온라인 상태 변경
                 onlineStatusManager.markUserOnline(chatRoomId, userId);
+
+                // 채팅방 입장 이벤트 발생
                 sendEnterOrExitMessage(chatRoom, true);
             }
         }
@@ -81,12 +83,14 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // 채팅방 조회
                 ChatRoom chatRoom = findChatRoom(chatRoomId, userId);
 
-                // 온라인 상태 변경 및 구독자들에게 퇴장 메시지 전송
+                // 온라인 상태 변경
                 onlineStatusManager.markUserOffline(chatRoomId, userId);
-                sendEnterOrExitMessage(chatRoom, false);
 
                 // 매핑 정보 제거
                 mappingSubWithRoomManager.delete(accessor.getSessionId(), accessor.getSubscriptionId());
+
+                // 채팅방 퇴장 이벤트 발생
+                sendEnterOrExitMessage(chatRoom, false);
             }
         }
 
