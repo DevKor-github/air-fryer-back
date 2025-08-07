@@ -1,7 +1,7 @@
 package com.airfryer.repicka.common.configuration.websocket;
 
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageDto;
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
@@ -54,11 +54,12 @@ public class WebSocketEventHandler
         {
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-            // 사용자 ID
+            // 사용자 ID 조회
             Authentication auth = (Authentication) accessor.getUser();
             CustomOAuth2User customOAuth2User = (CustomOAuth2User) Objects.requireNonNull(auth).getPrincipal();
             Long userId = customOAuth2User.getUser().getId();
 
+            // 채팅방 조회
             ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                     .orElseThrow(() -> new RuntimeException("ChatRoom not found"));
 
@@ -69,7 +70,8 @@ public class WebSocketEventHandler
             ParticipateChatRoom requester = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, chatRoom.getRequester().getId()).orElseThrow();
             ParticipateChatRoom owner = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, chatRoom.getOwner().getId()).orElseThrow();
 
-            SubMessageDto exitMessage = SubMessageDto.createExitMessage(
+            // 채팅방 퇴장 메시지
+            SubMessage exitMessage = SubMessage.createExitMessage(
                     chatRoom,
                     onlineStatusManager.isUserOnline(chatRoomId, chatRoom.getRequester().getId()),
                     onlineStatusManager.isUserOnline(chatRoomId, chatRoom.getOwner().getId()),
@@ -77,6 +79,7 @@ public class WebSocketEventHandler
                     owner.getLastEnterAt()
             );
 
+            // 채팅방 퇴장 이벤트 발생
             handleSubMessage(SubMessageEvent.builder()
                     .userId(null)
                     .destination("/sub/chatroom/" + chatRoomId)

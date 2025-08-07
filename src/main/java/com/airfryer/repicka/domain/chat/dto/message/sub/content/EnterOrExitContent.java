@@ -1,5 +1,6 @@
-package com.airfryer.repicka.domain.chat.dto.message.sub;
+package com.airfryer.repicka.domain.chat.dto.message.sub.content;
 
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageContent;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @SuperBuilder
-public class EnterOrExitMessage extends SubMessage
+public class EnterOrExitContent extends SubMessageContent
 {
     private Long chatRoomId;            // 채팅방 ID
 
@@ -19,13 +20,13 @@ public class EnterOrExitMessage extends SubMessage
     private LocalDateTime requesterLastEnterAt; // 요청자 마지막 입장 시점
     private LocalDateTime ownerLastEnterAt;     // 제품 소유자 마지막 입장 시점
 
-    static EnterOrExitMessage from(ChatRoom chatRoom,
-                                   boolean isRequesterOnline,
-                                   boolean isOwnerOnline,
-                                   LocalDateTime requesterLastEnterAt,
-                                   LocalDateTime ownerLastEnterAt)
+    public static EnterOrExitContent from(ChatRoom chatRoom,
+                                          boolean isRequesterOnline,
+                                          boolean isOwnerOnline,
+                                          LocalDateTime requesterLastEnterAt,
+                                          LocalDateTime ownerLastEnterAt)
     {
-        return EnterOrExitMessage.builder()
+        return EnterOrExitContent.builder()
                 .chatRoomId(chatRoom.getId())
                 .requesterId(chatRoom.getRequester().getId())
                 .ownerId(chatRoom.getOwner().getId())

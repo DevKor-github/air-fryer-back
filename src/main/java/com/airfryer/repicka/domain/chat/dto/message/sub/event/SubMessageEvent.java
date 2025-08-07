@@ -1,6 +1,6 @@
 package com.airfryer.repicka.domain.chat.dto.message.sub.event;
 
-import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageDto;
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,5 +10,5 @@ public class SubMessageEvent
 {
     private Long userId;
     private String destination;
-    private SubMessageDto message;
+    private SubMessage message;
 }

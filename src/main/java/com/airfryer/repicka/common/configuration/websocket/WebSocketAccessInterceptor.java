@@ -3,7 +3,7 @@ package com.airfryer.repicka.common.configuration.websocket;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageDto;
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
@@ -134,9 +134,9 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         // 입장/퇴장 메시지 생성
-        SubMessageDto message = isEnter ?
-                SubMessageDto.createEnterMessage(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt()) :
-                SubMessageDto.createExitMessage(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt());
+        SubMessage message = isEnter ?
+                SubMessage.createEnterMessage(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt()) :
+                SubMessage.createExitMessage(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt());
 
         // 입장/퇴장 이벤트 발생
         applicationEventPublisher.publishEvent(SubMessageEvent.builder()
