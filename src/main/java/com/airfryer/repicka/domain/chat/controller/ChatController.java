@@ -64,7 +64,7 @@ public class ChatController
     public ResponseEntity<SuccessResponseDto> loadChat(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                        @PathVariable Long chatRoomId,
                                                        @RequestParam int pageSize,
-                                                       @RequestParam String cursorId)
+                                                       @RequestParam(required = false) String cursorId)
     {
         User user = oAuth2User.getUser();
         ChatPageDto data = chatService.loadChat(user, chatRoomId, pageSize, cursorId);
