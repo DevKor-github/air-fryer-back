@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -36,6 +37,8 @@ public class ChatService
     private final ParticipateChatRoomRepository participateChatRoomRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
+
+    private final OnlineStatusManager onlineStatusManager;
 
     /// 서비스
 
@@ -92,6 +95,18 @@ public class ChatService
             chatPage.removeLast();
         }
 
+        /// 상대방의 온라인 정보 조회
+
+        // 상대방 정보
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+        // 상대방의 온라인 여부 조회
+        boolean isOpponentOnline = onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId());
+
+        // 상대방의 채팅방 참여 정보 조회
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, opponent.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
         /// 데이터 반환
 
         return EnterChatRoomRes.of(
@@ -99,6 +114,8 @@ public class ChatService
                 user,
                 thumbnail.getFileKey(),
                 chatPage,
+                isOpponentOnline,
+                opponentParticipateChatRoom,
                 chatCursorId,
                 hasNext
         );
@@ -242,22 +259,12 @@ public class ChatService
             ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
                     .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-            if(chatOptional.isPresent())
-            {
-                return ChatRoomDto.from(
-                        chatRoom,
-                        user,
-                        chatOptional.get(),
-                        participateChatRoom.getUnreadChatCount()
-                );
-            }
-            else
-            {
-                return ChatRoomDto.from(
-                        chatRoom,
-                        user
-                );
-            }
+            return ChatRoomDto.from(
+                    chatRoom,
+                    user,
+                    chatOptional.orElse(null),
+                    participateChatRoom.getUnreadChatCount()
+            );
 
         }).toList();
 

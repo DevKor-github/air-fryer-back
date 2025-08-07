@@ -2,6 +2,7 @@ package com.airfryer.repicka.domain.chat.dto;
 
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.item.dto.ItemPreviewDto;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.AccessLevel;
@@ -22,11 +23,13 @@ public class EnterChatRoomRes
                                       User me,
                                       String imageUrl,
                                       List<Chat> chatList,
+                                      boolean isOpponentOnline,
+                                      ParticipateChatRoom opponentParticipateChatRoom,
                                       String chatCursorId,
                                       boolean chatHasNext)
     {
         return EnterChatRoomRes.builder()
-                .chatRoom(ChatRoomDto.from(chatRoom, me))
+                .chatRoom(ChatRoomDto.from(chatRoom, me, null, 0, isOpponentOnline, opponentParticipateChatRoom))
                 .item(ItemPreviewDto.from(chatRoom.getItem(), imageUrl))
                 .chat(ChatPageDto.of(chatList, chatCursorId, chatHasNext))
                 .build();
