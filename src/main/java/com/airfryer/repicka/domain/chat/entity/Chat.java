@@ -25,6 +25,10 @@ public class Chat
     @NotNull
     private Long userId;
 
+    // 사용자 닉네임
+    @NotNull
+    private String nickname;
+
     // 내용
     @NotBlank
     private String content;

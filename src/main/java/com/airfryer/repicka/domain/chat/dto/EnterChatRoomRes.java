@@ -4,13 +4,13 @@ import com.airfryer.repicka.domain.appointment.dto.CurrentAppointmentRes;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.item.dto.ItemPreviewDto;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -25,17 +25,18 @@ public class EnterChatRoomRes
     public static EnterChatRoomRes of(ChatRoom chatRoom,
                                       User me,
                                       String imageUrl,
-                                      LocalDateTime opponentLastEnterAt,
                                       List<Chat> chatList,
+                                      boolean isOpponentOnline,
+                                      ParticipateChatRoom opponentParticipateChatRoom,
                                       boolean isCurrentAppointmentPresent,
                                       Appointment currentAppointment,
                                       String chatCursorId,
                                       boolean chatHasNext)
     {
         return EnterChatRoomRes.builder()
-                .chatRoom(ChatRoomDto.from(chatRoom, me, 0))
-                .chat(ChatPageDto.of(chatList, me, opponentLastEnterAt, chatCursorId, chatHasNext))
+                .chatRoom(ChatRoomDto.from(chatRoom, me, null, 0, isOpponentOnline, opponentParticipateChatRoom))
                 .item(ItemPreviewDto.from(chatRoom.getItem(), imageUrl))
+                .chat(ChatPageDto.of(chatList, chatCursorId, chatHasNext))
                 .currentAppointment(CurrentAppointmentRes.from(isCurrentAppointmentPresent, currentAppointment))
                 .build();
     }

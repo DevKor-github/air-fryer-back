@@ -5,10 +5,9 @@ import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.firebase.type.NotificationType;
-import com.airfryer.repicka.domain.chat.dto.ChatMessageDto;
-import com.airfryer.repicka.domain.chat.dto.ChatMessageWithRoomDto;
-import com.airfryer.repicka.domain.chat.dto.RenewParticipateChatRoomDto;
-import com.airfryer.repicka.domain.chat.dto.SendChatDto;
+import com.airfryer.repicka.domain.chat.dto.message.pub.SendChatMessage;
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
+import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
@@ -17,7 +16,7 @@ import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +30,14 @@ public class ChatWebSocketService
     private final ChatRepository chatRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final OnlineStatusManager onlineStatusManager;
 
     private final FCMService fcmService;
 
     // 채팅 전송
     @Transactional
-    public void sendMessage(User user, SendChatDto dto)
+    public void sendChatMessage(User user, SendChatMessage dto)
     {
         /// 채팅방 조회
 
@@ -68,6 +68,7 @@ public class ChatWebSocketService
         Chat chat = Chat.builder()
                 .chatRoomId(dto.getChatRoomId())
                 .userId(user.getId())
+                .nickname(user.getNickname())
                 .content(dto.getContent())
                 .isPick(false)
                 .build();
@@ -81,25 +82,27 @@ public class ChatWebSocketService
         /// 구독자에게 소켓 메시지 및 푸시 알림 전송
 
         // 메시지 생성
-        ChatMessageDto message = ChatMessageDto.from(chat);
-        ChatMessageWithRoomDto messageWithRoom = ChatMessageWithRoomDto.from(chat);
+        SubMessage message = SubMessage.createChatMessage(chat);
+        SubMessage messageWithRoom = SubMessage.createChatMessageWithRoom(chat);
 
         // 채팅 상대방 정보
         User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
         try {
 
-            /// 소켓 메시지 전송
+            /// 채팅 전송 이벤트 발생
 
-            // 채팅방 구독자에게 소켓 메시지 전송
-            messagingTemplate.convertAndSend("/sub/chatroom/" + dto.getChatRoomId(), message);
+            applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                    .userId(null)
+                    .destination("/sub/chatroom/" + dto.getChatRoomId())
+                    .message(message)
+                    .build());
 
-            // 채팅 상대방에게 소켓 메시지 전송
-            messagingTemplate.convertAndSendToUser(
-                    opponent.getId().toString(),
-                    "/sub",
-                    messageWithRoom
-            );
+            applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                    .userId(opponent.getId())
+                    .destination("/sub")
+                    .message(messageWithRoom)
+                    .build());
 
             /// 푸시 알림 전송
 
@@ -114,37 +117,12 @@ public class ChatWebSocketService
         /// 채팅 상대방의 읽지 않은 채팅 개수 증가
 
         // 상대방의 채팅방 참여 정보 조회
-        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(dto.getChatRoomId(), opponent.getId())
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-        // 읽지 않은 채팅 개수 증가
-        opponentParticipateChatRoom.increaseUnreadChatCount();
-    }
-
-    // 채팅방 참여 정보 갱신
-    @Transactional
-    public void renewParticipateChatRoom(User user, RenewParticipateChatRoomDto dto)
-    {
-        /// 채팅방 조회
-
-        // 채팅방 조회
-        ChatRoom chatRoom = chatRoomRepository.findById(dto.getChatRoomId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, dto.getChatRoomId()));
-
-        /// 예외 처리
-
-        // 채팅방 관계자인지 확인
-        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
-            throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
+        // 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
+        if(!onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())) {
+            opponentParticipateChatRoom.increaseUnreadChatCount();
         }
-
-        /// 채팅방 참여 정보 갱신
-
-        // 채팅방 참여 정보 조회
-        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(dto.getChatRoomId(), user.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
-        // 채팅방 참여 정보 갱신
-        participateChatRoom.renew();
     }
 }

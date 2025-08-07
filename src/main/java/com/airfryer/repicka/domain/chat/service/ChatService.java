@@ -42,6 +42,8 @@ public class ChatService
     private final ItemImageRepository itemImageRepository;
     private final AppointmentRepository appointmentRepository;
 
+    private final OnlineStatusManager onlineStatusManager;
+
     /// 서비스
 
     // 나의 채팅 페이지에서 채팅방 입장
@@ -66,15 +68,6 @@ public class ChatService
         if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
-
-        /// 채팅방 참여 정보 갱신
-
-        // 채팅방 참여 정보 조회
-        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
-        // 채팅방 참여 정보 갱신
-        participateChatRoom.renew();
 
         /// 제품 썸네일 URL 조회
 
@@ -103,12 +96,15 @@ public class ChatService
             chatPage.removeLast();
         }
 
-        /// 상대방의 채팅방 참여 정보 조회
+        /// 상대방의 온라인 정보 조회
 
-        // 채팅 상대방 정보
+        // 상대방 정보
         User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
-        // 채팅방 참여 정보 조회
+        // 상대방의 온라인 여부 조회
+        boolean isOpponentOnline = onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId());
+
+        // 상대방의 채팅방 참여 정보 조회
         ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
@@ -127,8 +123,9 @@ public class ChatService
                 chatRoom,
                 user,
                 thumbnail.getFileKey(),
-                opponentParticipateChatRoom.getLastEnterAt(),
                 chatPage,
+                isOpponentOnline,
+                opponentParticipateChatRoom,
                 !currentAppointmentOptional.isEmpty(),
                 !currentAppointmentOptional.isEmpty() ? currentAppointmentOptional.getFirst() : null,
                 chatCursorId,
@@ -218,7 +215,9 @@ public class ChatService
         Pageable pageable = PageRequest.of(0, pageSize + 1);
 
         // 채팅 페이지 조회
-        List<Chat> chatPage = chatRepository.findByChatRoomIdAndIdLessThanEqualOrderByIdDesc(chatRoomId, new ObjectId(cursorId), pageable);
+        List<Chat> chatPage = cursorId == null ?
+                chatRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable):
+                chatRepository.findByChatRoomIdAndIdLessThanEqualOrderByIdDesc(chatRoomId, new ObjectId(cursorId), pageable);
 
         /// 채팅 페이지 정보 계산
 
@@ -233,21 +232,10 @@ public class ChatService
             chatPage.removeLast();
         }
 
-        /// 상대방의 채팅방 참여 정보 조회
-
-        // 채팅 상대방 정보
-        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
-
-        // 채팅방 참여 정보 조회
-        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, opponent.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
         /// 데이터 반환
 
         return ChatPageDto.of(
                 chatPage,
-                user,
-                opponentParticipateChatRoom.getLastEnterAt(),
                 nextCursorId,
                 hasNext
         );
@@ -283,23 +271,12 @@ public class ChatService
             ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
                     .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-            if(chatOptional.isPresent())
-            {
-                return ChatRoomDto.from(
-                        chatRoom,
-                        user,
-                        chatOptional.get(),
-                        participateChatRoom.getUnreadChatCount()
-                );
-            }
-            else
-            {
-                return ChatRoomDto.from(
-                        chatRoom,
-                        user,
-                        participateChatRoom.getUnreadChatCount()
-                );
-            }
+            return ChatRoomDto.from(
+                    chatRoom,
+                    user,
+                    chatOptional.orElse(null),
+                    participateChatRoom.getUnreadChatCount()
+            );
 
         }).toList();
 
