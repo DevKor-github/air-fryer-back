@@ -66,7 +66,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), userId)
                         .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-                // (구독 ID, 채팅방 ID) 매핑 정보 저장
+                // (세션 ID + 구독 ID, 채팅방 ID) 매핑 정보 저장
                 mappingSubWithRoomManager.set(accessor.getSessionId(), accessor.getSubscriptionId(), chatRoomId);
 
                 // 온라인 상태 변경
