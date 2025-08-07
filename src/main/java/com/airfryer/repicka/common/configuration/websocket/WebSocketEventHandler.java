@@ -74,7 +74,7 @@ public class WebSocketEventHandler
             // 온라인 상태 변경 및 퇴장 메시지 전송
             onlineStatusManager.markUserOffline(chatRoomId, userId);
 
-            // 마지막 채팅방 입장 시점 갱신
+            // 채팅방 참여 정보 갱신
             participateChatRoom.renew();
 
             // 참여 정보 가져오기

@@ -31,6 +31,7 @@ public class ChatWebSocketService
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final OnlineStatusManager onlineStatusManager;
 
     private final FCMService fcmService;
 
@@ -116,10 +117,12 @@ public class ChatWebSocketService
         /// 채팅 상대방의 읽지 않은 채팅 개수 증가
 
         // 상대방의 채팅방 참여 정보 조회
-        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(dto.getChatRoomId(), opponent.getId())
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-        // 읽지 않은 채팅 개수 증가
-        opponentParticipateChatRoom.increaseUnreadChatCount();
+        // 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
+        if(!onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())) {
+            opponentParticipateChatRoom.increaseUnreadChatCount();
+        }
     }
 }

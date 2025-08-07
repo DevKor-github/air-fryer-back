@@ -72,7 +72,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // 온라인 상태 변경
                 onlineStatusManager.markUserOnline(chatRoomId, userId);
 
-                // 마지막 채팅방 입장 시점 갱신
+                // 채팅방 참여 정보 갱신
                 participateChatRoom.renew();
 
                 // 채팅방 입장 이벤트 발생
@@ -102,7 +102,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // 매핑 정보 제거
                 mappingSubWithRoomManager.delete(accessor.getSessionId(), accessor.getSubscriptionId());
 
-                // 마지막 채팅방 입장 시점 갱신
+                // 채팅방 참여 정보 갱신
                 participateChatRoom.renew();
 
                 // 채팅방 퇴장 이벤트 발생
