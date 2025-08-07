@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -15,15 +12,15 @@ public class MappingSubWithRoomManager
 {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    // (sessionId + subscriptionId) -> chatRoomId 매핑 정보 생성(갱신)
-    public void mapSubscribeWithRoom(String sessionId, String subId, Long chatRoomId)
+    // (세션 ID + 구독 ID) -> 채팅방 ID 매핑 정보 생성(갱신)
+    public void set(String sessionId, String subId, Long chatRoomId)
     {
         String key = buildKey(sessionId, subId);
         redisTemplate.opsForValue().set(key, chatRoomId.toString());
     }
 
-    // (sessionId + subscriptionId) -> chatRoomId 매핑 정보 조회
-    public Long getChatRoomIdBySubId(String sessionId, String subId)
+    // 세션 ID, 구독 ID로 채팅방 ID 조회
+    public Long get(String sessionId, String subId)
     {
         String key = buildKey(sessionId, subId);
         String value = (String) redisTemplate.opsForValue().get(key);
@@ -31,40 +28,39 @@ public class MappingSubWithRoomManager
         return value != null ? Long.parseLong(value) : null;
     }
 
-    public Map<String, Long> getAllMappingsBySessionId(String sessionId)
+    // 세션 ID로 채팅방 ID 리스트 조회
+    public List<Long> get(String sessionId)
     {
         String pattern = buildKey(sessionId, "*");
         Set<String> keys = redisTemplate.keys(pattern);
 
         if(keys.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
 
-        Map<String, Long> result = new HashMap<>();
+        List<Long> result = new ArrayList<>();
 
         for(String key : keys)
         {
             String value = (String) redisTemplate.opsForValue().get(key);
 
-            if (value != null)
-            {
-                String[] parts = key.split(":");
-                String subId = parts[parts.length - 1];
-                result.put(subId, Long.parseLong(value));
+            if(value != null) {
+                result.add(Long.parseLong(value));
             }
         }
 
         return result;
     }
 
-    // 매핑 정보 제거
-    public void removeMapping(String sessionId, String subId)
+    // 세션 ID, 구독 ID로 매핑 정보 제거
+    public void delete(String sessionId, String subId)
     {
         String key = buildKey(sessionId, subId);
         redisTemplate.delete(key);
     }
 
-    public void removeAllMappingsBySessionId(String sessionId)
+    // 세션 ID로 모든 매핑 정보 제거
+    public void delete(String sessionId)
     {
         String pattern = buildKey(sessionId, "*");
         Set<String> keys = redisTemplate.keys(pattern);

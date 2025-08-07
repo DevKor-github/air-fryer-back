@@ -50,9 +50,6 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
             // 구독 경로
             String destination = accessor.getDestination();
 
-            // 구독 ID
-            String subId = accessor.getSubscriptionId();
-
             // 채팅방 구독의 경우
             if(destination != null && destination.startsWith("/sub/chatroom/"))
             {
@@ -64,7 +61,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 ChatRoom chatRoom = findChatRoom(chatRoomId, userId);
 
                 // (구독 ID, 채팅방 ID) 매핑 정보 저장
-                mappingSubWithRoomManager.mapSubscribeWithRoom(accessor.getSessionId(), subId, chatRoomId);
+                mappingSubWithRoomManager.set(accessor.getSessionId(), accessor.getSubscriptionId(), chatRoomId);
 
                 // 온라인 상태 변경 및 구독자들에게 입장 메시지 전송
                 onlineStatusManager.markUserOnline(chatRoomId, userId);
@@ -73,11 +70,8 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
         }
         else if(StompCommand.UNSUBSCRIBE.equals(command))
         {
-            // 구독 ID
-            String subId = accessor.getSubscriptionId();
-
             // 채팅방 ID 조회
-            Long chatRoomId = mappingSubWithRoomManager.getChatRoomIdBySubId(accessor.getSessionId(), subId);
+            Long chatRoomId = mappingSubWithRoomManager.get(accessor.getSessionId(), accessor.getSubscriptionId());
 
             if(chatRoomId != null)
             {
@@ -92,7 +86,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 sendEnterOrExitMessage(chatRoom, false);
 
                 // 매핑 정보 제거
-                mappingSubWithRoomManager.removeMapping(accessor.getSessionId(), subId);
+                mappingSubWithRoomManager.delete(accessor.getSessionId(), accessor.getSubscriptionId());
             }
         }
 
@@ -129,7 +123,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
         boolean isRequesterOnline = onlineStatusManager.isUserOnline(chatRoom.getId(), chatRoom.getRequester().getId());
         boolean isOwnerOnline = onlineStatusManager.isUserOnline(chatRoom.getId(), chatRoom.getOwner().getId());
 
-        // 마지막 채팅방 입장 시점 조회
+        // 채팅방 참가자 참여 정보 조회
         ParticipateChatRoom requesterParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), chatRoom.getRequester().getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
         ParticipateChatRoom ownerParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), chatRoom.getOwner().getId())

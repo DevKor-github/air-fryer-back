@@ -17,7 +17,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 @Configuration
@@ -46,14 +46,11 @@ public class WebSocketEventHandler
     public void handleSessionDisconnect(SessionDisconnectEvent event)
     {
         String sessionId = event.getSessionId();
-        Map<String, Long> subIdToRoomMap = mappingSubWithRoomManager.getAllMappingsBySessionId(sessionId);
+        List<Long> chatRoomIdList = mappingSubWithRoomManager.get(sessionId);
 
-        for(Map.Entry<String, Long> entry : subIdToRoomMap.entrySet())
+        for(Long chatRoomId : chatRoomIdList)
         {
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-
-            // 채팅방 ID
-            Long chatRoomId = entry.getValue();
 
             // 사용자 ID
             Authentication auth = (Authentication) accessor.getUser();
@@ -86,6 +83,6 @@ public class WebSocketEventHandler
         }
 
         // 매핑 정보 제거
-        mappingSubWithRoomManager.removeAllMappingsBySessionId(sessionId);
+        mappingSubWithRoomManager.delete(sessionId);
     }
 }
