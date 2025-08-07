@@ -21,6 +21,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
@@ -38,6 +39,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
 
     // STOMP 메시지가 서버로 들어올 때 실행하는 메서드
     @Override
+    @Transactional
     public Message<?> preSend(Message<?> message, MessageChannel channel)
     {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
@@ -60,11 +62,18 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // 채팅방 조회
                 ChatRoom chatRoom = findChatRoom(chatRoomId, userId);
 
+                // 채팅방 참여 정보 조회
+                ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), userId)
+                        .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
                 // (구독 ID, 채팅방 ID) 매핑 정보 저장
                 mappingSubWithRoomManager.set(accessor.getSessionId(), accessor.getSubscriptionId(), chatRoomId);
 
                 // 온라인 상태 변경
                 onlineStatusManager.markUserOnline(chatRoomId, userId);
+
+                // 마지막 채팅방 입장 시점 갱신
+                participateChatRoom.renew();
 
                 // 채팅방 입장 이벤트 발생
                 sendEnterOrExitMessage(chatRoom, true);
@@ -83,11 +92,18 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // 채팅방 조회
                 ChatRoom chatRoom = findChatRoom(chatRoomId, userId);
 
+                // 채팅방 참여 정보 조회
+                ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), userId)
+                        .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
                 // 온라인 상태 변경
                 onlineStatusManager.markUserOffline(chatRoomId, userId);
 
                 // 매핑 정보 제거
                 mappingSubWithRoomManager.delete(accessor.getSessionId(), accessor.getSubscriptionId());
+
+                // 마지막 채팅방 입장 시점 갱신
+                participateChatRoom.renew();
 
                 // 채팅방 퇴장 이벤트 발생
                 sendEnterOrExitMessage(chatRoom, false);

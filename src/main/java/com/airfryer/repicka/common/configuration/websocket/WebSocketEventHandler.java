@@ -1,5 +1,7 @@
 package com.airfryer.repicka.common.configuration.websocket;
 
+import com.airfryer.repicka.common.exception.CustomException;
+import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
@@ -15,6 +17,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.List;
@@ -45,6 +48,7 @@ public class WebSocketEventHandler
 
     // 예기치 못한 소켓 연결 해제 이벤트
     @EventListener
+    @Transactional
     public void handleSessionDisconnect(SessionDisconnectEvent event)
     {
         String sessionId = event.getSessionId();
@@ -63,8 +67,15 @@ public class WebSocketEventHandler
             ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                     .orElseThrow(() -> new RuntimeException("ChatRoom not found"));
 
+            // 채팅방 참여 정보 조회
+            ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), userId)
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
             // 온라인 상태 변경 및 퇴장 메시지 전송
             onlineStatusManager.markUserOffline(chatRoomId, userId);
+
+            // 마지막 채팅방 입장 시점 갱신
+            participateChatRoom.renew();
 
             // 참여 정보 가져오기
             ParticipateChatRoom requester = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, chatRoom.getRequester().getId()).orElseThrow();

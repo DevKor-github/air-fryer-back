@@ -59,15 +59,6 @@ public class ChatService
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
 
-        /// 채팅방 참여 정보 갱신
-
-        // 채팅방 참여 정보 조회
-        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, user.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
-        // 채팅방 참여 정보 갱신
-        participateChatRoom.renew();
-
         /// 제품 썸네일 URL 조회
 
         // 썸네일 데이터 조회
