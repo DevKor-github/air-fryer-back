@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class MapSubscribeWithRoomManager
+public class MappingSubWithRoomManager
 {
     private final RedisTemplate<String, Object> redisTemplate;
 

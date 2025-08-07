@@ -7,7 +7,7 @@ import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
-import com.airfryer.repicka.domain.chat.service.MapSubscribeWithRoomManager;
+import com.airfryer.repicka.domain.chat.service.MappingSubWithRoomManager;
 import com.airfryer.repicka.domain.chat.service.OnlineStatusManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +28,7 @@ public class WebSocketEventHandler
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 
     private final OnlineStatusManager onlineStatusManager;
-    private final MapSubscribeWithRoomManager mapSubscribeWithRoomManager;
+    private final MappingSubWithRoomManager mappingSubWithRoomManager;
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -46,7 +46,7 @@ public class WebSocketEventHandler
     public void handleSessionDisconnect(SessionDisconnectEvent event)
     {
         String sessionId = event.getSessionId();
-        Map<String, Long> subIdToRoomMap = mapSubscribeWithRoomManager.getAllMappingsBySessionId(sessionId);
+        Map<String, Long> subIdToRoomMap = mappingSubWithRoomManager.getAllMappingsBySessionId(sessionId);
 
         for(Map.Entry<String, Long> entry : subIdToRoomMap.entrySet())
         {
@@ -86,6 +86,6 @@ public class WebSocketEventHandler
         }
 
         // 매핑 정보 제거
-        mapSubscribeWithRoomManager.removeAllMappingsBySessionId(sessionId);
+        mappingSubWithRoomManager.removeAllMappingsBySessionId(sessionId);
     }
 }

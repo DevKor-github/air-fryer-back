@@ -9,7 +9,7 @@ import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
-import com.airfryer.repicka.domain.chat.service.MapSubscribeWithRoomManager;
+import com.airfryer.repicka.domain.chat.service.MappingSubWithRoomManager;
 import com.airfryer.repicka.domain.chat.service.OnlineStatusManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,7 +32,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 
     private final OnlineStatusManager onlineStatusManager;
-    private final MapSubscribeWithRoomManager mapSubscribeWithRoomManager;
+    private final MappingSubWithRoomManager mappingSubWithRoomManager;
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
@@ -50,6 +50,10 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
             // 구독 경로
             String destination = accessor.getDestination();
 
+            // 구독 ID
+            String subId = accessor.getSubscriptionId();
+
+            // 채팅방 구독의 경우
             if(destination != null && destination.startsWith("/sub/chatroom/"))
             {
                 // 채팅방 ID 및 사용자 ID 조회
@@ -60,8 +64,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 ChatRoom chatRoom = findChatRoom(chatRoomId, userId);
 
                 // (구독 ID, 채팅방 ID) 매핑 정보 저장
-                String subId = accessor.getSubscriptionId();
-                mapSubscribeWithRoomManager.mapSubscribeWithRoom(accessor.getSessionId(), subId, chatRoomId);
+                mappingSubWithRoomManager.mapSubscribeWithRoom(accessor.getSessionId(), subId, chatRoomId);
 
                 // 온라인 상태 변경 및 구독자들에게 입장 메시지 전송
                 onlineStatusManager.markUserOnline(chatRoomId, userId);
@@ -70,11 +73,11 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
         }
         else if(StompCommand.UNSUBSCRIBE.equals(command))
         {
-            // 구독 ID 조회
+            // 구독 ID
             String subId = accessor.getSubscriptionId();
 
             // 채팅방 ID 조회
-            Long chatRoomId = mapSubscribeWithRoomManager.getChatRoomIdBySubId(accessor.getSessionId(), subId);
+            Long chatRoomId = mappingSubWithRoomManager.getChatRoomIdBySubId(accessor.getSessionId(), subId);
 
             if(chatRoomId != null)
             {
@@ -89,7 +92,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 sendEnterOrExitMessage(chatRoom, false);
 
                 // 매핑 정보 제거
-                mapSubscribeWithRoomManager.removeMapping(accessor.getSessionId(), subId);
+                mappingSubWithRoomManager.removeMapping(accessor.getSessionId(), subId);
             }
         }
 
