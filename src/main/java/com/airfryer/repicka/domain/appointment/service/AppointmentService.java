@@ -73,6 +73,11 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
 
+        // 대여자와 제품 소유자가 다른 사용자인지 체크
+        if(item.getOwner().equals(borrower)) {
+            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
+        }
+
         // 대여 구간 가능 여부 체크
         checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
 
@@ -148,6 +153,11 @@ public class AppointmentService
         // 가격 협의가 불가능한데 가격을 바꾸지는 않았는지 체크
         if(!item.getCanDeal() && (dto.getSalePrice() != item.getSalePrice())) {
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
+        }
+
+        // 대여자와 제품 소유자가 다른 사용자인지 체크
+        if(item.getOwner().equals(buyer)) {
+            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
         // 구매 날짜 가능 여부 체크
@@ -397,7 +407,7 @@ public class AppointmentService
         }
 
         // 요청자와 제품 소유자가 다른 사용자인지 체크
-        if(Objects.equals(item.getOwner().getId(), requester.getId())) {
+        if(item.getOwner().equals(requester)) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
