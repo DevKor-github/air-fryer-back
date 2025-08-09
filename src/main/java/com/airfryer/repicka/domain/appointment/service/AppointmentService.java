@@ -77,14 +77,14 @@ public class AppointmentService
         checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
 
         // 완료되지 않은 약속 데이터가 존재하지 않는지 체크
-        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
+        List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
                 item.getId(),
                 item.getOwner().getId(),
                 borrower.getId(),
                 List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
         );
 
-        if(!pendingAppointmentOptional.isEmpty()) {
+        if(!currentAppointmentOptional.isEmpty()) {
             throw new CustomException(CustomExceptionCode.CURRENT_APPOINTMENT_EXIST, null);
         }
 
@@ -154,14 +154,14 @@ public class AppointmentService
         checkSaleDatePossibility(dto.getSaleDate(), item);
 
         // 완료되지 않은 약속 데이터가 존재하지 않는지 체크
-        List<Appointment> pendingAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
+        List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
                 item.getId(),
                 item.getOwner().getId(),
                 buyer.getId(),
                 List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
         );
 
-        if(!pendingAppointmentOptional.isEmpty()) {
+        if(!currentAppointmentOptional.isEmpty()) {
             throw new CustomException(CustomExceptionCode.CURRENT_APPOINTMENT_EXIST, null);
         }
 
