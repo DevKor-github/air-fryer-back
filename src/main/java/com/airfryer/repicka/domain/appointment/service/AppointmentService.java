@@ -183,7 +183,7 @@ public class AppointmentService
         }
 
         // 약속 상태 변경
-        appointment.confirmAppointment();
+        appointment.confirm();
 
         // 약속 확정 알림
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRMATION, appointment.getId().toString(), appointment.getItem().getTitle());
@@ -234,7 +234,7 @@ public class AppointmentService
 
         /// 약속 상태 변경
 
-        appointment.cancelAppointment();
+        appointment.cancel();
 
         // 약속 알림 발송 예약 취소
         delayedQueueService.cancelDelayedTask("appointment", appointmentId);
@@ -385,7 +385,7 @@ public class AppointmentService
         /// 약속 변경
 
         // 약속 데이터 변경
-        appointment.updateAppointment(user, dto, appointment.getType() == AppointmentType.RENTAL);
+        appointment.update(user, dto, appointment.getType() == AppointmentType.RENTAL);
 
         // 약속 데이터 반환
         return AppointmentRes.from(appointment);
@@ -417,7 +417,7 @@ public class AppointmentService
         /// 기존 약속 취소
 
         // 약속 취소
-        appointment.cancelAppointment();
+        appointment.cancel();
 
         // 약속 알림 발송 예약 취소
         delayedQueueService.cancelDelayedTask("appointment", appointment.getId());
@@ -429,7 +429,7 @@ public class AppointmentService
 
         // 새로운 약속 데이터 생성
         Appointment newAppointment = appointment.clone();
-        newAppointment.updateAppointment(user, dto, appointment.getType() == AppointmentType.RENTAL);
+        newAppointment.update(user, dto, appointment.getType() == AppointmentType.RENTAL);
 
         // 약속 데이터 저장
         appointmentRepository.save(newAppointment);

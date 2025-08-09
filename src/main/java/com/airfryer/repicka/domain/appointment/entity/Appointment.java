@@ -103,7 +103,7 @@ public class Appointment extends BaseEntity
 
     /// 약속 데이터 수정
 
-    public void updateAppointment(User user, UpdateAppointmentReq dto, boolean isRental)
+    public void update(User user, UpdateAppointmentReq dto, boolean isRental)
     {
         this.creator = user;
         this.rentalLocation = dto.getRentalLocation();
@@ -115,7 +115,7 @@ public class Appointment extends BaseEntity
         this.state = AppointmentState.PENDING;
     }
 
-    public void updateAppointment(LocalDateTime returnDate, String returnLocation)
+    public void update(LocalDateTime returnDate, String returnLocation)
     {
         this.returnDate = returnDate;
         this.returnLocation = returnLocation;
@@ -123,13 +123,13 @@ public class Appointment extends BaseEntity
 
     /// 약속 확정
 
-    public void confirmAppointment() {
+    public void confirm() {
         this.state = AppointmentState.CONFIRMED;
     }
 
     /// 약속 취소
 
-    public void cancelAppointment() {
+    public void cancel() {
         this.state = AppointmentState.CANCELLED;
     }
 

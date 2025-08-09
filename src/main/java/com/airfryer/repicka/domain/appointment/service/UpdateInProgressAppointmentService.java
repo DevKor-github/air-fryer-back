@@ -177,7 +177,7 @@ public class UpdateInProgressAppointmentService
             }
 
             // 약속 데이터 변경
-            appointment.updateAppointment(updateInProgressAppointment.getReturnDate(), updateInProgressAppointment.getReturnLocation());
+            appointment.update(updateInProgressAppointment.getReturnDate(), updateInProgressAppointment.getReturnLocation());
         }
 
         /// 대여 중인 약속 변경 제시 데이터 삭제
