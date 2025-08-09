@@ -113,6 +113,11 @@ public class AppointmentService
 
         ChatRoom chatRoom = chatService.createChatRoom(item, borrower);
 
+        /// 제품 소유자에게 약속 제시 알림
+
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), item.getOwner().getNickname());
+        fcmService.sendNotification(item.getOwner().getFcmToken(), notificationReq);
+
         // TODO: PICK 메시지 전송
 
         /// 채팅방 입장 데이터 반환
@@ -184,6 +189,11 @@ public class AppointmentService
         /// 채팅방 조회 (존재하지 않으면 생성)
 
         ChatRoom chatRoom = chatService.createChatRoom(item, buyer);
+
+        /// 제품 소유자에게 약속 제시 알림
+
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), item.getOwner().getNickname());
+        fcmService.sendNotification(item.getOwner().getFcmToken(), notificationReq);
 
         // TODO: PICK 메시지 전송
 
