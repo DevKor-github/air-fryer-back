@@ -24,10 +24,10 @@ public class AppointmentController
     // 대여 약속 제시
     @PostMapping("/rental")
     public ResponseEntity<SuccessResponseDto> offerRentalAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                     @RequestBody @Valid OfferRentalAppointmentReq dto)
+                                                                     @RequestBody @Valid OfferAppointmentReq dto)
     {
         User borrower = oAuth2User.getUser();
-        EnterChatRoomRes data = appointmentService.offerRentalAppointment(borrower, dto);
+        EnterChatRoomRes data = appointmentService.proposeAppointment(borrower, dto, true);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
@@ -39,10 +39,10 @@ public class AppointmentController
     // 구매 약속 제시
     @PostMapping("/sale")
     public ResponseEntity<SuccessResponseDto> offerSaleAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                   @RequestBody @Valid OfferSaleAppointmentReq dto)
+                                                                   @RequestBody @Valid OfferAppointmentReq dto)
     {
         User buyer = oAuth2User.getUser();
-        EnterChatRoomRes data = appointmentService.offerSaleAppointment(buyer, dto);
+        EnterChatRoomRes data = appointmentService.proposeAppointment(buyer, dto, false);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()

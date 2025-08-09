@@ -48,91 +48,9 @@ public class AppointmentService
 
     /// 서비스
 
-    // 대여 약속 제시
+    // 약속 제시
     @Transactional
-    public EnterChatRoomRes offerRentalAppointment(User borrower, OfferRentalAppointmentReq dto)
-    {
-        /// 제품 데이터 조회
-
-        // 제품 데이터 조회
-        Item item = itemRepository.findById(dto.getItemId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
-
-        // 제품 삭제 여부 확인
-        if(item.getIsDeleted()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
-        }
-
-        // 대여가 가능한 제품인지 확인
-        if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.RENTAL)) {
-            throw new CustomException(CustomExceptionCode.CANNOT_RENTAL_ITEM, null);
-        }
-
-        // 가격 협의가 불가능한데 가격을 바꾸지는 않았는지 체크
-        if(!item.getCanDeal() && (dto.getRentalFee() != item.getRentalFee() || dto.getDeposit() != item.getDeposit())) {
-            throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
-        }
-
-        // 대여자와 제품 소유자가 다른 사용자인지 체크
-        if(item.getOwner().equals(borrower)) {
-            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
-        }
-
-        // 대여 구간 가능 여부 체크
-        checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
-
-        // 완료되지 않은 약속 데이터가 존재하지 않는지 체크
-        List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
-                item.getId(),
-                item.getOwner().getId(),
-                borrower.getId(),
-                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
-        );
-
-        if(!currentAppointmentOptional.isEmpty()) {
-            throw new CustomException(CustomExceptionCode.CURRENT_APPOINTMENT_EXIST, null);
-        }
-
-        /// 새로운 약속 데이터 생성
-
-        // 새로운 약속 데이터
-        Appointment appointment = Appointment.builder()
-                .item(item)
-                .requester(borrower)
-                .owner(item.getOwner())
-                .creator(borrower)
-                .type(AppointmentType.RENTAL)
-                .state(AppointmentState.PENDING)
-                .rentalDate(dto.getRentalDate())
-                .returnDate(dto.getReturnDate())
-                .rentalLocation(dto.getRentalLocation().trim())
-                .returnLocation(dto.getReturnLocation().trim())
-                .price(dto.getRentalFee())
-                .deposit(dto.getDeposit())
-                .build();
-
-        // 약속 데이터 저장
-        appointmentRepository.save(appointment);
-
-        /// 채팅방 조회 (존재하지 않으면 생성)
-
-        ChatRoom chatRoom = chatService.createChatRoom(item, borrower);
-
-        /// 제품 소유자에게 약속 제시 알림
-
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), item.getOwner().getNickname());
-        fcmService.sendNotification(item.getOwner().getFcmToken(), notificationReq);
-
-        // TODO: PICK 메시지 전송
-
-        /// 채팅방 입장 데이터 반환
-
-        return chatService.enterChatRoom(borrower, chatRoom, 1);
-    }
-
-    // 구매 약속 제시
-    @Transactional
-    public EnterChatRoomRes offerSaleAppointment(User buyer, OfferSaleAppointmentReq dto)
+    public EnterChatRoomRes proposeAppointment(User requester, OfferAppointmentReq dto, boolean isRental)
     {
         /// 제품 데이터 조회
 
@@ -146,28 +64,38 @@ public class AppointmentService
         }
 
         // 구매가 가능한 제품인지 확인
-        if(!Arrays.asList(item.getTransactionTypes()).contains(TransactionType.SALE)) {
+        if(!Arrays.asList(item.getTransactionTypes()).contains(isRental ? TransactionType.RENTAL : TransactionType.SALE)) {
             throw new CustomException(CustomExceptionCode.CANNOT_SALE_ITEM, null);
         }
 
         // 가격 협의가 불가능한데 가격을 바꾸지는 않았는지 체크
-        if(!item.getCanDeal() && (dto.getSalePrice() != item.getSalePrice())) {
+        if(
+                !item.getCanDeal() &&
+                (
+                        (dto.getPrice() != (isRental ? item.getRentalFee() : item.getSalePrice())) ||
+                        (isRental && (dto.getDeposit() != item.getDeposit()))
+                )
+        ) {
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
 
-        // 대여자와 제품 소유자가 다른 사용자인지 체크
-        if(item.getOwner().equals(buyer)) {
+        // 요청자와 제품 소유자가 다른 사용자인지 체크
+        if(item.getOwner().equals(requester)) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
-        // 구매 날짜 가능 여부 체크
-        checkSaleDatePossibility(dto.getSaleDate(), item);
+        // 대여(구매) 날짜 가능 여부 체크
+        if(isRental) {
+            checkRentalPeriodPossibility(dto.getStartDate(), dto.getEndDate(), item);
+        } else {
+            checkSaleDatePossibility(dto.getStartDate(), item);
+        }
 
         // 완료되지 않은 약속 데이터가 존재하지 않는지 체크
         List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
                 item.getId(),
                 item.getOwner().getId(),
-                buyer.getId(),
+                requester.getId(),
                 List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
         );
 
@@ -178,27 +106,14 @@ public class AppointmentService
         /// 새로운 약속 데이터 생성
 
         // 새로운 약속 데이터
-        Appointment appointment = Appointment.builder()
-                .item(item)
-                .requester(buyer)
-                .owner(item.getOwner())
-                .creator(buyer)
-                .type(AppointmentType.SALE)
-                .state(AppointmentState.PENDING)
-                .rentalDate(dto.getSaleDate())
-                .returnDate(null)
-                .rentalLocation(dto.getSaleLocation().trim())
-                .returnLocation(null)
-                .price(dto.getSalePrice())
-                .deposit(0)
-                .build();
+        Appointment appointment = Appointment.of(item, requester, dto, isRental);
 
         // 약속 데이터 저장
         appointmentRepository.save(appointment);
 
         /// 채팅방 조회 (존재하지 않으면 생성)
 
-        ChatRoom chatRoom = chatService.createChatRoom(item, buyer);
+        ChatRoom chatRoom = chatService.createChatRoom(item, requester);
 
         /// 제품 소유자에게 약속 제시 알림
 
@@ -209,7 +124,7 @@ public class AppointmentService
 
         /// 채팅방 입장 데이터 반환
 
-        return chatService.enterChatRoom(buyer, chatRoom, 1);
+        return chatService.enterChatRoom(requester, chatRoom, 1);
     }
 
     // 약속 확정

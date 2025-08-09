@@ -297,7 +297,7 @@ public class ChatService
         /// 예외 처리
 
         // 요청자와 제품 소유자가 다른 사용자인지 체크
-        if(Objects.equals(item.getOwner().getId(), requester.getId())) {
+        if(requester.equals(item.getOwner())) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
