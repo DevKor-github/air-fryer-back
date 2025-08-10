@@ -2,13 +2,19 @@ package com.airfryer.repicka.domain.user;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
+
+import jakarta.validation.Valid;
+
 import com.airfryer.repicka.common.response.SuccessResponseDto;
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,8 +30,8 @@ public class UserController {
                                                              @RequestBody String fcmToken) {
         userService.updateFcmToken(user.getUser().getId(), fcmToken);
         return ResponseEntity.ok(SuccessResponseDto.builder()
-                .message("푸시 알림 설정이 성공적으로 변경되었습니다.")
-                .build());
+            .message("푸시 알림 설정이 성공적으로 변경되었습니다.")
+            .build());
     }
 
     @PatchMapping("/push-enabled")
@@ -33,7 +39,17 @@ public class UserController {
                                                              @RequestBody Boolean isPushEnabled) {
         userService.updatePush(user.getUser().getId(), isPushEnabled);
         return ResponseEntity.ok(SuccessResponseDto.builder()
-                .message("푸시 알림 설정이 성공적으로 변경되었습니다.")
-                .build());
+            .message("푸시 알림 설정이 성공적으로 변경되었습니다.")
+            .build());
+    }
+
+    // S3 Presigned URL 조회
+    @GetMapping("/presigned-url")
+    public ResponseEntity<SuccessResponseDto> getPresignedUrl(@Valid PresignedUrlReq req) {
+        PresignedUrlRes presignedUrlRes = userService.getPresignedUrl(req);
+        return ResponseEntity.ok(SuccessResponseDto.builder()
+            .message("프로필 이미지 업로드 준비가 완료되었습니다.")
+            .data(presignedUrlRes)
+            .build());
     }
 }
