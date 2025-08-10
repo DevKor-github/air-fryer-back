@@ -58,6 +58,16 @@ public class UserController {
             .build());
     }
 
+    // 프로필 조회
+    @GetMapping
+    public ResponseEntity<SuccessResponseDto> getProfile(@AuthenticationPrincipal CustomOAuth2User user) {
+        BaseUserDto userDetail = userService.getProfile(user.getUser().getId());
+        return ResponseEntity.ok(SuccessResponseDto.builder()
+            .message("프로필을 성공적으로 조회하였습니다.")
+            .data(userDetail)
+            .build());
+    }
+
     // 프로필 업데이트
     @PutMapping
     public ResponseEntity<SuccessResponseDto> updateProfile(@AuthenticationPrincipal CustomOAuth2User user,

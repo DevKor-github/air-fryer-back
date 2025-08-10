@@ -42,6 +42,13 @@ public class UserService {
         return s3Service.generatePresignedUrl(req, "profile");
     }
 
+    // 프로필 조회
+    public BaseUserDto getProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
+        return BaseUserDto.from(user);
+    }
+
     // 프로필 업데이트
     public BaseUserDto updateProfile(Long userId, UpdateUserReq req) {
         User user = userRepository.findById(userId)
