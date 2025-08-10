@@ -1,6 +1,8 @@
 package com.airfryer.repicka.domain.user.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
+import com.airfryer.repicka.domain.user.dto.UpdateUserReq;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -90,5 +92,14 @@ public class User extends BaseEntity
     // 푸시 알림 활성화 여부 업데이트
     public void setIsPushEnabled(Boolean isPushEnabled) {
         this.isPushEnabled = isPushEnabled;
+    }
+
+    // 프로필 업데이트
+    public void updateProfile(UpdateUserReq profileDetail) {
+        this.nickname = profileDetail.getNickname();
+        this.profileImageUrl = profileDetail.getProfileImageUrl();
+        this.gender = profileDetail.getGender();
+        this.height = profileDetail.getHeight();
+        this.weight = profileDetail.getWeight();
     }
 }

@@ -36,7 +36,7 @@ public class ItemController
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
-                        .message("Presigned URL을 성공적으로 생성하였습니다.")
+                        .message("제품 이미지 업로드용 Presigned URL을 성공적으로 생성하였습니다.")
                         .data(presignedUrlRes)
                         .build());
     }

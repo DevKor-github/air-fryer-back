@@ -8,6 +8,8 @@ import com.airfryer.repicka.common.aws.s3.S3Service;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.dto.BaseUserDto;
+import com.airfryer.repicka.domain.user.dto.UpdateUserReq;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -38,5 +40,15 @@ public class UserService {
     // S3 Presigned URL 조회
     public PresignedUrlRes getPresignedUrl(PresignedUrlReq req) {
         return s3Service.generatePresignedUrl(req, "profile");
+    }
+
+    // 프로필 업데이트
+    public BaseUserDto updateProfile(Long userId, UpdateUserReq req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
+        user.updateProfile(req);
+        userRepository.save(user);
+
+        return BaseUserDto.from(user);
     }
 }
