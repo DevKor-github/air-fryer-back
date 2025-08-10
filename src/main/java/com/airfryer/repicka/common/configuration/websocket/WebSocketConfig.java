@@ -26,7 +26,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
                         "http://localhost:5173",
                         "http://localhost:63342",
                         "https://devkor-github.github.io",
-                        "https://repicka.netlify.app/"
+                        "https://repicka.netlify.app"
                 )
                 .withSockJS();
     }
