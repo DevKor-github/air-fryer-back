@@ -1,9 +1,8 @@
 package com.airfryer.repicka.domain.appointment.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
-import com.airfryer.repicka.domain.appointment.dto.OfferRentalAppointmentReq;
-import com.airfryer.repicka.domain.appointment.dto.OfferSaleAppointmentReq;
-import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateConfirmedAppointmentReq;
+import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentReq;
+import com.airfryer.repicka.domain.appointment.dto.UpdateAppointmentReq;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -82,29 +81,29 @@ public class Appointment extends BaseEntity
     @Builder.Default
     private int deposit = 0;
 
+    /// 약속 데이터 생성
+
+    public static Appointment of(Item item, User requester, OfferAppointmentReq dto, boolean isRental)
+    {
+        return Appointment.builder()
+                .item(item)
+                .requester(requester)
+                .owner(item.getOwner())
+                .creator(requester)
+                .type(isRental ? AppointmentType.RENTAL : AppointmentType.SALE)
+                .state(AppointmentState.PENDING)
+                .rentalDate(dto.getStartDate())
+                .returnDate(isRental ? dto.getEndDate() : null)
+                .rentalLocation(dto.getStartLocation().trim())
+                .returnLocation(isRental ? dto.getEndLocation() : null)
+                .price(dto.getPrice())
+                .deposit(isRental ? dto.getDeposit() : 0)
+                .build();
+    }
+
     /// 약속 데이터 수정
 
-    public void updateAppointment(OfferRentalAppointmentReq dto)
-    {
-        this.rentalLocation = dto.getRentalLocation();
-        this.returnLocation = dto.getReturnLocation();
-        this.rentalDate = dto.getRentalDate();
-        this.returnDate = dto.getReturnDate();
-        this.price = dto.getRentalFee();
-        this.deposit = dto.getDeposit();
-    }
-
-    public void updateAppointment(OfferSaleAppointmentReq dto)
-    {
-        this.rentalLocation = dto.getSaleLocation();
-        this.returnLocation = null;
-        this.rentalDate = dto.getSaleDate();
-        this.returnDate = null;
-        this.price = dto.getSalePrice();
-        this.deposit = 0;
-    }
-
-    public void updateAppointment(User user, OfferToUpdateConfirmedAppointmentReq dto, boolean isRental)
+    public void update(User user, UpdateAppointmentReq dto, boolean isRental)
     {
         this.creator = user;
         this.rentalLocation = dto.getRentalLocation();
@@ -116,7 +115,7 @@ public class Appointment extends BaseEntity
         this.state = AppointmentState.PENDING;
     }
 
-    public void updateAppointment(LocalDateTime returnDate, String returnLocation)
+    public void update(LocalDateTime returnDate, String returnLocation)
     {
         this.returnDate = returnDate;
         this.returnLocation = returnLocation;
@@ -124,13 +123,13 @@ public class Appointment extends BaseEntity
 
     /// 약속 확정
 
-    public void confirmAppointment() {
+    public void confirm() {
         this.state = AppointmentState.CONFIRMED;
     }
 
     /// 약속 취소
 
-    public void cancelAppointment() {
+    public void cancel() {
         this.state = AppointmentState.CANCELLED;
     }
 

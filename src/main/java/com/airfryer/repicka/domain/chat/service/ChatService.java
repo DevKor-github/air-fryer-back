@@ -2,6 +2,9 @@ package com.airfryer.repicka.domain.chat.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.domain.appointment.entity.Appointment;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.chat.dto.ChatPageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.dto.*;
@@ -37,6 +40,7 @@ public class ChatService
     private final ParticipateChatRoomRepository participateChatRoomRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
+    private final AppointmentRepository appointmentRepository;
 
     private final OnlineStatusManager onlineStatusManager;
 
@@ -52,6 +56,12 @@ public class ChatService
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
 
+        return enterChatRoom(user, chatRoom, pageSize);
+    }
+
+    @Transactional
+    public EnterChatRoomRes enterChatRoom(User user, ChatRoom chatRoom, int pageSize)
+    {
         /// 예외 처리
 
         // 채팅방 관계자인지 확인
@@ -71,7 +81,7 @@ public class ChatService
         Pageable pageable = PageRequest.of(0, pageSize + 1);
 
         // 채팅 페이지 조회
-        List<Chat> chatPage = chatRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
+        List<Chat> chatPage = chatRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId(), pageable);
 
         /// 채팅 페이지 정보 계산
 
@@ -95,8 +105,17 @@ public class ChatService
         boolean isOpponentOnline = onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId());
 
         // 상대방의 채팅방 참여 정보 조회
-        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, opponent.getId())
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        /// 완료되지 않은 약속 조회
+
+        List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
+                chatRoom.getItem().getId(),
+                chatRoom.getOwner().getId(),
+                chatRoom.getRequester().getId(),
+                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
+        );
 
         /// 데이터 반환
 
@@ -107,6 +126,8 @@ public class ChatService
                 chatPage,
                 isOpponentOnline,
                 opponentParticipateChatRoom,
+                !currentAppointmentOptional.isEmpty(),
+                !currentAppointmentOptional.isEmpty() ? currentAppointmentOptional.getFirst() : null,
                 chatCursorId,
                 hasNext
         );
@@ -267,5 +288,55 @@ public class ChatService
                 .cursorLastChatAt(cursorLastChatAt)
                 .cursorId(cursorId)
                 .build();
+    }
+
+    // 채팅방 조회 (존재하지 않으면 생성)
+    @Transactional
+    public ChatRoom createChatRoom(Item item, User requester)
+    {
+        /// 예외 처리
+
+        // 요청자와 제품 소유자가 다른 사용자인지 체크
+        if(requester.equals(item.getOwner())) {
+            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
+        }
+
+        // 채팅방 조회
+        Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(item.getId(), item.getOwner().getId(), requester.getId());
+
+        // 채팅방이 이미 존재한다면 기존 채팅방 반환
+        // 채팅방이 존재하지 않는다면 새로 생성하여 반환
+        if(chatRoomOptional.isPresent())
+        {
+            return chatRoomOptional.get();
+        }
+        else
+        {
+            /// 채팅방 생성
+
+            ChatRoom chatRoom = ChatRoom.builder()
+                    .item(item)
+                    .requester(requester)
+                    .owner(item.getOwner())
+                    .build();
+
+            chatRoomRepository.save(chatRoom);
+
+            /// 채팅방 참여 정보 생성
+
+            // 요청자 참여 정보 생성
+            participateChatRoomRepository.save(ParticipateChatRoom.builder()
+                    .chatRoom(chatRoom)
+                    .participant(requester)
+                    .build());
+
+            // 제품 소유자 참여 정보 생성
+            participateChatRoomRepository.save(ParticipateChatRoom.builder()
+                    .chatRoom(chatRoom)
+                    .participant(item.getOwner())
+                    .build());
+
+            return chatRoom;
+        }
     }
 }
