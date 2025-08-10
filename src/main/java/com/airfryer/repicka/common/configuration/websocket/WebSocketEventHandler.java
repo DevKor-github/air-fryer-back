@@ -65,7 +65,7 @@ public class WebSocketEventHandler
 
             // 채팅방 조회
             ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                    .orElseThrow(() -> new RuntimeException("ChatRoom not found"));
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
 
             // 채팅방 참여 정보 조회
             ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), userId)
