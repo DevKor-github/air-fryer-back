@@ -63,9 +63,9 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
         }
 
-        // 구매가 가능한 제품인지 확인
+        // 대여(구매)가 가능한 제품인지 확인
         if(!Arrays.asList(item.getTransactionTypes()).contains(isRental ? TransactionType.RENTAL : TransactionType.SALE)) {
-            throw new CustomException(CustomExceptionCode.CANNOT_SALE_ITEM, null);
+            throw new CustomException(isRental ? CustomExceptionCode.CANNOT_RENTAL_ITEM :CustomExceptionCode.CANNOT_SALE_ITEM, null);
         }
 
         // 가격 협의가 불가능한데 가격을 바꾸지는 않았는지 체크
