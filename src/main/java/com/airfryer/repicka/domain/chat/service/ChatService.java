@@ -46,6 +46,32 @@ public class ChatService
 
     /// 서비스
 
+    // 채팅방 생성
+    @Transactional
+    public EnterChatRoomRes createChatRoom(User requester, Long itemId)
+    {
+        /// 제품 조회
+
+        // 제품 조회
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        // 이미 삭제된 제품인 경우, 예외 처리
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
+        /// 채팅방 조회 (존재하지 않으면 생성)
+
+        ChatRoom chatRoom = createChatRoom(item, requester);
+
+        // TODO: PICK 메시지 전송
+
+        /// 채팅방 입장 데이터 반환
+
+        return enterChatRoom(requester, chatRoom, 1);
+    }
+
     // 채팅방 ID로 채팅방에 입장할 때 필요한 데이터를 조회
     @Transactional
     public EnterChatRoomRes enterChatRoom(User user, Long chatRoomId, int pageSize)
@@ -65,7 +91,7 @@ public class ChatService
         /// 예외 처리
 
         // 채팅방 관계자인지 확인
-        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
+        if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
 
@@ -168,7 +194,7 @@ public class ChatService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 제품 소유자가 아닌 경우, 예외 처리
-        if(!item.getOwner().equals(user)) {
+        if(!Objects.equals(user.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_ITEM_OWNER, null);
         }
 
@@ -205,7 +231,7 @@ public class ChatService
         /// 예외 처리
 
         // 채팅방 관계자인지 확인
-        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
+        if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
 
@@ -297,7 +323,7 @@ public class ChatService
         /// 예외 처리
 
         // 요청자와 제품 소유자가 다른 사용자인지 체크
-        if(requester.equals(item.getOwner())) {
+        if(Objects.equals(requester.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
@@ -335,6 +361,10 @@ public class ChatService
                     .chatRoom(chatRoom)
                     .participant(item.getOwner())
                     .build());
+
+            /// 제품의 채팅방 개수 증가
+
+            item.addChatRoomCount();
 
             return chatRoom;
         }

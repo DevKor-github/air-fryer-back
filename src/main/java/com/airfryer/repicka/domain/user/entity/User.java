@@ -53,8 +53,12 @@ public class User extends BaseEntity
 
     private Integer height; // 키
     private Integer weight; // 몸무게
+    // fcm 토큰 업데이트
+    @Setter
     private String fcmToken; // 푸시알림 토큰
 
+    // 푸시 알림 활성화 여부 업데이트
+    @Setter
     @Builder.Default
     @NotNull
     private Boolean isPushEnabled = false; // 푸시알림 활성화 여부
@@ -64,35 +68,6 @@ public class User extends BaseEntity
 
     @NotNull
     private LocalDate lastAccessDate; // 마지막 접속 날짜
-
-    /// 객체 비교
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        User user = (User) o;
-        return id != null && id.equals(user.getId());
-    }
-
-    /// 해시 코드
-
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
-    }
-
-    // fcm 토큰 업데이트
-    public void setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
-    }
-
-    // 푸시 알림 활성화 여부 업데이트
-    public void setIsPushEnabled(Boolean isPushEnabled) {
-        this.isPushEnabled = isPushEnabled;
-    }
 
     // 프로필 업데이트
     public void updateProfile(UpdateUserReq profileDetail) {
