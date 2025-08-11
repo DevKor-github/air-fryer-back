@@ -268,6 +268,15 @@ public class AppointmentService
         // 채팅 전송
         chatWebSocketService.sendChatMessage(user, chatRoom, cancelChat);
 
+        /// 채팅 상대방에게 약속 취소 알림 전송
+
+        // 채팅 상대방 조회
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+        // 푸시 알림 전송
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), user.getNickname());
+        fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
+
         // TODO: 사용자 피드백 요청
 
         // 약속 데이터 반환
