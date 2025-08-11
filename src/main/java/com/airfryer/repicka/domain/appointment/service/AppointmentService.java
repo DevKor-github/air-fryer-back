@@ -245,14 +245,28 @@ public class AppointmentService
 
         /// 약속 취소
 
-        // 약속 상태 변경
-        appointment.cancel();
+        cancelAppointment(appointment, item);
 
-        // 약속 알림 발송 예약 취소
-        delayedQueueService.cancelDelayedTask("appointment", appointmentId);
+        /// 채팅방 조회 (존재하지 않으면 생성)
 
-        // 제품의 판매 예정 날짜 초기화
-        item.cancelSale();
+        ChatRoom chatRoom = chatService.createChatRoom(item, user);
+
+        /// 약속 취소 채팅 전송
+
+        // 채팅 저장
+        Chat cancelChat = Chat.builder()
+                .chatRoomId(chatRoom.getId())
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                .isPick(false)
+                .pickInfo(null)
+                .build();
+
+        chatRepository.save(cancelChat);
+
+        // 채팅 전송
+        chatWebSocketService.sendChatMessage(user, chatRoom, cancelChat);
 
         // TODO: 사용자 피드백 요청
 
@@ -402,14 +416,7 @@ public class AppointmentService
 
         /// 기존 약속 취소
 
-        // 약속 상태 변경
-        appointment.cancel();
-
-        // 약속 알림 발송 예약 취소
-        delayedQueueService.cancelDelayedTask("appointment", appointment.getId());
-
-        // 제품의 판매 예정 날짜 초기화
-        item.cancelSale();
+        cancelAppointment(appointment, item);
 
         /// 새로운 약속 생성
 
@@ -424,10 +431,27 @@ public class AppointmentService
 
         ChatRoom chatRoom = chatService.createChatRoom(item, user);
 
+        /// 약속 취소 채팅 전송
+
+        // 채팅 저장
+        Chat cancelChat = Chat.builder()
+                .chatRoomId(chatRoom.getId())
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                .isPick(false)
+                .pickInfo(null)
+                .build();
+
+        chatRepository.save(cancelChat);
+
+        // 채팅 전송
+        chatWebSocketService.sendChatMessage(user, chatRoom, cancelChat);
+
         /// PICK 메시지 전송
 
         // 채팅 저장
-        Chat chat = Chat.builder()
+        Chat pickChat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
                 .nickname(user.getNickname())
@@ -436,10 +460,10 @@ public class AppointmentService
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();
 
-        chatRepository.save(chat);
+        chatRepository.save(pickChat);
 
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, chat);
+        chatWebSocketService.sendChatMessage(user, chatRoom, pickChat);
 
         /// 데이터 반환
 
@@ -623,5 +647,20 @@ public class AppointmentService
             // 구매 날짜 가능 여부 체크
             checkSaleDatePossibility(dto.getRentalDate(), item);
         }
+    }
+
+    /// 약속 취소
+
+    @Transactional
+    public void cancelAppointment(Appointment appointment, Item item)
+    {
+        // 약속 상태 변경
+        appointment.cancel();
+
+        // 약속 알림 발송 예약 취소
+        delayedQueueService.cancelDelayedTask("appointment", appointment.getId());
+
+        // 제품의 판매 예정 날짜 초기화
+        item.cancelSale();
     }
 }
