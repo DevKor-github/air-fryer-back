@@ -37,7 +37,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler
         CustomOAuth2User userDetails = (CustomOAuth2User) authentication.getPrincipal();
         User user = userDetails.getUser();
 
-        /// 토큰 쿠기 생성
+        /// 토큰 쿠키 생성
 
         // 토큰 생성
         String accessToken = jwtUtil.createToken(user.getId(), Token.ACCESS_TOKEN);

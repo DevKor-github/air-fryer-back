@@ -1,10 +1,16 @@
 package com.airfryer.repicka.domain.user;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.common.aws.s3.S3Service;
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
+import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.dto.BaseUserDto;
+import com.airfryer.repicka.domain.user.dto.UpdateUserReq;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -14,8 +20,10 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     // fcm 토큰 업데이트
+    @Transactional
     public void updateFcmToken(Long userId, String fcmToken) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
@@ -24,10 +32,35 @@ public class UserService {
     }
 
     // 푸시 알림 활성화 여부 업데이트
+    @Transactional
     public void updatePush(Long userId, Boolean isPushEnabled) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
         user.setIsPushEnabled(isPushEnabled);
         userRepository.save(user);
+    }
+
+    // S3 Presigned URL 조회
+    public PresignedUrlRes getPresignedUrl(PresignedUrlReq req) {
+        return s3Service.generatePresignedUrl(req, "profile");
+    }
+
+    // 프로필 조회
+    @Transactional(readOnly = true)
+    public BaseUserDto getProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
+        return BaseUserDto.from(user);
+    }
+
+    // 프로필 업데이트
+    @Transactional
+    public BaseUserDto updateProfile(Long userId, UpdateUserReq req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
+        user.updateProfile(req);
+        userRepository.save(user);
+
+        return BaseUserDto.from(user);
     }
 }
