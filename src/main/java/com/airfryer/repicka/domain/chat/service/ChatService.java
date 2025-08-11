@@ -362,6 +362,10 @@ public class ChatService
                     .participant(item.getOwner())
                     .build());
 
+            /// 제품의 채팅방 개수 증가
+
+            item.addChatRoomCount();
+
             return chatRoom;
         }
     }
