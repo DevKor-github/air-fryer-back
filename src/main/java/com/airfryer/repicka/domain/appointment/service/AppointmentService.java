@@ -353,6 +353,29 @@ public class AppointmentService
         // 약속 데이터 변경
         appointment.update(user, dto, appointment.getType() == AppointmentType.RENTAL);
 
+        /// 채팅방 조회 (존재하지 않으면 생성)
+
+        ChatRoom chatRoom = chatService.createChatRoom(item, user);
+
+        /// PICK 메시지 전송
+
+        // 채팅 저장
+        Chat chat = Chat.builder()
+                .chatRoomId(chatRoom.getId())
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
+                .isPick(true)
+                .pickInfo(Chat.PickInfo.from(appointment))
+                .build();
+
+        chatRepository.save(chat);
+
+        // 채팅 전송
+        chatWebSocketService.sendChatMessage(user, chatRoom, chat);
+
+        /// 데이터 반환
+
         // 약속 데이터 반환
         return AppointmentRes.from(appointment);
     }
