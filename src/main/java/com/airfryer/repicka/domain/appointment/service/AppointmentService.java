@@ -243,19 +243,16 @@ public class AppointmentService
         // 제품 데이터 조회
         Item item = appointment.getItem();
 
-        // 구매 약속의 경우
-        if(appointment.getType() == AppointmentType.SALE)
-        {
-            // 제품의 판매 예정 날짜 변경
-            item.cancelSale();
-        }
+        /// 약속 취소
 
-        /// 약속 상태 변경
-
+        // 약속 상태 변경
         appointment.cancel();
 
         // 약속 알림 발송 예약 취소
         delayedQueueService.cancelDelayedTask("appointment", appointmentId);
+
+        // 제품의 판매 예정 날짜 초기화
+        item.cancelSale();
 
         // TODO: 사용자 피드백 요청
 
@@ -405,7 +402,7 @@ public class AppointmentService
 
         /// 기존 약속 취소
 
-        // 약속 취소
+        // 약속 상태 변경
         appointment.cancel();
 
         // 약속 알림 발송 예약 취소
@@ -423,7 +420,29 @@ public class AppointmentService
         // 약속 데이터 저장
         appointmentRepository.save(newAppointment);
 
-        // 약속 데이터 반환
+        /// 채팅방 조회 (존재하지 않으면 생성)
+
+        ChatRoom chatRoom = chatService.createChatRoom(item, user);
+
+        /// PICK 메시지 전송
+
+        // 채팅 저장
+        Chat chat = Chat.builder()
+                .chatRoomId(chatRoom.getId())
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
+                .isPick(true)
+                .pickInfo(Chat.PickInfo.from(appointment))
+                .build();
+
+        chatRepository.save(chat);
+
+        // 채팅 전송
+        chatWebSocketService.sendChatMessage(user, chatRoom, chat);
+
+        /// 데이터 반환
+
         return AppointmentRes.from(newAppointment);
     }
 
