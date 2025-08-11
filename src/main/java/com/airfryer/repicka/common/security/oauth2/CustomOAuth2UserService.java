@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -46,9 +46,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // 이미 존재하는 사용자가 아니라면 새로 추가
         if(existUser.isEmpty()) {
+            // 랜덤 4자리 숫자 생성
+            Random random = new Random();
+            int randomNumber = random.nextInt(9000) + 1000; // 1000~9999 범위의 4자리 숫자
+            
             user = User.builder()
                     .email(oAuth2Response.getEmail())
-                    .nickname("호랑이" + UUID.randomUUID())
+                    .nickname("호랑이" + randomNumber)
                     .loginMethod(oAuth2Response.getProvider())
                     .oauthId(oAuth2Response.getProviderId())
                     .role(Role.USER)

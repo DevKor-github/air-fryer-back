@@ -1,6 +1,8 @@
 package com.airfryer.repicka.domain.user.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
+import com.airfryer.repicka.domain.user.dto.UpdateUserReq;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -66,4 +68,13 @@ public class User extends BaseEntity
 
     @NotNull
     private LocalDate lastAccessDate; // 마지막 접속 날짜
+
+    // 프로필 업데이트
+    public void updateProfile(UpdateUserReq profileDetail) {
+        this.nickname = profileDetail.getNickname();
+        this.profileImageUrl = profileDetail.getProfileImageUrl();
+        this.gender = profileDetail.getGender();
+        this.height = profileDetail.getHeight();
+        this.weight = profileDetail.getWeight();
+    }
 }
