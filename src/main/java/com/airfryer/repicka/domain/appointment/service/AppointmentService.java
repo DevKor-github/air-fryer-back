@@ -120,7 +120,7 @@ public class AppointmentService
 
         /// 제품 소유자에게 약속 제시 알림
 
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), item.getOwner().getNickname());
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), requester.getNickname());
         fcmService.sendNotification(item.getOwner().getFcmToken(), notificationReq);
 
         /// PICK 메시지 전송
