@@ -78,7 +78,7 @@ public class AppointmentService
         }
 
         // 요청자와 제품 소유자가 다른 사용자인지 체크
-        if(item.getOwner().equals(requester)) {
+        if(Objects.equals(requester.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 

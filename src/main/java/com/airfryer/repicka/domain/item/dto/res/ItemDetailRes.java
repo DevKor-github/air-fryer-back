@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Builder
@@ -20,7 +21,7 @@ public class ItemDetailRes
 
     public static ItemDetailRes from(Item item, List<String> imageUrls, User currentUser, boolean isLiked)
     {
-        boolean isMine = (currentUser != null) && (currentUser.getId().equals(item.getOwner().getId()));
+        boolean isMine = (currentUser != null) && (Objects.equals(currentUser.getId(), item.getOwner().getId()));
 
         return ItemDetailRes.builder()
                 .itemId(item.getId())

@@ -66,18 +66,4 @@ public class User extends BaseEntity
 
     @NotNull
     private LocalDate lastAccessDate; // 마지막 접속 날짜
-
-    /// 객체 비교
-
-    public boolean equals(User user)
-    {
-        return id.equals(user.getId());
-    }
-
-    /// 해시 코드
-
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
-    }
 }

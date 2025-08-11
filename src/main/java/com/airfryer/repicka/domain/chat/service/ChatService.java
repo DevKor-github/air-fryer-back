@@ -65,7 +65,7 @@ public class ChatService
         /// 예외 처리
 
         // 채팅방 관계자인지 확인
-        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
+        if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
 
@@ -168,7 +168,7 @@ public class ChatService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 제품 소유자가 아닌 경우, 예외 처리
-        if(!item.getOwner().equals(user)) {
+        if(!Objects.equals(user.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_ITEM_OWNER, null);
         }
 
@@ -205,7 +205,7 @@ public class ChatService
         /// 예외 처리
 
         // 채팅방 관계자인지 확인
-        if(!chatRoom.getRequester().equals(user) && !chatRoom.getOwner().equals(user)) {
+        if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
 
@@ -297,7 +297,7 @@ public class ChatService
         /// 예외 처리
 
         // 요청자와 제품 소유자가 다른 사용자인지 체크
-        if(requester.equals(item.getOwner())) {
+        if(Objects.equals(requester.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 

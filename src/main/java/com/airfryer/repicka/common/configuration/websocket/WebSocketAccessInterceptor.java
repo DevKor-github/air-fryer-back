@@ -129,7 +129,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
 
         // 채팅방 참가자인지 확인
-        if(!chatRoom.getRequester().getId().equals(userId) && !chatRoom.getOwner().getId().equals(userId)) {
+        if(!Objects.equals(userId, chatRoom.getRequester().getId()) && !Objects.equals(userId, chatRoom.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
         }
 

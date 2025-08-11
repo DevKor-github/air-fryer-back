@@ -380,7 +380,7 @@ public class ItemService
         }
 
         // 요청자와 제품 소유자가 다른 사용자인지 체크
-        if(item.getOwner().equals(requester)) {
+        if(Objects.equals(requester.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
@@ -416,7 +416,7 @@ public class ItemService
             .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 권한 확인
-        if (!item.getOwner().getId().equals(user.getId())) {
+        if(!Objects.equals(user.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.ITEM_ACCESS_FORBIDDEN, null);
         }
 
