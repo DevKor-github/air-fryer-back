@@ -15,8 +15,11 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
+import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.repository.ChatRepository;
 import com.airfryer.repicka.domain.chat.service.ChatService;
+import com.airfryer.repicka.domain.chat.service.ChatWebSocketService;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
@@ -39,8 +42,10 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
+    private final ChatRepository chatRepository;
 
     private final ChatService chatService;
+    private final ChatWebSocketService chatWebSocketService;
     private final RedisService delayedQueueService;
     private final FCMService fcmService;
 
@@ -118,7 +123,22 @@ public class AppointmentService
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), item.getOwner().getNickname());
         fcmService.sendNotification(item.getOwner().getFcmToken(), notificationReq);
 
-        // TODO: PICK 메시지 전송
+        /// PICK 메시지 전송
+
+        // 채팅 저장
+        Chat chat = Chat.builder()
+                .chatRoomId(chatRoom.getId())
+                .userId(requester.getId())
+                .nickname(requester.getNickname())
+                .content(requester.getNickname() + " 님께서 설정하신 " + (isRental ? "대여" : "구매") + " 정보가 도착했어요.")
+                .isPick(true)
+                .pickInfo(Chat.PickInfo.from(appointment))
+                .build();
+
+        chatRepository.save(chat);
+
+        // 채팅 전송
+        chatWebSocketService.sendChatMessage(requester, chatRoom, chat);
 
         /// 채팅방 입장 데이터 반환
 

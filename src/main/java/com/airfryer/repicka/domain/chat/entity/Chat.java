@@ -40,6 +40,7 @@ public class Chat
     @NotNull
     private Boolean isPick;
 
+    // PICK 정보
     private PickInfo pickInfo;
 
     @Getter
