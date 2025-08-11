@@ -46,6 +46,32 @@ public class ChatService
 
     /// 서비스
 
+    // 채팅방 생성
+    @Transactional
+    public EnterChatRoomRes createChatRoom(User requester, Long itemId)
+    {
+        /// 제품 조회
+
+        // 제품 조회
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        // 이미 삭제된 제품인 경우, 예외 처리
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
+        /// 채팅방 조회 (존재하지 않으면 생성)
+
+        ChatRoom chatRoom = createChatRoom(item, requester);
+
+        // TODO: PICK 메시지 전송
+
+        /// 채팅방 입장 데이터 반환
+
+        return enterChatRoom(requester, chatRoom, 1);
+    }
+
     // 채팅방 ID로 채팅방에 입장할 때 필요한 데이터를 조회
     @Transactional
     public EnterChatRoomRes enterChatRoom(User user, Long chatRoomId, int pageSize)

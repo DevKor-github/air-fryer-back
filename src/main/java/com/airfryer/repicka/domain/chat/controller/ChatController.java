@@ -19,7 +19,20 @@ public class ChatController
 {
     private final ChatService chatService;
 
-    // TODO: 채팅방 생성
+    // 채팅방 생성
+    @PostMapping("/chatroom")
+    public ResponseEntity<SuccessResponseDto> createChatRoom(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                             @RequestBody @Valid CreateChatRoomReq createChatRoomReq)
+    {
+        User user = oAuth2User.getUser();
+        EnterChatRoomRes data = chatService.createChatRoom(user, createChatRoomReq.getItemId());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("채팅방을 성공적으로 생성하였습니다.")
+                        .data(data)
+                        .build());
+    }
 
     // 채팅방 ID로 채팅방에 입장할 때 필요한 데이터를 조회
     @GetMapping("/chatroom/{chatRoomId}/enter")
