@@ -46,7 +46,7 @@ public class ChatService
 
     /// 서비스
 
-    // 나의 채팅 페이지에서 채팅방 입장
+    // 채팅방 ID로 채팅방에 입장할 때 필요한 데이터를 조회
     @Transactional
     public EnterChatRoomRes enterChatRoom(User user, Long chatRoomId, int pageSize)
     {

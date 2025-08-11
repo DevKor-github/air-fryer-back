@@ -19,9 +19,9 @@ public class ChatController
 {
     private final ChatService chatService;
 
-    // TODO: 제품 페이지에서 채팅방 입장
+    // TODO: 채팅방 생성
 
-    // 나의 채팅 페이지에서 채팅방 입장
+    // 채팅방 ID로 채팅방에 입장할 때 필요한 데이터를 조회
     @GetMapping("/chatroom/{chatRoomId}/enter")
     public ResponseEntity<SuccessResponseDto> enterChatRoom(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                             @PathVariable Long chatRoomId,
