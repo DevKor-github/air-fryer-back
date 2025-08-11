@@ -22,13 +22,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             Long requesterId
     );
 
-    // 게시글 ID, 소유자 ID, 대여자 ID, 약속 상태, 약속 타입으로 약속 데이터 조회
-    List<Appointment> findByItemIdAndOwnerIdAndRequesterIdAndStateAndType(
+    // 제품 ID, 소유자 ID, 대여자 ID, 약속 상태 리스트로 약속 데이터 조회
+    List<Appointment> findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
             Long itemId,
             Long ownerId,
             Long requesterId,
-            AppointmentState state,
-            AppointmentType type
+            List<AppointmentState> state
     );
 
     // 제품 ID, 약속 상태로 반납 날짜가 가장 늦은 약속 데이터 조회

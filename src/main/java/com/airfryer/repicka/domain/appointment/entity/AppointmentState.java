@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public enum AppointmentState
 {
-    PENDING("PENDING", "제시"),
+    PENDING("PENDING", "협의중"),
     CONFIRMED("CONFIRMED", "확정"),
     CANCELLED("CANCELLED", "취소"),
     EXPIRED("EXPIRED", "만료"),

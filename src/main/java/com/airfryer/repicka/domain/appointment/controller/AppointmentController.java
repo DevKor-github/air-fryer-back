@@ -5,6 +5,7 @@ import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,40 +21,35 @@ public class AppointmentController
 {
     private final AppointmentService appointmentService;
 
-    // 게시글에서 대여 약속 제시
+    // 대여 약속 제시
     @PostMapping("/rental")
     public ResponseEntity<SuccessResponseDto> offerRentalAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                     @RequestBody @Valid OfferRentalAppointmentReq dto)
+                                                                     @RequestBody @Valid OfferAppointmentReq dto)
     {
         User borrower = oAuth2User.getUser();
-        appointmentService.offerRentalAppointment(borrower, dto);
+        EnterChatRoomRes data = appointmentService.proposeAppointment(borrower, dto, true);
 
-        // TODO: 채팅방 데이터와 약속 데이터를 응답해야 함.
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
                         .message("대여 약속을 성공적으로 제시하였습니다.")
-                        .data(null)
+                        .data(data)
                         .build());
     }
 
-    // 게시글에서 구매 약속 제시
+    // 구매 약속 제시
     @PostMapping("/sale")
     public ResponseEntity<SuccessResponseDto> offerSaleAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                   @RequestBody @Valid OfferSaleAppointmentReq dto)
+                                                                   @RequestBody @Valid OfferAppointmentReq dto)
     {
         User buyer = oAuth2User.getUser();
-        appointmentService.offerSaleAppointment(buyer, dto);
+        EnterChatRoomRes data = appointmentService.proposeAppointment(buyer, dto, false);
 
-        // TODO: 채팅방 데이터를 data로 응답해야 함.
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponseDto.builder()
-                        .message("판매 약속을 성공적으로 제시하였습니다.")
-                        .data(null)
+                        .message("구매 약속을 성공적으로 제시하였습니다.")
+                        .data(data)
                         .build());
     }
-
-    // TODO: 채팅방에서 대여 약속 제시 API 구현
-    // TODO: 채팅방에서 판매 약속 제시 API 구현
 
     // 약속 확정
     @PatchMapping("/{appointmentId}/confirm")
@@ -125,17 +121,47 @@ public class AppointmentController
                         .build());
     }
 
-    // 확정된 약속 변경 제시
-    @PatchMapping("/confirmed")
-    public ResponseEntity<SuccessResponseDto> offerToUpdateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                                @RequestBody @Valid OfferToUpdateConfirmedAppointmentReq dto)
+    // 완료되지 않은 약속 조회
+    @GetMapping("/current")
+    public ResponseEntity<SuccessResponseDto> findCurrentAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                     @RequestParam Long itemId)
     {
-        User user = oAuth2User.getUser();
-        AppointmentRes data = appointmentService.offerToUpdateConfirmedAppointment(user, dto);
+        User requester = oAuth2User.getUser();
+        CurrentAppointmentRes data = appointmentService.findCurrentAppointment(requester, itemId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
-                        .message("확정된 약속의 변경을 성공적으로 제시하였습니다.")
+                        .message("완료되지 않은 약속 데이터를 성공적으로 조회하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
+    // 협의 중인 약속 수정
+    @PatchMapping("/pending")
+    public ResponseEntity<SuccessResponseDto> updatePendingAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                       @RequestBody @Valid UpdateAppointmentReq dto)
+    {
+        User user = oAuth2User.getUser();
+        AppointmentRes data = appointmentService.updatePendingAppointment(user, dto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("협의 중인 약속을 성공적으로 수정하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
+    // 확정된 약속 수정
+    @PatchMapping("/confirmed")
+    public ResponseEntity<SuccessResponseDto> updateConfirmedAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                         @RequestBody @Valid UpdateAppointmentReq dto)
+    {
+        User user = oAuth2User.getUser();
+        AppointmentRes data = appointmentService.updateConfirmedAppointment(user, dto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("확정된 약속을 성공적으로 수정하였습니다.")
                         .data(data)
                         .build());
     }

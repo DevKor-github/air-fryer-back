@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
@@ -72,4 +73,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
             @Param("cursorId") Long cursorId,
             Pageable pageable
     );
+
+    /// 제품 ID, 소유자 ID, 요청자 ID로 채팅방 조회
+
+    Optional<ChatRoom> findByItemIdAndOwnerIdAndRequesterId(Long itemId, Long userId, Long requesterId);
 }

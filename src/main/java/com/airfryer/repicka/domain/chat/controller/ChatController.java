@@ -2,23 +2,15 @@ package com.airfryer.repicka.domain.chat.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.chat.dto.ChatPageDto;
-import com.airfryer.repicka.domain.chat.dto.ChatRoomListDto;
-import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
-import com.airfryer.repicka.domain.chat.dto.GetMyChatRoomPageReq;
-import com.airfryer.repicka.domain.chat.dto.SendChatDto;
+import com.airfryer.repicka.domain.chat.dto.*;
 import com.airfryer.repicka.domain.chat.service.ChatService;
 import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -43,15 +35,6 @@ public class ChatController
                         .message("채팅방에 성공적으로 입장하였습니다.")
                         .data(data)
                         .build());
-    }
-
-    // 채팅 전송
-    @MessageMapping("/chat")
-    public void send(Principal principal, SendChatDto dto)
-    {
-        CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
-        User user = oAuth2User.getUser();
-        chatService.sendMessage(user, dto);
     }
 
     // 내 채팅방 페이지 조회
@@ -81,7 +64,7 @@ public class ChatController
     public ResponseEntity<SuccessResponseDto> loadChat(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                        @PathVariable Long chatRoomId,
                                                        @RequestParam int pageSize,
-                                                       @RequestParam String cursorId)
+                                                       @RequestParam(required = false) String cursorId)
     {
         User user = oAuth2User.getUser();
         ChatPageDto data = chatService.loadChat(user, chatRoomId, pageSize, cursorId);

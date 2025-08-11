@@ -1,4 +1,4 @@
-package com.airfryer.repicka.common.configuration.chat;
+package com.airfryer.repicka.common.configuration.websocket;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -11,9 +11,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSocketMessageBroker
-public class ChatConfig implements WebSocketMessageBrokerConfigurer
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 {
-    private final ChatRoomAccessInterceptor chatRoomAccessInterceptor;
+    private final WebSocketAccessInterceptor webSocketAccessInterceptor;
 
     // STOMP 설정
     @Override
@@ -25,7 +25,8 @@ public class ChatConfig implements WebSocketMessageBrokerConfigurer
                 .setAllowedOrigins(
                         "http://localhost:5173",
                         "http://localhost:63342",
-                        "https://devkor-github.github.io"
+                        "https://devkor-github.github.io",
+                        "https://repicka.netlify.app"
                 )
                 .withSockJS();
     }
@@ -47,6 +48,6 @@ public class ChatConfig implements WebSocketMessageBrokerConfigurer
     // 구독 권한 체크 설정
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(chatRoomAccessInterceptor);
+        registration.interceptors(webSocketAccessInterceptor);
     }
 }
