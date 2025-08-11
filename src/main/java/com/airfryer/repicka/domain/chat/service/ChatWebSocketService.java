@@ -73,10 +73,18 @@ public class ChatWebSocketService
                 .nickname(user.getNickname())
                 .content(dto.getContent())
                 .isPick(false)
+                .pickInfo(null)
                 .build();
 
         chatRepository.save(chat);
 
+        sendChatMessage(user, chatRoom, chat);
+    }
+
+    // 채팅 전송
+    @Transactional
+    public void sendChatMessage(User user, ChatRoom chatRoom, Chat chat)
+    {
         /// 채팅방 마지막 채팅 시점 갱신
 
         chatRoom.renewLastChatAt();
@@ -96,7 +104,7 @@ public class ChatWebSocketService
 
             applicationEventPublisher.publishEvent(SubMessageEvent.builder()
                     .userId(null)
-                    .destination("/sub/chatroom/" + dto.getChatRoomId())
+                    .destination("/sub/chatroom/" + chatRoom.getId())
                     .message(message)
                     .build());
 
