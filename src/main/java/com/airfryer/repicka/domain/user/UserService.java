@@ -22,6 +22,7 @@ public class UserService {
     private final S3Service s3Service;
 
     // fcm 토큰 업데이트
+    @Transactional
     public void updateFcmToken(Long userId, String fcmToken) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
@@ -30,6 +31,7 @@ public class UserService {
     }
 
     // 푸시 알림 활성화 여부 업데이트
+    @Transactional
     public void updatePush(Long userId, Boolean isPushEnabled) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
@@ -43,6 +45,7 @@ public class UserService {
     }
 
     // 프로필 조회
+    @Transactional(readOnly = true)
     public BaseUserDto getProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
@@ -50,6 +53,7 @@ public class UserService {
     }
 
     // 프로필 업데이트
+    @Transactional
     public BaseUserDto updateProfile(Long userId, UpdateUserReq req) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, null));
