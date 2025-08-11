@@ -121,21 +121,6 @@ public class AppointmentController
                         .build());
     }
 
-    // 완료되지 않은 약속 조회
-    @GetMapping("/current")
-    public ResponseEntity<SuccessResponseDto> findCurrentAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                     @RequestParam Long itemId)
-    {
-        User requester = oAuth2User.getUser();
-        CurrentAppointmentRes data = appointmentService.findCurrentAppointment(requester, itemId);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("완료되지 않은 약속 데이터를 성공적으로 조회하였습니다.")
-                        .data(data)
-                        .build());
-    }
-
     // 협의 중인 약속 수정
     @PatchMapping("/pending")
     public ResponseEntity<SuccessResponseDto> updatePendingAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,

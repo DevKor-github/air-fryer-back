@@ -4,10 +4,12 @@ import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
+import com.airfryer.repicka.domain.appointment.dto.CurrentAppointmentRes;
 import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
 import com.airfryer.repicka.domain.item.dto.req.*;
 import com.airfryer.repicka.domain.item.dto.res.*;
 
+import com.airfryer.repicka.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -161,6 +163,21 @@ public class ItemController
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("제품 구매가 가능한 첫 날짜를 성공적으로 조회하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
+    // 완료되지 않은 약속 및 채팅방 조회
+    @GetMapping("/{itemId}/current")
+    public ResponseEntity<SuccessResponseDto> getCurrentInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                             @PathVariable Long itemId)
+    {
+        User requester = oAuth2User.getUser();
+        CurrentAppointmentRes data = itemService.findCurrentAppointment(requester, itemId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("완료되지 않은 약속 및 채팅방 데이터를 성공적으로 조회하였습니다.")
                         .data(data)
                         .build());
     }

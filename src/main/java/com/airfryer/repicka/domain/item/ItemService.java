@@ -5,12 +5,15 @@ import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.domain.appointment.dto.CurrentAppointmentRes;
 import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.item.dto.req.*;
 import com.airfryer.repicka.domain.item.dto.res.*;
 import com.airfryer.repicka.domain.item.dto.ItemPreviewDto;
@@ -44,6 +47,8 @@ public class ItemService
     private final AppointmentService appointmentService;
 
     private final ItemLikeRepository itemLikeRepository;
+
+    private final ChatRoomRepository chatRoomRepository;
 
     private final S3Service s3Service;
 
@@ -358,6 +363,47 @@ public class ItemService
         /// 제품 구매가 가능한 첫 날짜 반환
 
         return appointmentService.getFirstSaleAvailableDate(item.getId());
+    }
+
+    // 완료되지 않은 약속 및 채팅방 조회
+    @Transactional(readOnly = true)
+    public CurrentAppointmentRes findCurrentAppointment(User requester, Long itemId)
+    {
+        /// 제품 조회
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        // 제품 삭제 여부 확인
+        if(item.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
+        // 요청자와 제품 소유자가 다른 사용자인지 체크
+        if(item.getOwner().equals(requester)) {
+            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
+        }
+
+        /// 완료되지 않은 약속 조회
+
+        List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
+                item.getId(),
+                item.getOwner().getId(),
+                requester.getId(),
+                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
+        );
+
+        /// 채팅방 조회
+
+        Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(item.getId(), item.getOwner().getId(), requester.getId());
+
+        /// 데이터 반환
+
+        return CurrentAppointmentRes.from(
+                !currentAppointmentOptional.isEmpty(),
+                !currentAppointmentOptional.isEmpty() ? currentAppointmentOptional.getFirst() : null,
+                chatRoomOptional.orElse(null)
+        );
     }
 
     /// 공통 로직

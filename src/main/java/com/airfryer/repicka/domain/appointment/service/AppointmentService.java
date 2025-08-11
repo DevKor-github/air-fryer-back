@@ -16,7 +16,6 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
-import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.chat.service.ChatService;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
@@ -40,7 +39,6 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
-    private final ChatRoomRepository chatRoomRepository;
 
     private final ChatService chatService;
     private final RedisService delayedQueueService;
@@ -305,58 +303,6 @@ public class AppointmentService
                 cursorId,
                 hasNext
         );
-    }
-
-    // 완료되지 않은 약속 조회
-    @Transactional(readOnly = true)
-    public CurrentAppointmentRes findCurrentAppointment(User requester, Long itemId)
-    {
-        /// 제품 조회
-
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
-
-        // 제품 삭제 여부 확인
-        if(item.getIsDeleted()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
-        }
-
-        // 요청자와 제품 소유자가 다른 사용자인지 체크
-        if(item.getOwner().equals(requester)) {
-            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
-        }
-
-        /// 완료되지 않은 약속 조회
-
-        List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
-                item.getId(),
-                item.getOwner().getId(),
-                requester.getId(),
-                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
-        );
-
-        /// 데이터 반환
-
-        if(currentAppointmentOptional.isEmpty())
-        {
-            return CurrentAppointmentRes.from(false, null, null);
-        }
-        else
-        {
-            // 완료되지 않은 약속
-            Appointment currentAppointment = currentAppointmentOptional.getFirst();
-
-            // 채팅방 조회
-            Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(item.getId(), item.getOwner().getId(), requester.getId());
-
-            if(chatRoomOptional.isEmpty()) {
-                throw new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, null);
-            }
-
-            ChatRoom chatRoom = chatRoomOptional.get();
-
-            return CurrentAppointmentRes.from(true, currentAppointment, chatRoom);
-        }
     }
 
     // 협의 중인 약속 수정
