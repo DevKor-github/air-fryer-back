@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.user;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.airfryer.repicka.common.exception.CustomException;
