@@ -19,8 +19,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry)
     {
-        // STOMP 접속 주소 URL = ws://localhost:8080/ws
-        // 프로토콜이 http가 아님에 유의
         registry.addEndpoint("/ws")
                 .setAllowedOrigins(
                         "http://localhost:5173",
