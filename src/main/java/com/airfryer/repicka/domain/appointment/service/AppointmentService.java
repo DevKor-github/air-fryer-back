@@ -274,7 +274,7 @@ public class AppointmentService
         User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
         // 푸시 알림 전송
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), user.getNickname());
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, appointment.getId().toString(), user.getNickname());
         fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
 
         // TODO: 사용자 피드백 요청
