@@ -22,7 +22,7 @@ public class ParticipateChatRoom extends BaseEntity
 
     // 채팅방
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "chat_room")
     private ChatRoom chatRoom;
 
