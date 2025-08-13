@@ -12,7 +12,6 @@ import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRepository;
-import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
 import com.airfryer.repicka.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.Objects;
 @Slf4j
 public class ChatWebSocketService
 {
-    private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 

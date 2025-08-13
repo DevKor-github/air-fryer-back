@@ -42,8 +42,8 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
     private final ChatRepository chatRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 
-    ChatWebSocketService chatWebSocketService;
-    FCMService fcmService;
+    private final ChatWebSocketService chatWebSocketService;
+    private final FCMService fcmService;
 
     private final OnlineStatusManager onlineStatusManager;
     private final MappingSubWithRoomManager mappingSubWithRoomManager;
