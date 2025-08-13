@@ -54,4 +54,12 @@ public class ChatRoom extends BaseEntity
     public void renewLastChatAt() {
         this.lastChatAt = LocalDateTime.now();
     }
+
+    /// 채팅방 종료
+
+    public void finish()
+    {
+        this.lastChatAt = LocalDateTime.now();
+        this.isFinished = true;
+    }
 }
