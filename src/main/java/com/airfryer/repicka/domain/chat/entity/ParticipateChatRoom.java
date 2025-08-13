@@ -68,4 +68,12 @@ public class ParticipateChatRoom extends BaseEntity
         this.lastEnterAt = LocalDateTime.now();
         this.hasLeftRoom = true;
     }
+
+    /// 채팅방 재입장
+
+    public void reEnter()
+    {
+        this.lastEnterAt = LocalDateTime.now();
+        this.hasLeftRoom = false;
+    }
 }

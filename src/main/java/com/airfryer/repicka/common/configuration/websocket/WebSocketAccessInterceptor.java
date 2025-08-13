@@ -2,15 +2,23 @@ package com.airfryer.repicka.common.configuration.websocket;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
+import com.airfryer.repicka.common.firebase.service.FCMService;
+import com.airfryer.repicka.common.firebase.type.NotificationType;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
+import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
+import com.airfryer.repicka.domain.chat.repository.ChatRepository;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
+import com.airfryer.repicka.domain.chat.service.ChatWebSocketService;
 import com.airfryer.repicka.domain.chat.service.MappingSubWithRoomManager;
 import com.airfryer.repicka.domain.chat.service.OnlineStatusManager;
+import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.Message;
@@ -29,8 +37,13 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class WebSocketAccessInterceptor implements ChannelInterceptor
 {
+    private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatRepository chatRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
+
+    ChatWebSocketService chatWebSocketService;
+    FCMService fcmService;
 
     private final OnlineStatusManager onlineStatusManager;
     private final MappingSubWithRoomManager mappingSubWithRoomManager;
@@ -66,9 +79,42 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), userId)
                         .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-                // 이미 채팅방을 나갔는지 확인
-                if(participateChatRoom.getHasLeftRoom()) {
-                    throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
+                /// 채팅방 재입장 및 채팅방 재시작 처리
+
+                // 이미 채팅방을 나간 경우
+                if(participateChatRoom.getHasLeftRoom())
+                {
+                    // 채팅방 재입장
+                    participateChatRoom.reEnter();
+
+                    // 채팅방 재시작
+                    chatRoom.restart();
+
+                    // 사용자 조회
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, userId));
+
+                    // 채팅 상대방 조회
+                    User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+                    // 채팅 저장
+                    Chat reEnterChat = Chat.builder()
+                            .chatRoomId(chatRoom.getId())
+                            .userId(user.getId())
+                            .nickname(user.getNickname())
+                            .content(user.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                            .isPick(false)
+                            .pickInfo(null)
+                            .build();
+
+                    chatRepository.save(reEnterChat);
+
+                    // 채팅 전송
+                    chatWebSocketService.sendChatMessage(user, chatRoom, reEnterChat);
+
+                    // 푸시 알림 전송
+                    FCMNotificationReq reEnterNotificationReq = FCMNotificationReq.of(NotificationType.RE_ENTER_CHATROOM, chatRoom.getId().toString(), user.getNickname());
+                    fcmService.sendNotification(opponent.getFcmToken(), reEnterNotificationReq);
                 }
 
                 // (세션 ID + 구독 ID, 채팅방 ID) 매핑 정보 저장

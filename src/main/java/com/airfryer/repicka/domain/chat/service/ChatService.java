@@ -397,8 +397,8 @@ public class ChatService
         chatWebSocketService.sendChatMessage(user, chatRoom, leaveChat);
 
         // 푸시 알림 전송
-        FCMNotificationReq LeaveNotificationReq = FCMNotificationReq.of(NotificationType.LEAVE_CHATROOM, chatRoom.getId().toString(), user.getNickname());
-        fcmService.sendNotification(opponent.getFcmToken(), LeaveNotificationReq);
+        FCMNotificationReq leaveNotificationReq = FCMNotificationReq.of(NotificationType.LEAVE_CHATROOM, chatRoom.getId().toString(), user.getNickname());
+        fcmService.sendNotification(opponent.getFcmToken(), leaveNotificationReq);
     }
 
     /// 공통 로직
