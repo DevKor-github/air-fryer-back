@@ -41,13 +41,22 @@ public class ChatWebSocketService
     @Transactional
     public void sendChatMessage(User user, SendChatMessage dto)
     {
+        /// 채팅 상대방의 읽지 않은 채팅 개수 증가
+
+        // 채팅방 참여 정보 조회
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(dto.getChatRoomId(), user.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
         /// 채팅방 조회
 
-        // 채팅방 조회
-        ChatRoom chatRoom = chatRoomRepository.findById(dto.getChatRoomId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, dto.getChatRoomId()));
+        ChatRoom chatRoom = participateChatRoom.getChatRoom();
 
         /// 예외 처리
+
+        // 이미 채팅방을 나갔는지 확인
+        if(participateChatRoom.getHasLeftRoom()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
+        }
 
         // 이미 종료된 채팅방인지 확인
         if(chatRoom.getIsFinished()) {

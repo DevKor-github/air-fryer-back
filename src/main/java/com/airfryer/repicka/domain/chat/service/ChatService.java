@@ -316,7 +316,7 @@ public class ChatService
 
             /// 약속 취소 처리
 
-            // 제품의 판매 예정 날짜 변경
+            // 제품의 판매 예정 날짜 초기화
             currentAppointment.getItem().cancelSale();
 
             // 약속 취소
