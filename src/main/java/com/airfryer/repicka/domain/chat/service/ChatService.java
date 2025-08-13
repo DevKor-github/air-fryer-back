@@ -2,6 +2,10 @@ package com.airfryer.repicka.domain.chat.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
+import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
+import com.airfryer.repicka.common.firebase.service.FCMService;
+import com.airfryer.repicka.common.firebase.type.NotificationType;
+import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
@@ -43,6 +47,11 @@ public class ChatService
     private final AppointmentRepository appointmentRepository;
 
     private final OnlineStatusManager onlineStatusManager;
+
+    private final ChatWebSocketService chatWebSocketService;
+
+    private final RedisService delayedQueueService;
+    private final FCMService fcmService;
 
     /// 서비스
 
@@ -265,6 +274,107 @@ public class ChatService
                 nextCursorId,
                 hasNext
         );
+    }
+
+    // 채팅방 나가기
+    @Transactional
+    public void leaveChatRoom(User user, Long chatRoomId)
+    {
+        /// 채팅방 참여 데이터 조회
+
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, user.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        /// 채팅방 조회
+
+        ChatRoom chatRoom = participateChatRoom.getChatRoom();
+
+        /// 채팅 상대방 조회
+
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+        /// 완료되지 않은 약속 취소
+
+        // 완료되지 않은 약속 조회
+        List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
+                chatRoom.getItem().getId(),
+                chatRoom.getOwner().getId(),
+                chatRoom.getRequester().getId(),
+                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
+        );
+
+        // 완료되지 않은 약속이 존재하는 경우
+        if(!currentAppointmentOptional.isEmpty())
+        {
+            // 완료되지 않은 약속
+            Appointment currentAppointment = currentAppointmentOptional.getFirst();
+
+            // 완료되지 않은 약속이 대여 중 상태인 경우, 예외 처리
+            if(currentAppointment.getState().equals(AppointmentState.IN_PROGRESS)) {
+                throw new CustomException(CustomExceptionCode.IN_PROGRESS_APPOINTMENT_EXIST, null);
+            }
+
+            /// 약속 취소 처리
+
+            // 제품의 판매 예정 날짜 변경
+            currentAppointment.getItem().cancelSale();
+
+            // 약속 취소
+            currentAppointment.cancel();
+
+            // 약속 알림 발송 예약 취소
+            delayedQueueService.cancelDelayedTask("appointment", currentAppointment.getId());
+
+            /// 약속 취소 채팅 및 알림 전송
+
+            // 채팅 저장
+            Chat cancelChat = Chat.builder()
+                    .chatRoomId(chatRoom.getId())
+                    .userId(user.getId())
+                    .nickname(user.getNickname())
+                    .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                    .isPick(false)
+                    .pickInfo(null)
+                    .build();
+
+            chatRepository.save(cancelChat);
+
+            // 채팅 전송
+            chatWebSocketService.sendChatMessage(user, chatRoom, cancelChat);
+
+            // 푸시 알림 전송
+            FCMNotificationReq cancelNotificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, currentAppointment.getId().toString(), user.getNickname());
+            fcmService.sendNotification(opponent.getFcmToken(), cancelNotificationReq);
+        }
+
+        /// 채팅방 나가기 및 채팅방 종료 처리
+
+        // 채팅방 나가기
+        participateChatRoom.leave();
+
+        // 채팅방 종료
+        chatRoom.finish();
+
+        /// 채팅방 나가기 채팅 및 알림 전송
+
+        // 채팅 저장
+        Chat leaveChat = Chat.builder()
+                .chatRoomId(chatRoom.getId())
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .content(user.getNickname() + " 님께서 채팅방을 나갔습니다.")
+                .isPick(false)
+                .pickInfo(null)
+                .build();
+
+        chatRepository.save(leaveChat);
+
+        // 채팅 전송
+        chatWebSocketService.sendChatMessage(user, chatRoom, leaveChat);
+
+        // 푸시 알림 전송
+        FCMNotificationReq LeaveNotificationReq = FCMNotificationReq.of(NotificationType.LEAVE_CHATROOM, chatRoom.getId().toString(), user.getNickname());
+        fcmService.sendNotification(opponent.getFcmToken(), LeaveNotificationReq);
     }
 
     /// 공통 로직

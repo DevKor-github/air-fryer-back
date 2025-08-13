@@ -88,4 +88,19 @@ public class ChatController
                         .data(data)
                         .build());
     }
+
+    // 채팅방 나가기
+    @PatchMapping("/chatroom/{chatRoomId}/leave")
+    public ResponseEntity<SuccessResponseDto> leaveChatRoom(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                            @PathVariable Long chatRoomId)
+    {
+        User user = oAuth2User.getUser();
+        chatService.leaveChatRoom(user, chatRoomId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("채팅방을 성공적으로 나갔습습니다.")
+                        .data(null)
+                        .build());
+    }
 }
