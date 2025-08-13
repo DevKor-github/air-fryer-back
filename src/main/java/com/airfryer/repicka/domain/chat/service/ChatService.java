@@ -185,19 +185,23 @@ public class ChatService
         // Pageable 객체 생성
         Pageable pageable = PageRequest.of(0, dto.getPageSize() + 1);
 
-        // 채팅방 페이지
-        List<ChatRoom> chatRoomList;
+        // 채팅방 참여 정보 페이지
+        List<ParticipateChatRoom> participateChatRoomList;
 
         // 채팅방 페이지 조회
         if(dto.getCursorLastChatAt() == null || dto.getCursorId() == null) {
-            chatRoomList = chatRoomRepository.findFirstPageByUserId(user.getId(), pageable);
+            participateChatRoomList = participateChatRoomRepository.findFirstPageByUserId(user.getId(), pageable);
         } else {
-            chatRoomList = chatRoomRepository.findPageByUserId(user.getId(), dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
+            participateChatRoomList = participateChatRoomRepository.findPageByUserId(user.getId(), dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
         }
 
         /// 데이터 반환
 
-        return createChatRoomListDto(user, chatRoomList, dto.getPageSize());
+        return createChatRoomListDto(
+                user,
+                participateChatRoomList.stream().map(ParticipateChatRoom::getChatRoom).toList(),
+                dto.getPageSize()
+        );
     }
 
     // 내 제품의 채팅방 페이지 조회
@@ -220,19 +224,23 @@ public class ChatService
         // Pageable 객체 생성
         Pageable pageable = PageRequest.of(0, dto.getPageSize() + 1);
 
-        // 채팅방 페이지
-        List<ChatRoom> chatRoomList;
+        // 채팅방 참여 정보 페이지
+        List<ParticipateChatRoom> participateChatRoomList;
 
         // 채팅방 페이지 조회
         if(dto.getCursorLastChatAt() == null || dto.getCursorId() == null) {
-            chatRoomList = chatRoomRepository.findFirstPageByItemId(itemId, pageable);
+            participateChatRoomList = participateChatRoomRepository.findFirstPageByItemId(itemId, pageable);
         } else {
-            chatRoomList = chatRoomRepository.findPageByItemId(itemId, dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
+            participateChatRoomList = participateChatRoomRepository.findPageByItemId(itemId, dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
         }
 
         /// 데이터 반환
 
-        return createChatRoomListDto(user, chatRoomList, dto.getPageSize());
+        return createChatRoomListDto(
+                user,
+                participateChatRoomList.stream().map(ParticipateChatRoom::getChatRoom).toList(),
+                dto.getPageSize()
+        );
     }
 
     // 채팅 불러오기
