@@ -97,7 +97,17 @@ public class ChatService
     @Transactional
     public EnterChatRoomRes enterChatRoom(User user, ChatRoom chatRoom, int pageSize)
     {
+        /// 채팅방 참여 데이터 조회
+
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
         /// 예외 처리
+
+        // 이미 채팅방을 나갔는지 확인
+        if(participateChatRoom.getHasLeftRoom()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
+        }
 
         // 채팅방 관계자인지 확인
         if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
