@@ -11,11 +11,12 @@ import java.util.Date;
 @SuperBuilder
 public class ChatContent extends SubMessageContent
 {
-    private String chatId;      // 채팅 ID
-    private Long userId;        // 사용자 ID
-    private String content;     // 내용
-    private Boolean isPick;     // PICK 여부
-    private Date createdAt;     // 채팅 생성 날짜
+    private String chatId;              // 채팅 ID
+    private Long userId;                // 사용자 ID
+    private String content;             // 내용
+    private Boolean isPick;             // PICK 여부
+    private Chat.PickInfo pickInfo;     // PICK 정보
+    private Date createdAt;             // 채팅 생성 날짜
 
     public static ChatContent from(Chat chat)
     {
@@ -24,6 +25,7 @@ public class ChatContent extends SubMessageContent
                 .userId(chat.getUserId())
                 .content(chat.getContent())
                 .isPick(chat.getIsPick())
+                .pickInfo(chat.getPickInfo())
                 .createdAt(chat.getId().getDate())
                 .build();
     }
