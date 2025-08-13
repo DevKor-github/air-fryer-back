@@ -468,6 +468,34 @@ public class ChatService
         // 채팅방이 존재하지 않는다면 새로 생성하여 반환
         if(chatRoomOptional.isPresent())
         {
+            // 기존 채팅방
+            ChatRoom chatRoom = chatRoomOptional.get();
+
+            /// 채팅방 재입장
+
+            // 채팅방 참여 정보 조회
+            ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), requester.getId())
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+            // 요청자가 이미 채팅방을 나간 경우, 채팅방 재입장
+            if(participateChatRoom.getHasLeftRoom()) {
+                participateChatRoom.reEnter();
+            }
+
+            /// 채팅방 재시작
+
+            // 채팅 상대방 조회
+            User opponent = Objects.equals(chatRoom.getRequester().getId(), requester.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+            // 채팅방 상대방 참여 정보 조회
+            ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+            // 상대방이 채팅방을 나가지 않은 경우, 채팅방 재시작
+            if(!opponentParticipateChatRoom.getHasLeftRoom()) {
+                chatRoom.restart();
+            }
+
             return chatRoomOptional.get();
         }
         else
