@@ -68,6 +68,8 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
             // 채팅방 구독의 경우
             if(destination != null && destination.startsWith("/sub/chatroom/"))
             {
+                /// 데이터 조회
+
                 // 채팅방 ID 및 사용자 ID 조회
                 Long chatRoomId = Long.parseLong(destination.replace("/sub/chatroom/", ""));
                 Long userId = getUserId(accessor);
@@ -84,11 +86,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // 이미 채팅방을 나간 경우
                 if(participateChatRoom.getHasLeftRoom())
                 {
-                    // 채팅방 재입장
-                    participateChatRoom.reEnter();
-
-                    // 채팅방 재시작
-                    chatRoom.restart();
+                    /// 데이터 조회
 
                     // 사용자 조회
                     User user = userRepository.findById(userId)
@@ -96,6 +94,22 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
 
                     // 채팅 상대방 조회
                     User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+                    // 채팅방 상대방 참여 정보 조회
+                    ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
+                            .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+                    /// 채팅방 재입장
+
+                    participateChatRoom.reEnter();
+
+                    /// 상대방이 채팅방을 나가지 않은 경우, 채팅방 재시작
+
+                    if(!opponentParticipateChatRoom.getHasLeftRoom()) {
+                        chatRoom.restart();
+                    }
+
+                    /// 채팅방 재입장 채팅 및 알림 전송
 
                     // 채팅 저장
                     Chat reEnterChat = Chat.builder()
