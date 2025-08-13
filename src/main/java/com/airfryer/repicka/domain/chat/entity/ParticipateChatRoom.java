@@ -42,6 +42,11 @@ public class ParticipateChatRoom extends BaseEntity
     @Builder.Default
     private int unreadChatCount = 0;
 
+    // 채팅방 나감 여부
+    @NotNull
+    @Builder.Default
+    private Boolean hasLeftRoom = false;
+
     /// 채팅방 참여 정보 갱신
 
     public void renew()
@@ -51,7 +56,16 @@ public class ParticipateChatRoom extends BaseEntity
     }
 
     /// 읽지 않은 채팅 개수 증가
+
     public void increaseUnreadChatCount() {
         this.unreadChatCount++;
+    }
+
+    /// 채팅방 나가기
+
+    public void leave()
+    {
+        this.lastEnterAt = LocalDateTime.now();
+        this.hasLeftRoom = true;
     }
 }
