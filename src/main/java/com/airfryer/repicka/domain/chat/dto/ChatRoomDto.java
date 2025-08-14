@@ -2,7 +2,7 @@ package com.airfryer.repicka.domain.chat.dto;
 
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import lombok.Builder;
 import lombok.Getter;
 

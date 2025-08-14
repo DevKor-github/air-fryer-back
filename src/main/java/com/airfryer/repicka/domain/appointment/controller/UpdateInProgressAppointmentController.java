@@ -6,7 +6,7 @@ import com.airfryer.repicka.domain.appointment.dto.AppointmentRes;
 import com.airfryer.repicka.domain.appointment.dto.OfferToUpdateInProgressAppointmentReq;
 import com.airfryer.repicka.domain.appointment.dto.UpdateInProgressAppointmentRes;
 import com.airfryer.repicka.domain.appointment.service.UpdateInProgressAppointmentService;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

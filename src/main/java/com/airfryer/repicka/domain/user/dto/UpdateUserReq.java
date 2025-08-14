@@ -1,6 +1,6 @@
 package com.airfryer.repicka.domain.user.dto;
 
-import com.airfryer.repicka.domain.user.entity.Gender;
+import com.airfryer.repicka.domain.user.entity.user.Gender;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Max;

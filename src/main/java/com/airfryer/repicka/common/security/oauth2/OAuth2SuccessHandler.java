@@ -3,7 +3,7 @@ package com.airfryer.repicka.common.security.oauth2;
 import com.airfryer.repicka.common.security.jwt.JwtUtil;
 import com.airfryer.repicka.common.security.jwt.Token;
 import com.airfryer.repicka.common.security.redirect.CustomAuthorizationRequestResolver;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;

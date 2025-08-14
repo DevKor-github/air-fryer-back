@@ -23,7 +23,7 @@ import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.item.repository.ItemCustomRepository;
 import com.airfryer.repicka.domain.item_like.repository.ItemLikeRepository;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

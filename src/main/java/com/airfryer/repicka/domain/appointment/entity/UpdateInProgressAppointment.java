@@ -1,6 +1,6 @@
 package com.airfryer.repicka.domain.appointment.entity;
 
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
