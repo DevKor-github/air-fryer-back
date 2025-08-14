@@ -1,13 +1,11 @@
 package com.airfryer.repicka.domain.user;
 
+import com.airfryer.repicka.domain.user.dto.ReportUserReq;
+import com.airfryer.repicka.domain.user.entity.user.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 
@@ -77,5 +75,20 @@ public class UserController {
             .message("프로필을 성공적으로 수정하였습니다.")
             .data(userDetail)
             .build());
+    }
+
+    // 유저 신고
+    @PostMapping("/report")
+    public ResponseEntity<SuccessResponseDto> reportUser(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+                                                         @RequestBody @Valid ReportUserReq dto)
+    {
+        User reporter = customOAuth2User.getUser();
+        userService.reportUser(reporter, dto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("유저를 성공적으로 신고하였습니다.")
+                        .data(null)
+                        .build());
     }
 }
