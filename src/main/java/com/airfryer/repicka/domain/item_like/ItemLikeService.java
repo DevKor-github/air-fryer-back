@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
-import com.airfryer.repicka.domain.item_like.dto.ItemLikeRes;
+import com.airfryer.repicka.domain.item.dto.ItemPreviewDto;
 import com.airfryer.repicka.domain.item_like.entity.ItemLike;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item.entity.Item;
@@ -74,7 +74,7 @@ public class ItemLikeService
 
     // 좋아요 목록
     @Transactional(readOnly = true)
-    public List<ItemLikeRes> getPostLikes(User user)
+    public List<ItemPreviewDto> getPostLikes(User user)
     {
         // 좋아요 리스트 조회
         List<ItemLike> itemLikes = itemLikeRepository.findByLikerId(user.getId());
@@ -89,7 +89,7 @@ public class ItemLikeService
         Map<Long, String> thumbnailMap = itemImageService.getThumbnailsForItems(items);
 
         return items.stream()
-            .map(item -> ItemLikeRes.from(item, thumbnailMap.get(item.getId())))
+            .map(item -> ItemPreviewDto.from(item, thumbnailMap.get(item.getId())))
             .toList();
     }
 }
