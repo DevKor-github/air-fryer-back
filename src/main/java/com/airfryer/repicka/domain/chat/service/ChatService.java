@@ -137,9 +137,9 @@ public class ChatService
 
         /// 예외 처리
 
-        // 채팅방 관계자인지 확인
-        if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
-            throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
+        // 이미 채팅방을 나갔는지 확인
+        if(participateChatRoom.getHasLeftRoom()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
         }
 
         /// 제품 썸네일 URL 조회
@@ -295,9 +295,9 @@ public class ChatService
 
         /// 예외 처리
 
-        // 채팅방 관계자인지 확인
-        if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
-            throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
+        // 이미 채팅방을 나갔는지 확인
+        if(participateChatRoom.getHasLeftRoom()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
         }
 
         /// 채팅 페이지 조회
