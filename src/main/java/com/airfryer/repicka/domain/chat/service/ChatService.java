@@ -124,7 +124,7 @@ public class ChatService
         Pageable pageable = PageRequest.of(0, pageSize + 1);
 
         // 채팅 페이지 조회
-        List<Chat> chatPage = chatRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId(), pageable);
+        List<Chat> chatPage = chatRepository.findFirstChatList(chatRoom.getId(), participateChatRoom.getLastReEnterAt(), pageable);
 
         /// 채팅 페이지 정보 계산
 
@@ -277,8 +277,8 @@ public class ChatService
 
         // 채팅 페이지 조회
         List<Chat> chatPage = cursorId == null ?
-                chatRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable):
-                chatRepository.findByChatRoomIdAndIdLessThanEqualOrderByIdDesc(chatRoomId, new ObjectId(cursorId), pageable);
+                chatRepository.findFirstChatList(chatRoomId, participateChatRoom.getLastReEnterAt(), pageable):
+                chatRepository.findChatList(chatRoomId, participateChatRoom.getLastReEnterAt(), new ObjectId(cursorId), pageable);
 
         /// 채팅 페이지 정보 계산
 

@@ -47,6 +47,11 @@ public class ParticipateChatRoom extends BaseEntity
     @Builder.Default
     private Boolean hasLeftRoom = false;
 
+    // 마지막 재입장 시점
+    @NotNull
+    @Builder.Default
+    private LocalDateTime lastReEnterAt = LocalDateTime.now();
+
     /// 채팅방 참여 정보 갱신
 
     public void renew()
@@ -75,5 +80,6 @@ public class ParticipateChatRoom extends BaseEntity
     {
         this.lastEnterAt = LocalDateTime.now();
         this.hasLeftRoom = false;
+        this.lastReEnterAt = LocalDateTime.now();
     }
 }

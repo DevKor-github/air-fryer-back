@@ -81,7 +81,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), userId)
                         .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-                /// 채팅방 재입장 및 채팅방 재시작 처리
+                /// 채팅방 재입장 처리
 
                 // 이미 채팅방을 나간 경우
                 if(participateChatRoom.getHasLeftRoom())
