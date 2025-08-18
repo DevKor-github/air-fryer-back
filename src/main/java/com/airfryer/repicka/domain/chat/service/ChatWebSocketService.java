@@ -89,14 +89,25 @@ public class ChatWebSocketService
 
         chatRoom.renewLastChatAt();
 
+        /// 채팅 상대방의 읽지 않은 채팅 개수 증가
+
+        // 채팅 상대방 정보 조회
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+        // 상대방의 채팅방 참여 정보 조회
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
+        if(!onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())) {
+            opponentParticipateChatRoom.increaseUnreadChatCount();
+        }
+
         /// 구독자에게 소켓 메시지 및 푸시 알림 전송
 
         // 메시지 생성
         SubMessage message = SubMessage.createChatMessage(chat);
-        SubMessage userMessage = SubMessage.createChatMessageByUser(chat);
-
-        // 채팅 상대방 정보
-        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+        SubMessage userMessage = SubMessage.createChatMessageByUser(chatRoom, user, chat, opponentParticipateChatRoom.getUnreadChatCount());
 
         try {
 
@@ -123,17 +134,6 @@ public class ChatWebSocketService
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new CustomException(CustomExceptionCode.INTERNAL_CHAT_ERROR, e.getMessage());
-        }
-
-        /// 채팅 상대방의 읽지 않은 채팅 개수 증가
-
-        // 상대방의 채팅방 참여 정보 조회
-        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
-        // 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
-        if(!onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())) {
-            opponentParticipateChatRoom.increaseUnreadChatCount();
         }
     }
 }

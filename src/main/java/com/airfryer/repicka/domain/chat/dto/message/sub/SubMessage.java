@@ -5,6 +5,7 @@ import com.airfryer.repicka.domain.chat.dto.message.sub.content.ChatContentByUse
 import com.airfryer.repicka.domain.chat.dto.message.sub.content.EnterOrExitContent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,11 +51,11 @@ public class SubMessage
                 .build();
     }
 
-    public static SubMessage createChatMessageByUser(Chat chat)
+    public static SubMessage createChatMessageByUser(ChatRoom chatRoom, User me, Chat mostRecentChat, int unreadChatCount)
     {
         return SubMessage.builder()
                 .type(SubMessageType.CHAT)
-                .message(ChatContentByUser.from(chat))
+                .message(ChatContentByUser.from(chatRoom, me, mostRecentChat, unreadChatCount))
                 .build();
     }
 }
