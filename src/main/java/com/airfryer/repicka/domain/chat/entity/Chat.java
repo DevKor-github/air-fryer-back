@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -46,6 +47,10 @@ public class Chat
 
     // PICK 정보
     private PickInfo pickInfo;
+
+    // 생성 시점
+    @CreatedDate
+    private LocalDateTime createdAt;
 
     @Getter
     @Builder(access = AccessLevel.PRIVATE)

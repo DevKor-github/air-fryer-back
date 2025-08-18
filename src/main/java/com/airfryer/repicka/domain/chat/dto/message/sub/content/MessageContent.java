@@ -5,7 +5,7 @@ import com.airfryer.repicka.domain.chat.entity.Chat;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @SuperBuilder
@@ -17,7 +17,7 @@ public class MessageContent extends SubChatContent
     private Boolean isNotification;     // 안내 메시지 여부
     private Boolean isPick;             // PICK 여부
     private Chat.PickInfo pickInfo;     // PICK 정보
-    private Date createdAt;             // 채팅 생성 날짜
+    private LocalDateTime createdAt;    // 채팅 생성 날짜
 
     public static MessageContent from(Chat chat)
     {
@@ -28,7 +28,7 @@ public class MessageContent extends SubChatContent
                 .isNotification(chat.getIsNotification())
                 .isPick(chat.getIsPick())
                 .pickInfo(chat.getPickInfo())
-                .createdAt(chat.getId().getDate())
+                .createdAt(chat.getCreatedAt())
                 .build();
     }
 }

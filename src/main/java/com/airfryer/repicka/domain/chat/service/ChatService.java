@@ -30,10 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -130,11 +127,6 @@ public class ChatService
         ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-        /// 마지막 재입장 시점으로 ObjectId 생성
-
-        Instant instant = participateChatRoom.getLastReEnterAt().atZone(ZoneId.systemDefault()).toInstant();
-        ObjectId lastReEnterObjectId = new ObjectId(Date.from(instant));
-
         /// 예외 처리
 
         // 이미 채팅방을 나갔는지 확인
@@ -154,7 +146,7 @@ public class ChatService
         Pageable pageable = PageRequest.of(0, pageSize + 1);
 
         // 채팅 페이지 조회
-        List<Chat> chatPage = chatRepository.findFirstChatList(chatRoom.getId(), lastReEnterObjectId, pageable);
+        List<Chat> chatPage = chatRepository.findFirstChatList(chatRoom.getId(), participateChatRoom.getLastReEnterAt(), pageable);
 
         /// 채팅 페이지 정보 계산
 
@@ -288,11 +280,6 @@ public class ChatService
         ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-        /// 마지막 재입장 시점으로 ObjectId 생성
-
-        Instant instant = participateChatRoom.getLastReEnterAt().atZone(ZoneId.systemDefault()).toInstant();
-        ObjectId lastReEnterObjectId = new ObjectId(Date.from(instant));
-
         /// 예외 처리
 
         // 이미 채팅방을 나갔는지 확인
@@ -307,8 +294,8 @@ public class ChatService
 
         // 채팅 페이지 조회
         List<Chat> chatPage = cursorId == null ?
-                chatRepository.findFirstChatList(chatRoomId, lastReEnterObjectId, pageable):
-                chatRepository.findChatList(chatRoomId, lastReEnterObjectId, new ObjectId(cursorId), pageable);
+                chatRepository.findFirstChatList(chatRoomId, participateChatRoom.getLastReEnterAt(), pageable):
+                chatRepository.findChatList(chatRoomId, new ObjectId(cursorId), participateChatRoom.getLastReEnterAt(), pageable);
 
         /// 채팅 페이지 정보 계산
 

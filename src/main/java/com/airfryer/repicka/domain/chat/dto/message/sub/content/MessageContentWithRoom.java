@@ -18,7 +18,7 @@ public class MessageContentWithRoom extends MessageContent
                 .content(chat.getContent())
                 .isNotification(chat.getIsNotification())
                 .isPick(chat.getIsPick())
-                .createdAt(chat.getId().getDate())
+                .createdAt(chat.getCreatedAt())
                 .chatRoomId(chat.getChatRoomId())
                 .build();
     }
