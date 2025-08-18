@@ -18,11 +18,11 @@ public class SubChat
     private SubChatType type;        // 구독 메시지 타입
     private SubChatContent message;  // 구독 메시지 내용
 
-    public static SubChat createEnterMessage(ChatRoom chatRoom,
-                                             boolean isRequesterOnline,
-                                             boolean isOwnerOnline,
-                                             LocalDateTime requesterLastEnterAt,
-                                             LocalDateTime ownerLastEnterAt)
+    public static SubChat createEnterChat(ChatRoom chatRoom,
+                                          boolean isRequesterOnline,
+                                          boolean isOwnerOnline,
+                                          LocalDateTime requesterLastEnterAt,
+                                          LocalDateTime ownerLastEnterAt)
     {
         return SubChat.builder()
                 .type(SubChatType.ENTER)
@@ -30,11 +30,11 @@ public class SubChat
                 .build();
     }
 
-    public static SubChat createExitMessage(ChatRoom chatRoom,
-                                            boolean isRequesterOnline,
-                                            boolean isOwnerOnline,
-                                            LocalDateTime requesterLastEnterAt,
-                                            LocalDateTime ownerLastEnterAt)
+    public static SubChat createExitChat(ChatRoom chatRoom,
+                                         boolean isRequesterOnline,
+                                         boolean isOwnerOnline,
+                                         LocalDateTime requesterLastEnterAt,
+                                         LocalDateTime ownerLastEnterAt)
     {
         return SubChat.builder()
                 .type(SubChatType.EXIT)
@@ -42,7 +42,7 @@ public class SubChat
                 .build();
     }
 
-    public static SubChat createChatMessage(Chat chat)
+    public static SubChat createMessageChat(Chat chat)
     {
         return SubChat.builder()
                 .type(SubChatType.CHAT)
@@ -50,7 +50,7 @@ public class SubChat
                 .build();
     }
 
-    public static SubChat createChatMessageWithRoom(Chat chat)
+    public static SubChat createMessageChatWithRoom(Chat chat)
     {
         return SubChat.builder()
                 .type(SubChatType.CHAT)

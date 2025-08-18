@@ -74,6 +74,32 @@ public class ChatService
 
         ChatRoom chatRoom = createChatRoom(item, requester);
 
+        /// 채팅방 재입장
+
+        // 채팅방 참여 정보 조회
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), requester.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 이미 채팅방을 나간 경우
+        if(participateChatRoom.getHasLeftRoom())
+        {
+            // 채팅방 재입장 처리
+            participateChatRoom.reEnter();
+
+            // 채팅방 재입장 채팅 생성
+            Chat reEnterChat = Chat.builder()
+                    .chatRoomId(chatRoom.getId())
+                    .userId(requester.getId())
+                    .nickname(requester.getNickname())
+                    .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isPick(false)
+                    .pickInfo(null)
+                    .build();
+
+            // 채팅방 재입장 채팅 전송
+            chatWebSocketService.sendMessageChat(requester, chatRoom, reEnterChat);
+        }
+
         /// 채팅방 입장 데이터 반환
 
         return enterChatRoom(requester, chatRoom, 1);
@@ -101,11 +127,6 @@ public class ChatService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         /// 예외 처리
-
-        // 이미 채팅방을 나갔는지 확인
-        if(participateChatRoom.getHasLeftRoom()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
-        }
 
         // 채팅방 관계자인지 확인
         if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
@@ -260,11 +281,6 @@ public class ChatService
 
         /// 예외 처리
 
-        // 이미 채팅방을 나갔는지 확인
-        if(participateChatRoom.getHasLeftRoom()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
-        }
-
         // 채팅방 관계자인지 확인
         if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
@@ -370,7 +386,7 @@ public class ChatService
                     .build();
 
             // 채팅 전송
-            chatWebSocketService.sendChat(user, chatRoom, cancelChat);
+            chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
 
             // 푸시 알림 전송
             FCMNotificationReq cancelNotificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, currentAppointment.getId().toString(), user.getNickname());
@@ -395,7 +411,7 @@ public class ChatService
                 .build();
 
         // 채팅 전송
-        chatWebSocketService.sendChat(user, chatRoom, leaveChat);
+        chatWebSocketService.sendMessageChat(user, chatRoom, leaveChat);
     }
 
     /// 공통 로직
@@ -465,35 +481,6 @@ public class ChatService
         // 채팅방이 존재하지 않는다면 새로 생성하여 반환
         if(chatRoomOptional.isPresent())
         {
-            // 기존 채팅방
-            ChatRoom chatRoom = chatRoomOptional.get();
-
-            /// 채팅방 재입장
-
-            // 채팅방 참여 정보 조회
-            ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), requester.getId())
-                    .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
-            // 요청자가 이미 채팅방을 나간 경우
-            if(participateChatRoom.getHasLeftRoom())
-            {
-                // 채팅방 재입장 처리
-                participateChatRoom.reEnter();
-
-                // 채팅방 재입장 채팅 생성
-                Chat reEnterChat = Chat.builder()
-                        .chatRoomId(chatRoom.getId())
-                        .userId(requester.getId())
-                        .nickname(requester.getNickname())
-                        .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
-                        .isPick(false)
-                        .pickInfo(null)
-                        .build();
-
-                // 채팅방 재입장 채팅 전송
-                chatWebSocketService.sendChat(requester, chatRoom, reEnterChat);
-            }
-
             return chatRoomOptional.get();
         }
         else

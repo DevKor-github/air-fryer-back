@@ -82,7 +82,7 @@ public class WebSocketEventHandler
             ParticipateChatRoom owner = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, chatRoom.getOwner().getId()).orElseThrow();
 
             // 채팅방 퇴장 메시지
-            SubChat exitMessage = SubChat.createExitMessage(
+            SubChat exitMessage = SubChat.createExitChat(
                     chatRoom,
                     onlineStatusManager.isUserOnline(chatRoomId, chatRoom.getRequester().getId()),
                     onlineStatusManager.isUserOnline(chatRoomId, chatRoom.getOwner().getId()),

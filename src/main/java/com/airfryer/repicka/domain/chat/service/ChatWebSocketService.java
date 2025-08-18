@@ -65,6 +65,35 @@ public class ChatWebSocketService
             throw new CustomException(CustomExceptionCode.INVALID_CHAT_MESSAGE, null);
         }
 
+        /// 상대방의 채팅방 재입장
+
+        // 채팅 상대방 정보 조회
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+        // 상대방의 채팅방 참여 정보 조회
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 요청자가 이미 채팅방을 나간 경우
+        if(opponentParticipateChatRoom.getHasLeftRoom())
+        {
+            // 채팅방 재입장 처리
+            opponentParticipateChatRoom.reEnter();
+
+            // 채팅방 재입장 채팅 생성
+            Chat reEnterChat = Chat.builder()
+                    .chatRoomId(chatRoom.getId())
+                    .userId(opponent.getId())
+                    .nickname(opponent.getNickname())
+                    .content(opponent.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isPick(false)
+                    .pickInfo(null)
+                    .build();
+
+            // 채팅방 재입장 채팅 전송
+            sendMessageChat(opponent, chatRoom, reEnterChat);
+        }
+
         /// 채팅 생성
 
         Chat chat = Chat.builder()
@@ -78,12 +107,12 @@ public class ChatWebSocketService
 
         /// 채팅 전송
 
-        sendChat(user, chatRoom, chat);
+        sendMessageChat(user, chatRoom, chat);
     }
 
     // 채팅 전송
     @Transactional
-    public void sendChat(User user, ChatRoom chatRoom, Chat chat)
+    public void sendMessageChat(User user, ChatRoom chatRoom, Chat chat)
     {
         /// 채팅 저장
 
@@ -110,8 +139,8 @@ public class ChatWebSocketService
         /// 구독자에게 소켓 메시지 및 푸시 알림 전송
 
         // 메시지 생성
-        SubChat message = SubChat.createChatMessage(chat);
-        SubChat messageWithRoom = SubChat.createChatMessageWithRoom(chat);
+        SubChat message = SubChat.createMessageChat(chat);
+        SubChat messageWithRoom = SubChat.createMessageChatWithRoom(chat);
 
         try {
 

@@ -103,7 +103,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                             .build();
 
                     // 채팅 전송
-                    chatWebSocketService.sendChat(user, chatRoom, reEnterChat);
+                    chatWebSocketService.sendMessageChat(user, chatRoom, reEnterChat);
                 }
 
                 // (세션 ID + 구독 ID, 채팅방 ID) 매핑 정보 저장
@@ -191,8 +191,8 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
 
         // 입장/퇴장 메시지 생성
         SubChat message = isEnter ?
-                SubChat.createEnterMessage(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt()) :
-                SubChat.createExitMessage(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt());
+                SubChat.createEnterChat(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt()) :
+                SubChat.createExitChat(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt());
 
         // 입장/퇴장 이벤트 발생
         applicationEventPublisher.publishEvent(SubMessageEvent.builder()

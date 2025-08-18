@@ -113,15 +113,19 @@ public class AppointmentService
 
         /// 채팅방 재입장
 
-        // 채팅방 참여 정보 조회
-        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), requester.getId())
+        // 요청자의 채팅방 참여 정보 조회
+        ParticipateChatRoom requesterParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), requester.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 제품 소유자의 채팅방 참여 정보 조회
+        ParticipateChatRoom ownerParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), item.getOwner().getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         // 요청자가 이미 채팅방을 나간 경우
-        if(participateChatRoom.getHasLeftRoom())
+        if(requesterParticipateChatRoom.getHasLeftRoom())
         {
             // 채팅방 재입장 처리
-            participateChatRoom.reEnter();
+            requesterParticipateChatRoom.reEnter();
 
             // 채팅방 재입장 채팅 생성
             Chat reEnterChat = Chat.builder()
@@ -134,7 +138,27 @@ public class AppointmentService
                     .build();
 
             // 채팅방 재입장 채팅 전송
-            chatWebSocketService.sendChat(requester, chatRoom, reEnterChat);
+            chatWebSocketService.sendMessageChat(requester, chatRoom, reEnterChat);
+        }
+
+        // 제품 소유자가 이미 채팅방을 나간 경우
+        if(ownerParticipateChatRoom.getHasLeftRoom())
+        {
+            // 채팅방 재입장 처리
+            ownerParticipateChatRoom.reEnter();
+
+            // 채팅방 재입장 채팅 생성
+            Chat reEnterChat = Chat.builder()
+                    .chatRoomId(chatRoom.getId())
+                    .userId(item.getOwner().getId())
+                    .nickname(item.getOwner().getNickname())
+                    .content(item.getOwner().getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isPick(false)
+                    .pickInfo(null)
+                    .build();
+
+            // 채팅방 재입장 채팅 전송
+            chatWebSocketService.sendMessageChat(item.getOwner(), chatRoom, reEnterChat);
         }
 
         /// 새로운 약속 데이터 생성
@@ -163,7 +187,7 @@ public class AppointmentService
                 .build();
 
         // 채팅 전송
-        chatWebSocketService.sendChat(requester, chatRoom, chat);
+        chatWebSocketService.sendMessageChat(requester, chatRoom, chat);
 
         /// 채팅방 입장 데이터 반환
 
@@ -289,7 +313,7 @@ public class AppointmentService
                 .build();
 
         // 채팅 전송
-        chatWebSocketService.sendChat(user, chatRoom, cancelChat);
+        chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
 
         /// 채팅 상대방에게 약속 취소 알림 전송
 
@@ -413,7 +437,7 @@ public class AppointmentService
                 .build();
 
         // 채팅 전송
-        chatWebSocketService.sendChat(user, chatRoom, chat);
+        chatWebSocketService.sendMessageChat(user, chatRoom, chat);
 
         /// 데이터 반환
 
@@ -474,7 +498,7 @@ public class AppointmentService
                 .build();
 
         // 채팅 전송
-        chatWebSocketService.sendChat(user, chatRoom, cancelChat);
+        chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
 
         /// PICK 메시지 전송
 
@@ -489,7 +513,7 @@ public class AppointmentService
                 .build();
 
         // 채팅 전송
-        chatWebSocketService.sendChat(user, chatRoom, pickChat);
+        chatWebSocketService.sendMessageChat(user, chatRoom, pickChat);
 
         /// 데이터 반환
 
