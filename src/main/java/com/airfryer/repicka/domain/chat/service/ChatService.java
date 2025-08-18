@@ -382,7 +382,7 @@ public class ChatService
         /// 채팅방 나가기 및 채팅방 종료 처리
 
         // 채팅방 나가기
-        participateChatRoom.leave();
+        participateChatRoom.exit();
 
         // 채팅방 종료
         chatRoom.finish();

@@ -99,7 +99,7 @@ public class ChatController
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
-                        .message("채팅방을 성공적으로 나갔습습니다.")
+                        .message("채팅방을 성공적으로 나갔습니다.")
                         .data(null)
                         .build());
     }

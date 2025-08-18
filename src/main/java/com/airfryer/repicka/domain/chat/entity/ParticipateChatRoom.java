@@ -63,7 +63,7 @@ public class ParticipateChatRoom extends BaseEntity
 
     /// 채팅방 나가기
 
-    public void leave()
+    public void exit()
     {
         this.lastEnterAt = LocalDateTime.now();
         this.hasLeftRoom = true;
