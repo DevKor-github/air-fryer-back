@@ -6,7 +6,7 @@ import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.firebase.type.NotificationType;
 import com.airfryer.repicka.domain.chat.dto.message.pub.SendMessageChatReq;
-import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubChat;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
@@ -110,8 +110,8 @@ public class ChatWebSocketService
         /// 구독자에게 소켓 메시지 및 푸시 알림 전송
 
         // 메시지 생성
-        SubMessage message = SubMessage.createChatMessage(chat);
-        SubMessage messageWithRoom = SubMessage.createChatMessageWithRoom(chat);
+        SubChat message = SubChat.createChatMessage(chat);
+        SubChat messageWithRoom = SubChat.createChatMessageWithRoom(chat);
 
         try {
 
