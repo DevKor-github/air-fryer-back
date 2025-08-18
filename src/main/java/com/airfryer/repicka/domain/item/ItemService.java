@@ -371,8 +371,11 @@ public class ItemService
     {
         /// 제품 조회
 
+        // 제품 조회
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+
+        /// 예외 처리
 
         // 제품 삭제 여부 확인
         if(item.getIsDeleted()) {
