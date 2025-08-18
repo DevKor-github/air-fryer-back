@@ -400,10 +400,6 @@ public class ChatService
 
         // 채팅 전송
         chatWebSocketService.sendChatMessage(user, chatRoom, leaveChat);
-
-        // 푸시 알림 전송
-        FCMNotificationReq leaveNotificationReq = FCMNotificationReq.of(NotificationType.LEAVE_CHATROOM, chatRoom.getId().toString(), user.getNickname());
-        fcmService.sendNotification(opponent.getFcmToken(), leaveNotificationReq);
     }
 
     /// 공통 로직
@@ -482,9 +478,26 @@ public class ChatService
             ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), requester.getId())
                     .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-            // 요청자가 이미 채팅방을 나간 경우, 채팅방 재입장
-            if(participateChatRoom.getHasLeftRoom()) {
+            // 요청자가 이미 채팅방을 나간 경우
+            if(participateChatRoom.getHasLeftRoom())
+            {
+                // 채팅방 재입장 처리
                 participateChatRoom.reEnter();
+
+                // 채팅방 재입장 채팅 저장
+                Chat reEnterChat = Chat.builder()
+                        .chatRoomId(chatRoom.getId())
+                        .userId(requester.getId())
+                        .nickname(requester.getNickname())
+                        .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                        .isPick(false)
+                        .pickInfo(null)
+                        .build();
+
+                chatRepository.save(reEnterChat);
+
+                // 채팅방 재입장 채팅 전송
+                chatWebSocketService.sendChatMessage(requester, chatRoom, reEnterChat);
             }
 
             return chatRoomOptional.get();

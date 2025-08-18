@@ -17,7 +17,9 @@ import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRepository;
+import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
 import com.airfryer.repicka.domain.chat.service.ChatService;
 import com.airfryer.repicka.domain.chat.service.ChatWebSocketService;
 import com.airfryer.repicka.domain.item.entity.Item;
@@ -43,6 +45,7 @@ public class AppointmentService
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final ChatRepository chatRepository;
+    private final ParticipateChatRoomRepository participateChatRoomRepository;
 
     private final ChatService chatService;
     private final ChatWebSocketService chatWebSocketService;
@@ -106,6 +109,38 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.CURRENT_APPOINTMENT_EXIST, null);
         }
 
+        /// 채팅방 조회 (존재하지 않으면 생성)
+
+        ChatRoom chatRoom = chatService.createChatRoom(item, requester);
+
+        /// 채팅방 재입장
+
+        // 채팅방 참여 정보 조회
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), requester.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 요청자가 이미 채팅방을 나간 경우
+        if(participateChatRoom.getHasLeftRoom())
+        {
+            // 채팅방 재입장 처리
+            participateChatRoom.reEnter();
+
+            // 채팅방 재입장 채팅 저장
+            Chat reEnterChat = Chat.builder()
+                    .chatRoomId(chatRoom.getId())
+                    .userId(requester.getId())
+                    .nickname(requester.getNickname())
+                    .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isPick(false)
+                    .pickInfo(null)
+                    .build();
+
+            chatRepository.save(reEnterChat);
+
+            // 채팅방 재입장 채팅 전송
+            chatWebSocketService.sendChatMessage(requester, chatRoom, reEnterChat);
+        }
+
         /// 새로운 약속 데이터 생성
 
         // 새로운 약속 데이터
@@ -113,10 +148,6 @@ public class AppointmentService
 
         // 약속 데이터 저장
         appointmentRepository.save(appointment);
-
-        /// 채팅방 조회 (존재하지 않으면 생성)
-
-        ChatRoom chatRoom = chatService.createChatRoom(item, requester);
 
         /// 제품 소유자에게 약속 제시 알림
 
