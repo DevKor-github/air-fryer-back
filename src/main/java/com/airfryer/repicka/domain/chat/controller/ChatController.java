@@ -90,12 +90,12 @@ public class ChatController
     }
 
     // 채팅방 나가기
-    @PatchMapping("/chatroom/{chatRoomId}/leave")
-    public ResponseEntity<SuccessResponseDto> leaveChatRoom(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                            @PathVariable Long chatRoomId)
+    @PatchMapping("/chatroom/{chatRoomId}/exit")
+    public ResponseEntity<SuccessResponseDto> exitChatRoom(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                           @PathVariable Long chatRoomId)
     {
         User user = oAuth2User.getUser();
-        chatService.leaveChatRoom(user, chatRoomId);
+        chatService.exitChatRoom(user, chatRoomId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()

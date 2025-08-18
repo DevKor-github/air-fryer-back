@@ -304,7 +304,7 @@ public class ChatService
 
     // 채팅방 나가기
     @Transactional
-    public void leaveChatRoom(User user, Long chatRoomId)
+    public void exitChatRoom(User user, Long chatRoomId)
     {
         /// 채팅방 참여 데이터 조회
 
