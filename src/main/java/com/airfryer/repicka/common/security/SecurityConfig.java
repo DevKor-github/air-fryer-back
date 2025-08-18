@@ -109,6 +109,7 @@ public class SecurityConfig
                         // Test
                         .requestMatchers("/api/test/is-login").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/chatTest.html").permitAll()
+                        .requestMatchers("/api/test/fcm").permitAll()
 
                         .anyRequest().authenticated()
                 );

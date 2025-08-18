@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.airfryer.repicka.domain.item_like.dto.ItemLikeRes;
+import com.airfryer.repicka.domain.item.dto.ItemPreviewDto;
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 
@@ -39,7 +39,7 @@ public class ItemLikeController
     @GetMapping
     public ResponseEntity<SuccessResponseDto> getPostLikes(@AuthenticationPrincipal CustomOAuth2User user)
     {
-        List<ItemLikeRes> postLikes = itemLikeService.getPostLikes(user.getUser());
+        List<ItemPreviewDto> postLikes = itemLikeService.getPostLikes(user.getUser());
 
         return ResponseEntity.ok(SuccessResponseDto.builder()
             .message("제품 좋아요 목록을 성공적으로 조회했습니다.")
