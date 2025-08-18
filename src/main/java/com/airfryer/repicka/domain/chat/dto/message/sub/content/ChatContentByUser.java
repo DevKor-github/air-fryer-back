@@ -6,13 +6,13 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class ChatContentWithRoom extends ChatContent
+public class ChatContentByUser extends ChatContent
 {
     private Long chatRoomId;
 
-    public static ChatContentWithRoom from(Chat chat)
+    public static ChatContentByUser from(Chat chat)
     {
-        return ChatContentWithRoom.builder()
+        return ChatContentByUser.builder()
                 .chatId(chat.getId().toHexString())
                 .userId(chat.getUserId())
                 .content(chat.getContent())

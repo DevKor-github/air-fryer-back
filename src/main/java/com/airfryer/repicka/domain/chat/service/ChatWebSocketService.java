@@ -93,7 +93,7 @@ public class ChatWebSocketService
 
         // 메시지 생성
         SubMessage message = SubMessage.createChatMessage(chat);
-        SubMessage messageWithRoom = SubMessage.createChatMessageWithRoom(chat);
+        SubMessage userMessage = SubMessage.createChatMessageByUser(chat);
 
         // 채팅 상대방 정보
         User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
@@ -111,7 +111,7 @@ public class ChatWebSocketService
             applicationEventPublisher.publishEvent(SubMessageEvent.builder()
                     .userId(opponent.getId())
                     .destination("/sub")
-                    .message(messageWithRoom)
+                    .message(userMessage)
                     .build());
 
             /// 푸시 알림 전송

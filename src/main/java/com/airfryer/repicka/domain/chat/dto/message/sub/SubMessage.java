@@ -1,7 +1,7 @@
 package com.airfryer.repicka.domain.chat.dto.message.sub;
 
 import com.airfryer.repicka.domain.chat.dto.message.sub.content.ChatContent;
-import com.airfryer.repicka.domain.chat.dto.message.sub.content.ChatContentWithRoom;
+import com.airfryer.repicka.domain.chat.dto.message.sub.content.ChatContentByUser;
 import com.airfryer.repicka.domain.chat.dto.message.sub.content.EnterOrExitContent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
@@ -50,11 +50,11 @@ public class SubMessage
                 .build();
     }
 
-    public static SubMessage createChatMessageWithRoom(Chat chat)
+    public static SubMessage createChatMessageByUser(Chat chat)
     {
         return SubMessage.builder()
                 .type(SubMessageType.CHAT)
-                .message(ChatContentWithRoom.from(chat))
+                .message(ChatContentByUser.from(chat))
                 .build();
     }
 }
