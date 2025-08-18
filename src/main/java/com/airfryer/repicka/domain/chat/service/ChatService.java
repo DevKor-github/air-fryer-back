@@ -379,13 +379,10 @@ public class ChatService
             fcmService.sendNotification(opponent.getFcmToken(), cancelNotificationReq);
         }
 
-        /// 채팅방 나가기 및 채팅방 종료 처리
+        /// 채팅방 나가기 처리
 
         // 채팅방 나가기
         participateChatRoom.exit();
-
-        // 채팅방 종료
-        chatRoom.finish();
 
         /// 채팅방 나가기 채팅 및 알림 전송
 
@@ -488,20 +485,6 @@ public class ChatService
             // 요청자가 이미 채팅방을 나간 경우, 채팅방 재입장
             if(participateChatRoom.getHasLeftRoom()) {
                 participateChatRoom.reEnter();
-            }
-
-            /// 채팅방 재시작
-
-            // 채팅 상대방 조회
-            User opponent = Objects.equals(chatRoom.getRequester().getId(), requester.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
-
-            // 채팅방 상대방 참여 정보 조회
-            ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
-                    .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
-            // 상대방이 채팅방을 나가지 않은 경우, 채팅방 재시작
-            if(!opponentParticipateChatRoom.getHasLeftRoom()) {
-                chatRoom.restart();
             }
 
             return chatRoomOptional.get();

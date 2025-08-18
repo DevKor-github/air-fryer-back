@@ -56,11 +56,6 @@ public class ChatWebSocketService
             throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
         }
 
-        // 이미 종료된 채팅방인지 확인
-        if(chatRoom.getIsFinished()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_FINISHED_CHATROOM, null);
-        }
-
         // 채팅방 관계자인지 확인
         if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);

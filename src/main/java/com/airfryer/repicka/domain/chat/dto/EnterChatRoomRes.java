@@ -55,7 +55,6 @@ public class EnterChatRoomRes
         private Boolean isOpponentKorean;           // 상대방의 고려대 인증 여부
         private Boolean isOpponentOnline;           // 상대방의 온라인 여부
         private LocalDateTime opponentLastEnterAt;  // 상대방의 마지막 채팅방 입장 시점
-        private Boolean isFinished;                 // 채팅방 종료 여부
         private LocalDateTime lastChatAt;           // 마지막 채팅 시점
 
         private static ChatRoomDto from(ChatRoom chatRoom, User me, boolean isOpponentOnline, ParticipateChatRoom opponentParticipateChatRoom)
@@ -71,7 +70,6 @@ public class EnterChatRoomRes
                     .isOpponentKorean(opponent.getIsKoreaUnivVerified())
                     .isOpponentOnline(isOpponentOnline)
                     .opponentLastEnterAt(opponentParticipateChatRoom.getLastEnterAt())
-                    .isFinished(chatRoom.getIsFinished())
                     .lastChatAt(chatRoom.getLastChatAt())
                     .build();
         }

@@ -39,11 +39,6 @@ public class ChatRoom extends BaseEntity
     @JoinColumn(name = "owner")
     private User owner;
 
-    // 종료 여부
-    @NotNull
-    @Builder.Default
-    private Boolean isFinished = false;
-
     // 마지막 채팅 시점
     @NotNull
     @Builder.Default
@@ -53,21 +48,5 @@ public class ChatRoom extends BaseEntity
 
     public void renewLastChatAt() {
         this.lastChatAt = LocalDateTime.now();
-    }
-
-    /// 채팅방 종료
-
-    public void finish()
-    {
-        this.lastChatAt = LocalDateTime.now();
-        this.isFinished = true;
-    }
-
-    /// 채팅방 재시작
-
-    public void restart()
-    {
-        this.lastChatAt = LocalDateTime.now();
-        this.isFinished = false;
     }
 }

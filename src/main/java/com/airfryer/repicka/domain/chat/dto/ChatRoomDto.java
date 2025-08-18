@@ -19,7 +19,6 @@ public class ChatRoomDto
     private String opponentNickname;            // 상대방의 닉네임
     private String opponentProfileImageUrl;     // 상대방의 프로필 이미지 URL
     private Boolean isOpponentKorean;           // 상대방의 고려대 인증 여부
-    private Boolean isFinished;                 // 채팅방 종료 여부
     private String mostRecentChatContent;       // 가장 최근 채팅 내용
     private String mostRecentChatNickname;      // 가장 최근 채팅을 보낸 사용자 닉네임
     private Boolean mostRecentChatIsPick;       // 가장 최근 채팅 PICK 메시지 여부
@@ -37,7 +36,6 @@ public class ChatRoomDto
                 .opponentNickname(opponent.getNickname())
                 .opponentProfileImageUrl(opponent.getProfileImageUrl())
                 .isOpponentKorean(opponent.getIsKoreaUnivVerified())
-                .isFinished(chatRoom.getIsFinished())
                 .mostRecentChatContent(mostRecentChat != null ? mostRecentChat.getContent() : null)
                 .mostRecentChatNickname(mostRecentChat != null ? mostRecentChat.getNickname() : null)
                 .mostRecentChatIsPick(mostRecentChat != null ? mostRecentChat.getIsPick() : null)

@@ -95,19 +95,9 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                     // 채팅 상대방 조회
                     User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
-                    // 채팅방 상대방 참여 정보 조회
-                    ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
-                            .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
                     /// 채팅방 재입장
 
                     participateChatRoom.reEnter();
-
-                    /// 상대방이 채팅방을 나가지 않은 경우, 채팅방 재시작
-
-                    if(!opponentParticipateChatRoom.getHasLeftRoom()) {
-                        chatRoom.restart();
-                    }
 
                     /// 채팅방 재입장 채팅 및 알림 전송
 
