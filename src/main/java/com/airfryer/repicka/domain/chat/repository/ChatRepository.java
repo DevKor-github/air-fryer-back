@@ -18,12 +18,12 @@ public interface ChatRepository extends MongoRepository<Chat, ObjectId>
 
     // 커서 기반 페이지네이션 (cursor: 채팅 ID)
     // 최신순 정렬
-    @Query(value = "{ 'chatRoomId': ?0, '_id': { $lte: ?1 }, 'createdAt': { $gte: ?1 } }", sort = "{ '_id': -1 }")
-    List<Chat> findChatList(Long chatRoomId, LocalDateTime lastReEnterAt, ObjectId id, Pageable pageable);
+    @Query(value = "{ 'chatRoomId': ?0, '_id': { $lte: ?1, $gte: ?2 } }", sort = "{ '_id': -1 }")
+    List<Chat> findChatList(Long chatRoomId, ObjectId cursorId, ObjectId lastReEnterObjectId, Pageable pageable);
 
     // 첫 페이지 조회
-    @Query(value = "{ 'chatRoomId': ?0, 'createdAt': { $gte: ?1 } }", sort = "{ '_id': -1 }")
-    List<Chat> findFirstChatList(Long chatRoomId, LocalDateTime lastReEnterAt, Pageable pageable);
+    @Query(value = "{ 'chatRoomId': ?0, '_id': { $gte: ?1 } }", sort = "{ '_id': -1 }")
+    List<Chat> findFirstChatList(Long chatRoomId, ObjectId lastReEnterObjectId, Pageable pageable);
 
     /// 채팅방 ID로 가장 최근 채팅 조회
 
