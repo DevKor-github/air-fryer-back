@@ -359,7 +359,7 @@ public class ChatService
 
             /// 약속 취소 채팅 및 알림 전송
 
-            // 채팅 저장
+            // 채팅 생성
             Chat cancelChat = Chat.builder()
                     .chatRoomId(chatRoom.getId())
                     .userId(user.getId())
@@ -369,10 +369,8 @@ public class ChatService
                     .pickInfo(null)
                     .build();
 
-            chatRepository.save(cancelChat);
-
             // 채팅 전송
-            chatWebSocketService.sendChatMessage(user, chatRoom, cancelChat);
+            chatWebSocketService.sendChat(user, chatRoom, cancelChat);
 
             // 푸시 알림 전송
             FCMNotificationReq cancelNotificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, currentAppointment.getId().toString(), user.getNickname());
@@ -386,7 +384,7 @@ public class ChatService
 
         /// 채팅방 나가기 채팅 및 알림 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat leaveChat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
@@ -396,10 +394,8 @@ public class ChatService
                 .pickInfo(null)
                 .build();
 
-        chatRepository.save(leaveChat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, leaveChat);
+        chatWebSocketService.sendChat(user, chatRoom, leaveChat);
     }
 
     /// 공통 로직
@@ -484,7 +480,7 @@ public class ChatService
                 // 채팅방 재입장 처리
                 participateChatRoom.reEnter();
 
-                // 채팅방 재입장 채팅 저장
+                // 채팅방 재입장 채팅 생성
                 Chat reEnterChat = Chat.builder()
                         .chatRoomId(chatRoom.getId())
                         .userId(requester.getId())
@@ -494,10 +490,8 @@ public class ChatService
                         .pickInfo(null)
                         .build();
 
-                chatRepository.save(reEnterChat);
-
                 // 채팅방 재입장 채팅 전송
-                chatWebSocketService.sendChatMessage(requester, chatRoom, reEnterChat);
+                chatWebSocketService.sendChat(requester, chatRoom, reEnterChat);
             }
 
             return chatRoomOptional.get();

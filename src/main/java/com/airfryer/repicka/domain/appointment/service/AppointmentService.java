@@ -44,7 +44,6 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
-    private final ChatRepository chatRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 
     private final ChatService chatService;
@@ -125,7 +124,7 @@ public class AppointmentService
             // 채팅방 재입장 처리
             participateChatRoom.reEnter();
 
-            // 채팅방 재입장 채팅 저장
+            // 채팅방 재입장 채팅 생성
             Chat reEnterChat = Chat.builder()
                     .chatRoomId(chatRoom.getId())
                     .userId(requester.getId())
@@ -135,10 +134,8 @@ public class AppointmentService
                     .pickInfo(null)
                     .build();
 
-            chatRepository.save(reEnterChat);
-
             // 채팅방 재입장 채팅 전송
-            chatWebSocketService.sendChatMessage(requester, chatRoom, reEnterChat);
+            chatWebSocketService.sendChat(requester, chatRoom, reEnterChat);
         }
 
         /// 새로운 약속 데이터 생성
@@ -156,7 +153,7 @@ public class AppointmentService
 
         /// PICK 메시지 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat chat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(requester.getId())
@@ -166,10 +163,8 @@ public class AppointmentService
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();
 
-        chatRepository.save(chat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(requester, chatRoom, chat);
+        chatWebSocketService.sendChat(requester, chatRoom, chat);
 
         /// 채팅방 입장 데이터 반환
 
@@ -284,7 +279,7 @@ public class AppointmentService
 
         /// 약속 취소 채팅 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat cancelChat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
@@ -294,10 +289,8 @@ public class AppointmentService
                 .pickInfo(null)
                 .build();
 
-        chatRepository.save(cancelChat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, cancelChat);
+        chatWebSocketService.sendChat(user, chatRoom, cancelChat);
 
         /// 채팅 상대방에게 약속 취소 알림 전송
 
@@ -410,7 +403,7 @@ public class AppointmentService
 
         /// PICK 메시지 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat chat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
@@ -420,10 +413,8 @@ public class AppointmentService
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();
 
-        chatRepository.save(chat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, chat);
+        chatWebSocketService.sendChat(user, chatRoom, chat);
 
         /// 데이터 반환
 
@@ -473,7 +464,7 @@ public class AppointmentService
 
         /// 약속 취소 채팅 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat cancelChat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
@@ -483,14 +474,12 @@ public class AppointmentService
                 .pickInfo(null)
                 .build();
 
-        chatRepository.save(cancelChat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, cancelChat);
+        chatWebSocketService.sendChat(user, chatRoom, cancelChat);
 
         /// PICK 메시지 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat pickChat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
@@ -500,10 +489,8 @@ public class AppointmentService
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();
 
-        chatRepository.save(pickChat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, pickChat);
+        chatWebSocketService.sendChat(user, chatRoom, pickChat);
 
         /// 데이터 반환
 

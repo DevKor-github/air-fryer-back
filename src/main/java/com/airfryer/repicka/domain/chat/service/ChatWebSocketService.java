@@ -5,7 +5,7 @@ import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.firebase.type.NotificationType;
-import com.airfryer.repicka.domain.chat.dto.message.pub.SendChatMessage;
+import com.airfryer.repicka.domain.chat.dto.message.pub.SendMessageChatReq;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
@@ -37,16 +37,15 @@ public class ChatWebSocketService
 
     // 채팅 전송
     @Transactional
-    public void sendChatMessage(User user, SendChatMessage dto)
+    public void sendMessageChat(User user, SendMessageChatReq dto)
     {
-        /// 채팅 상대방의 읽지 않은 채팅 개수 증가
+        /// 데이터 조회
 
         // 채팅방 참여 정보 조회
         ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(dto.getChatRoomId(), user.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-        /// 채팅방 조회
-
+        // 채팅방 조회
         ChatRoom chatRoom = participateChatRoom.getChatRoom();
 
         /// 예외 처리
@@ -66,9 +65,8 @@ public class ChatWebSocketService
             throw new CustomException(CustomExceptionCode.INVALID_CHAT_MESSAGE, null);
         }
 
-        /// 채팅 저장
+        /// 채팅 생성
 
-        // 채팅 저장
         Chat chat = Chat.builder()
                 .chatRoomId(dto.getChatRoomId())
                 .userId(user.getId())
@@ -78,27 +76,42 @@ public class ChatWebSocketService
                 .pickInfo(null)
                 .build();
 
-        chatRepository.save(chat);
+        /// 채팅 전송
 
-        sendChatMessage(user, chatRoom, chat);
+        sendChat(user, chatRoom, chat);
     }
 
     // 채팅 전송
     @Transactional
-    public void sendChatMessage(User user, ChatRoom chatRoom, Chat chat)
+    public void sendChat(User user, ChatRoom chatRoom, Chat chat)
     {
+        /// 채팅 저장
+
+        chatRepository.save(chat);
+
         /// 채팅방 마지막 채팅 시점 갱신
 
         chatRoom.renewLastChatAt();
+
+        /// 채팅 상대방의 읽지 않은 채팅 개수 증가
+
+        // 채팅 상대방 정보 조회
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+        // 상대방의 채팅방 참여 정보 조회
+        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
+        if(!onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())) {
+            opponentParticipateChatRoom.increaseUnreadChatCount();
+        }
 
         /// 구독자에게 소켓 메시지 및 푸시 알림 전송
 
         // 메시지 생성
         SubMessage message = SubMessage.createChatMessage(chat);
         SubMessage messageWithRoom = SubMessage.createChatMessageWithRoom(chat);
-
-        // 채팅 상대방 정보
-        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
         try {
 
@@ -125,17 +138,6 @@ public class ChatWebSocketService
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new CustomException(CustomExceptionCode.INTERNAL_CHAT_ERROR, e.getMessage());
-        }
-
-        /// 채팅 상대방의 읽지 않은 채팅 개수 증가
-
-        // 상대방의 채팅방 참여 정보 조회
-        ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
-
-        // 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
-        if(!onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())) {
-            opponentParticipateChatRoom.increaseUnreadChatCount();
         }
     }
 }

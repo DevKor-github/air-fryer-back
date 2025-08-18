@@ -2,7 +2,6 @@ package com.airfryer.repicka.common.configuration.websocket;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
@@ -37,7 +36,6 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
 {
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
-    private final ChatRepository chatRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 
     private final ChatWebSocketService chatWebSocketService;
@@ -95,7 +93,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
 
                     /// 채팅방 재입장 채팅 전송
 
-                    // 채팅 저장
+                    // 채팅 생성
                     Chat reEnterChat = Chat.builder()
                             .chatRoomId(chatRoom.getId())
                             .userId(user.getId())
@@ -105,10 +103,8 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                             .pickInfo(null)
                             .build();
 
-                    chatRepository.save(reEnterChat);
-
                     // 채팅 전송
-                    chatWebSocketService.sendChatMessage(user, chatRoom, reEnterChat);
+                    chatWebSocketService.sendChat(user, chatRoom, reEnterChat);
                 }
 
                 // (세션 ID + 구독 ID, 채팅방 ID) 매핑 정보 저장
