@@ -16,6 +16,7 @@ public class MessageContentWithRoom extends MessageContent
                 .chatId(chat.getId().toHexString())
                 .userId(chat.getUserId())
                 .content(chat.getContent())
+                .isNotification(chat.getIsNotification())
                 .isPick(chat.getIsPick())
                 .createdAt(chat.getId().getDate())
                 .chatRoomId(chat.getChatRoomId())

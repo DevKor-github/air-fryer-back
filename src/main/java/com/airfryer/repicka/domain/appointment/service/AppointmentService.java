@@ -133,6 +133,7 @@ public class AppointmentService
                     .userId(requester.getId())
                     .nickname(requester.getNickname())
                     .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isNotification(true)
                     .isPick(false)
                     .pickInfo(null)
                     .build();
@@ -153,6 +154,7 @@ public class AppointmentService
                     .userId(item.getOwner().getId())
                     .nickname(item.getOwner().getNickname())
                     .content(item.getOwner().getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isNotification(true)
                     .isPick(false)
                     .pickInfo(null)
                     .build();
@@ -182,6 +184,7 @@ public class AppointmentService
                 .userId(requester.getId())
                 .nickname(requester.getNickname())
                 .content(requester.getNickname() + " 님께서 설정하신 " + (isRental ? "대여" : "구매") + " 정보가 도착했어요.")
+                .isNotification(false)
                 .isPick(true)
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();
@@ -308,6 +311,7 @@ public class AppointmentService
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                .isNotification(false)
                 .isPick(false)
                 .pickInfo(null)
                 .build();
@@ -432,6 +436,7 @@ public class AppointmentService
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
+                .isNotification(false)
                 .isPick(true)
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();
@@ -493,6 +498,7 @@ public class AppointmentService
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                .isNotification(false)
                 .isPick(false)
                 .pickInfo(null)
                 .build();
@@ -508,6 +514,7 @@ public class AppointmentService
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
+                .isNotification(false)
                 .isPick(true)
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();

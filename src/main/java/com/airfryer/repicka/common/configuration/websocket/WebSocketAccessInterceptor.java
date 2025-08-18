@@ -98,6 +98,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                             .userId(user.getId())
                             .nickname(user.getNickname())
                             .content(user.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                            .isNotification(true)
                             .isPick(false)
                             .pickInfo(null)
                             .build();

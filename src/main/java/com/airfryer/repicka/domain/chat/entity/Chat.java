@@ -36,6 +36,10 @@ public class Chat
     @NotBlank
     private String content;
 
+    // 안내 메시지 여부
+    @NotNull
+    private Boolean isNotification;
+
     // PICK 여부
     @NotNull
     private Boolean isPick;

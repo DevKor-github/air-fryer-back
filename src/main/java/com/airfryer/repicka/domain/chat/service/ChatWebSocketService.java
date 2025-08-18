@@ -86,6 +86,7 @@ public class ChatWebSocketService
                     .userId(opponent.getId())
                     .nickname(opponent.getNickname())
                     .content(opponent.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isNotification(true)
                     .isPick(false)
                     .pickInfo(null)
                     .build();
@@ -101,6 +102,7 @@ public class ChatWebSocketService
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(dto.getContent())
+                .isNotification(false)
                 .isPick(false)
                 .pickInfo(null)
                 .build();

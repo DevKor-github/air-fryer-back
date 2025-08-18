@@ -92,6 +92,7 @@ public class ChatService
                     .userId(requester.getId())
                     .nickname(requester.getNickname())
                     .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isNotification(true)
                     .isPick(false)
                     .pickInfo(null)
                     .build();
@@ -381,6 +382,7 @@ public class ChatService
                     .userId(user.getId())
                     .nickname(user.getNickname())
                     .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                    .isNotification(false)
                     .isPick(false)
                     .pickInfo(null)
                     .build();
@@ -406,6 +408,7 @@ public class ChatService
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 채팅방을 나갔습니다.")
+                .isNotification(true)
                 .isPick(false)
                 .pickInfo(null)
                 .build();
