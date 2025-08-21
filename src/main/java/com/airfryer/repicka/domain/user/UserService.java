@@ -185,7 +185,7 @@ public class UserService {
 
         /// 차단한 사용자와의 모든 채팅방 순회
 
-        List<ChatRoom> chatRoomList = chatRoomRepository.findByParticipants(blocker.getId(), blocked.getId());
+        List<ChatRoom> chatRoomList = chatRoomRepository.findByParticipantIds(blocker.getId(), blocked.getId());
 
         chatRoomList.forEach(chatRoom -> {
             // TODO: 채팅방 나가기

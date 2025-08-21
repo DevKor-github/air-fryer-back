@@ -84,6 +84,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
         SELECT c FROM ChatRoom c
         WHERE (c.owner.id = :user1Id AND c.requester.id = :user2Id) OR (c.owner.id = :user2Id AND c.requester.id = :user1Id)
     """)
-    List<ChatRoom> findByParticipants(@Param("user1Id") Long user1Id,
-                                      @Param("user2Id") Long user2Id);
+    List<ChatRoom> findByParticipantIds(@Param("user1Id") Long user1Id,
+                                        @Param("user2Id") Long user2Id);
 }
