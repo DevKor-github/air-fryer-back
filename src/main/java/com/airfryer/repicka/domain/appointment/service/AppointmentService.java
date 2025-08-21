@@ -89,7 +89,7 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
-        // 어떤 사용자가 다른 사용자를 차단했는지 체크
+        // 유저 차단 데이터 존재 여부 체크
         if(userBlockRepository.existsByUserIds(requester.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.USER_BLOCK_EXIST, null);
         }

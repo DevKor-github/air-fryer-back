@@ -19,6 +19,7 @@ import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.user.entity.user.User;
+import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +42,7 @@ public class ChatService
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final AppointmentRepository appointmentRepository;
+    private final UserBlockRepository userBlockRepository;
 
     private final OnlineStatusManager onlineStatusManager;
 
@@ -59,6 +61,11 @@ public class ChatService
         // 이미 삭제된 제품인 경우, 예외 처리
         if(item.getIsDeleted()) {
             throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
+        // 유저 차단 데이터 존재 여부 체크
+        if(userBlockRepository.existsByUserIds(requester.getId(), item.getOwner().getId())) {
+            throw new CustomException(CustomExceptionCode.USER_BLOCK_EXIST, null);
         }
 
         /// 채팅방 조회 (존재하지 않으면 생성)
