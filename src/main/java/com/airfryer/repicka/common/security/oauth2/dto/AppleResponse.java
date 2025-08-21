@@ -27,6 +27,6 @@ public class AppleResponse implements OAuth2Response
 
     @Override
     public String getName() {
-        return attribute.get("id_token").toString();
+        return attribute.get("email").toString();
     }
 }
