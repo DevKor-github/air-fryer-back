@@ -311,7 +311,7 @@ public class AppointmentService
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
-                .isNotification(false)
+                .isNotification(true)
                 .isPick(false)
                 .pickInfo(null)
                 .build();
@@ -498,7 +498,7 @@ public class AppointmentService
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
-                .isNotification(false)
+                .isNotification(true)
                 .isPick(false)
                 .pickInfo(null)
                 .build();
