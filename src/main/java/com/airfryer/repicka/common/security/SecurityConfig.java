@@ -5,6 +5,7 @@ import com.airfryer.repicka.common.security.exception.CustomAuthenticationEntryP
 import com.airfryer.repicka.common.security.jwt.JwtFilter;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2UserService;
 import com.airfryer.repicka.common.security.oauth2.OAuth2SuccessHandler;
+import com.airfryer.repicka.common.security.oauth2.apple.CustomRequestEntityConverter;
 import com.airfryer.repicka.common.security.redirect.CustomAuthorizationRequestResolver;
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +18,9 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -156,5 +160,13 @@ public class SecurityConfig
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    @Bean
+    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
+        DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+        accessTokenResponseClient.setRequestEntityConverter(new CustomRequestEntityConverter());
+
+        return accessTokenResponseClient;
     }
 }
