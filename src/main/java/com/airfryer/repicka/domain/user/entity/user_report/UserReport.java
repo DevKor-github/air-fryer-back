@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.user.entity.user_report;
 
+import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.user.dto.ReportUserReq;
 import com.airfryer.repicka.domain.user.entity.user.User;
@@ -16,7 +17,7 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Builder
-public class UserReport
+public class UserReport extends BaseEntity
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
