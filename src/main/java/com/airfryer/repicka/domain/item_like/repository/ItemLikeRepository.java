@@ -1,10 +1,7 @@
 package com.airfryer.repicka.domain.item_like.repository;
 
 import com.airfryer.repicka.domain.item_like.entity.ItemLike;
-import com.airfryer.repicka.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;

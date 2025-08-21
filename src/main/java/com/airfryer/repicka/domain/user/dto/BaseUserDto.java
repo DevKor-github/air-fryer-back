@@ -1,7 +1,7 @@
 package com.airfryer.repicka.domain.user.dto;
 
-import com.airfryer.repicka.domain.user.entity.User;
-import com.airfryer.repicka.domain.user.entity.Gender;
+import com.airfryer.repicka.domain.user.entity.user.User;
+import com.airfryer.repicka.domain.user.entity.user.Gender;
 
 import lombok.Builder;
 import lombok.Getter;

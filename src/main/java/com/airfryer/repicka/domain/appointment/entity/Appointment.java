@@ -4,7 +4,7 @@ import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentReq;
 import com.airfryer.repicka.domain.appointment.dto.UpdateAppointmentReq;
 import com.airfryer.repicka.domain.item.entity.Item;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

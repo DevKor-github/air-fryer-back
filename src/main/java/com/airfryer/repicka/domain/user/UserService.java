@@ -1,5 +1,10 @@
 package com.airfryer.repicka.domain.user;
 
+import com.airfryer.repicka.domain.item.entity.Item;
+import com.airfryer.repicka.domain.item.repository.ItemRepository;
+import com.airfryer.repicka.domain.user.dto.ReportUserReq;
+import com.airfryer.repicka.domain.user.entity.user_report.UserReport;
+import com.airfryer.repicka.domain.user.repository.UserReportRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -8,18 +13,23 @@ import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.aws.s3.S3Service;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlReq;
 import com.airfryer.repicka.common.aws.s3.dto.PresignedUrlRes;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import com.airfryer.repicka.domain.user.dto.BaseUserDto;
 import com.airfryer.repicka.domain.user.dto.UpdateUserReq;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Objects;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserReportRepository userReportRepository;
+    private final ItemRepository itemRepository;
     private final S3Service s3Service;
 
     // fcm 토큰 업데이트
@@ -62,5 +72,67 @@ public class UserService {
         userRepository.save(user);
 
         return BaseUserDto.from(user);
+    }
+
+    // 유저 신고
+    @Transactional
+    public void reportUser(User reporter, ReportUserReq dto)
+    {
+        /// 피신고자 조회
+
+        // 피신고자 조회
+        User reported = userRepository.findById(dto.getReportedUserId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, dto.getReportedUserId()));
+
+        // 본인이 본인을 신고하는 경우, 예외 처리
+        if(Objects.equals(reporter.getId(), reported.getId())) {
+            throw new CustomException(CustomExceptionCode.SAME_REPORTER_AND_REPORTED, null);
+        }
+
+        /// 제품 조회
+
+        // 제품 조회
+        Item item = itemRepository.findById(dto.getItemId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
+
+        // 연관 없는 제품일 경우, 예외 처리
+        if(
+                !Objects.equals(item.getOwner().getId(), reporter.getId()) &&
+                !Objects.equals(item.getOwner().getId(), reported.getId())
+        )
+        {
+            throw new CustomException(CustomExceptionCode.UNRELATED_ITEM, null);
+        }
+
+        /// 유저 신고 데이터 존재 여부에 따른 분기 처리
+
+        // 기존의 유저 신고 데이터 조회
+        Optional<UserReport> userReportOptional = userReportRepository.findByReporterIdAndReportedIdAndItemId(
+                reporter.getId(),
+                reported.getId(),
+                item.getId()
+        );
+
+        // 기존의 유저 신고 데이터가 존재한다면, 기존 데이터를 수정
+        // 기존의 유저 신고 데이터가 존재하지 않으면, 새로운 데이터를 생성
+        if(userReportOptional.isPresent())
+        {
+            UserReport userReport = userReportOptional.get();
+
+            userReport.update(dto);
+        }
+        else
+        {
+            UserReport userReport = UserReport.builder()
+                    .reporter(reporter)
+                    .reported(reported)
+                    .item(item)
+                    .location(dto.getLocation())
+                    .categories(dto.getCategories())
+                    .description(dto.getDescription())
+                    .build();
+
+            userReportRepository.save(userReport);
+        }
     }
 }

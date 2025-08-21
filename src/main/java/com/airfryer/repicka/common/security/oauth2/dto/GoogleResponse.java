@@ -1,6 +1,6 @@
 package com.airfryer.repicka.common.security.oauth2.dto;
 
-import com.airfryer.repicka.domain.user.entity.LoginMethod;
+import com.airfryer.repicka.domain.user.entity.user.LoginMethod;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
