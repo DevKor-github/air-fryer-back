@@ -160,14 +160,14 @@ public class UserService {
     {
         /// 예외 처리
 
+        // 이미 차단한 사용자인 경우, 종료
+        if(userBlockRepository.findByBlockerIdAndBlockedId(blocker.getId(), blocked.getId()).isPresent()) {
+            return;
+        }
+
         // 본인이 본인을 차단하는 경우, 예외 처리
         if(Objects.equals(blocker.getId(), blocked.getId())) {
             throw new CustomException(CustomExceptionCode.SAME_BLOCKER_AND_BLOCKED, null);
-        }
-
-        // 이미 차단한 사용자인 경우, 예외 처리
-        if(userBlockRepository.findByBlockerIdAndBlockedId(blocker.getId(), blocked.getId()).isPresent()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_BLOCKED_USER, null);
         }
 
         /// 유저 차단 데이터 저장
