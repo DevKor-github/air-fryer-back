@@ -26,6 +26,7 @@ import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.user.entity.user.User;
+import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,7 @@ public class AppointmentService
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final ChatRepository chatRepository;
+    private final UserBlockRepository userBlockRepository;
 
     private final ChatService chatService;
     private final ChatWebSocketService chatWebSocketService;
@@ -85,6 +87,11 @@ public class AppointmentService
         // 요청자와 제품 소유자가 다른 사용자인지 체크
         if(Objects.equals(requester.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
+        }
+
+        // 어떤 사용자가 다른 사용자를 차단했는지 체크
+        if(userBlockRepository.existsByUserIds(requester.getId(), item.getOwner().getId())) {
+            throw new CustomException(CustomExceptionCode.USER_BLOCK_EXIST, null);
         }
 
         // 대여(구매) 날짜 가능 여부 체크
