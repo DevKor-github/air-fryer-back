@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.user;
 
+import com.airfryer.repicka.domain.user.dto.BlockUserReq;
 import com.airfryer.repicka.domain.user.dto.ReportUserReq;
 import com.airfryer.repicka.domain.user.entity.user.User;
 import org.springframework.http.HttpStatus;
@@ -88,6 +89,21 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
                         .message("유저를 성공적으로 신고하였습니다.")
+                        .data(null)
+                        .build());
+    }
+
+    // 유저 차단
+    @PostMapping("/block")
+    public ResponseEntity<SuccessResponseDto> blockUser(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+                                                        @RequestBody @Valid BlockUserReq dto)
+    {
+        User blocker = customOAuth2User.getUser();
+        userService.blockUser(blocker, dto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("유저를 성공적으로 차단하였습니다.")
                         .data(null)
                         .build());
     }

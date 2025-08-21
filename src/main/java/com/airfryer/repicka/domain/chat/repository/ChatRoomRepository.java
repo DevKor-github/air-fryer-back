@@ -76,5 +76,14 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
 
     /// 제품 ID, 소유자 ID, 요청자 ID로 채팅방 조회
 
-    Optional<ChatRoom> findByItemIdAndOwnerIdAndRequesterId(Long itemId, Long userId, Long requesterId);
+    Optional<ChatRoom> findByItemIdAndOwnerIdAndRequesterId(Long itemId, Long ownerId, Long requesterId);
+
+    /// 두 사용자 ID로 채팅방 조회
+
+    @Query("""
+        SELECT c FROM ChatRoom c
+        WHERE (c.owner.id = :user1Id AND c.requester.id = :user2Id) OR (c.owner.id = :user2Id AND c.requester.id = :user1Id)
+    """)
+    List<ChatRoom> findByParticipants(@Param("user1Id") Long user1Id,
+                                      @Param("user2Id") Long user2Id);
 }

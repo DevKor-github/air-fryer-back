@@ -1,9 +1,14 @@
 package com.airfryer.repicka.domain.user;
 
+import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
+import com.airfryer.repicka.domain.user.dto.BlockUserReq;
 import com.airfryer.repicka.domain.user.dto.ReportUserReq;
+import com.airfryer.repicka.domain.user.entity.user_block.UserBlock;
 import com.airfryer.repicka.domain.user.entity.user_report.UserReport;
+import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import com.airfryer.repicka.domain.user.repository.UserReportRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -20,6 +25,7 @@ import com.airfryer.repicka.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -29,6 +35,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserReportRepository userReportRepository;
+    private final UserBlockRepository userBlockRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final ItemRepository itemRepository;
     private final S3Service s3Service;
 
@@ -134,5 +142,50 @@ public class UserService {
 
             userReportRepository.save(userReport);
         }
+    }
+
+    // 유저 차단
+    @Transactional
+    public void blockUser(User blocker, BlockUserReq dto)
+    {
+        // 피차단자 조회
+        User blocked = userRepository.findById(dto.getBlockedUserId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, dto.getBlockedUserId()));
+
+        blockUser(blocker, blocked);
+    }
+
+    @Transactional
+    public void blockUser(User blocker, User blocked)
+    {
+        /// 예외 처리
+
+        // 본인이 본인을 차단하는 경우, 예외 처리
+        if(Objects.equals(blocker.getId(), blocked.getId())) {
+            throw new CustomException(CustomExceptionCode.SAME_BLOCKER_AND_BLOCKED, null);
+        }
+
+        // 이미 차단한 사용자인 경우, 예외 처리
+        if(userBlockRepository.findByBlockerIdAndBlockedId(blocker.getId(), blocked.getId()).isPresent()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_BLOCKED_USER, null);
+        }
+
+        /// 유저 차단 데이터 저장
+
+        UserBlock userBlock = UserBlock.builder()
+                .blocker(blocker)
+                .blocked(blocked)
+                .build();
+
+        userBlockRepository.save(userBlock);
+
+        /// 차단한 사용자와의 모든 채팅방 순회
+
+        List<ChatRoom> chatRoomList = chatRoomRepository.findByParticipants(blocker.getId(), blocked.getId());
+
+        chatRoomList.forEach(chatRoom -> {
+            // TODO: 채팅방 나가기
+        });
+
     }
 }
