@@ -112,7 +112,7 @@ public class UserService {
             throw new CustomException(CustomExceptionCode.UNRELATED_ITEM, null);
         }
 
-        /// 유저 신고 데이터 존재 여부에 따른 분기 처리
+        /// 유저 신고 데이터 저장
 
         // 기존의 유저 신고 데이터 조회
         Optional<UserReport> userReportOptional = userReportRepository.findByReporterIdAndReportedIdAndItemId(
@@ -142,6 +142,10 @@ public class UserService {
 
             userReportRepository.save(userReport);
         }
+
+        /// 유저 차단
+
+        blockUser(reported, reported);
     }
 
     // 유저 차단
