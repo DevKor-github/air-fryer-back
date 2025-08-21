@@ -42,9 +42,9 @@ spring:
             client-authentication-method: client_secret_post
 
           apple:
-            client-id: ${APPLE_CLIENT_ID}
-            client-secret: ${APPLE_CLIENT_SECRET}
-            redirect-uri: ${APPLE_REDIRECT_URI}
+            client-id: test-apple-client-id
+            client-secret: test-apple-client-secret
+            redirect-uri: http://localhost:8080/test/oauth2/code/apple
             client-name: Apple
             scope:
               - name
