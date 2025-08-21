@@ -20,6 +20,7 @@ public enum CustomExceptionCode
 
     // 사용자 관련 예외
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 데이터를 찾을 수 없습니다."),
+    USER_BLOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "유저 차단 데이터를 찾을 수 없습니다."),
     SAME_REPORTER_AND_REPORTED(HttpStatus.BAD_REQUEST, "본인이 본인을 신고할 수 없습니다."),
     SAME_BLOCKER_AND_BLOCKED(HttpStatus.BAD_REQUEST, "본인이 본인을 차단할 수 없습니다."),
     USER_BLOCK_EXIST(HttpStatus.CONFLICT, "유저 차단 데이터가 존재합니다."),

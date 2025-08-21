@@ -192,4 +192,18 @@ public class UserService {
         });
 
     }
+
+    // 유저 차단 해제
+    @Transactional
+    public void unblockUser(User blocker, BlockUserReq dto)
+    {
+        /// 유저 차단 데이터 조회
+
+        UserBlock userBlock = userBlockRepository.findByBlockerIdAndBlockedId(blocker.getId(), dto.getBlockedUserId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_BLOCK_NOT_FOUND, dto.getBlockedUserId()));
+
+        /// 유저 차단 데이터 삭제
+
+        userBlockRepository.delete(userBlock);
+    }
 }

@@ -107,4 +107,19 @@ public class UserController {
                         .data(null)
                         .build());
     }
+
+    // 유저 차단 해제
+    @DeleteMapping("/unblock")
+    public ResponseEntity<SuccessResponseDto> unblockUser(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+                                                          @RequestBody @Valid BlockUserReq dto)
+    {
+        User blocker = customOAuth2User.getUser();
+        userService.unblockUser(blocker, dto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("유저 차단을 성공적으로 해제하였습니다.")
+                        .data(null)
+                        .build());
+    }
 }
