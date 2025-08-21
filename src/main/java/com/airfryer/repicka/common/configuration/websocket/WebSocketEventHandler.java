@@ -86,8 +86,8 @@ public class WebSocketEventHandler
                     chatRoom,
                     onlineStatusManager.isUserOnline(chatRoomId, chatRoom.getRequester().getId()),
                     onlineStatusManager.isUserOnline(chatRoomId, chatRoom.getOwner().getId()),
-                    requester.getLastEnterAt(),
-                    owner.getLastEnterAt()
+                    requester.getLastReadAt(),
+                    owner.getLastReadAt()
             );
 
             // 채팅방 퇴장 이벤트 발생

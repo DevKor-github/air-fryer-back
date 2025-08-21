@@ -69,7 +69,7 @@ public class EnterChatRoomRes
                     .opponentProfileImageUrl(opponent.getProfileImageUrl())
                     .isOpponentKorean(opponent.getIsKoreaUnivVerified())
                     .isOpponentOnline(isOpponentOnline)
-                    .opponentLastEnterAt(opponentParticipateChatRoom.getLastEnterAt())
+                    .opponentLastEnterAt(opponentParticipateChatRoom.getLastReadAt())
                     .lastChatAt(chatRoom.getLastChatAt())
                     .build();
         }

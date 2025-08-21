@@ -32,10 +32,10 @@ public class ParticipateChatRoom extends BaseEntity
     @JoinColumn(name = "participant")
     private User participant;
 
-    // 마지막 입장 시점
+    // 마지막 채팅 읽기 시점
     @NotNull
     @Builder.Default
-    private LocalDateTime lastEnterAt = LocalDateTime.now();
+    private LocalDateTime lastReadAt = LocalDateTime.now();
 
     // 읽지 않은 채팅 개수
     @NotNull
@@ -56,7 +56,7 @@ public class ParticipateChatRoom extends BaseEntity
 
     public void renew()
     {
-        this.lastEnterAt = LocalDateTime.now();
+        this.lastReadAt = LocalDateTime.now();
         this.unreadChatCount = 0;
     }
 
@@ -70,7 +70,7 @@ public class ParticipateChatRoom extends BaseEntity
 
     public void exit()
     {
-        this.lastEnterAt = LocalDateTime.now();
+        this.lastReadAt = LocalDateTime.now();
         this.hasLeftRoom = true;
     }
 
@@ -78,7 +78,7 @@ public class ParticipateChatRoom extends BaseEntity
 
     public void reEnter()
     {
-        this.lastEnterAt = LocalDateTime.now();
+        this.lastReadAt = LocalDateTime.now();
         this.hasLeftRoom = false;
         this.lastReEnterAt = LocalDateTime.now();
     }

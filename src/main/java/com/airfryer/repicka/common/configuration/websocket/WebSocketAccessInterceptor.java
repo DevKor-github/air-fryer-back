@@ -192,8 +192,8 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
 
         // 입장/퇴장 메시지 생성
         SubChat message = isEnter ?
-                SubChat.createEnterChat(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt()) :
-                SubChat.createExitChat(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastEnterAt(), ownerParticipateChatRoom.getLastEnterAt());
+                SubChat.createEnterChat(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastReadAt(), ownerParticipateChatRoom.getLastReadAt()) :
+                SubChat.createExitChat(chatRoom, isRequesterOnline, isOwnerOnline, requesterParticipateChatRoom.getLastReadAt(), ownerParticipateChatRoom.getLastReadAt());
 
         // 입장/퇴장 이벤트 발생
         applicationEventPublisher.publishEvent(SubMessageEvent.builder()
