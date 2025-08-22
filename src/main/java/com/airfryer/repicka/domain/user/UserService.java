@@ -1,7 +1,10 @@
 package com.airfryer.repicka.domain.user;
 
+import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
+import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
+import com.airfryer.repicka.domain.chat.service.ChatWebSocketService;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.user.dto.BlockUserReq;
@@ -31,14 +34,19 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
-
+public class UserService
+{
     private final UserRepository userRepository;
     private final UserReportRepository userReportRepository;
     private final UserBlockRepository userBlockRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ItemRepository itemRepository;
+
+    private final AppointmentUtil appointmentUtil;
+
     private final S3Service s3Service;
+
+    private final ChatWebSocketService chatWebSocketService;
 
     // fcm 토큰 업데이트
     @Transactional
@@ -188,7 +196,27 @@ public class UserService {
         List<ChatRoom> chatRoomList = chatRoomRepository.findByParticipantIds(blocker.getId(), blocked.getId());
 
         chatRoomList.forEach(chatRoom -> {
-            // TODO: 채팅방 나가기
+
+            /// 완료되지 않은 약속 취소
+
+            appointmentUtil.cancelCurrentAppointment(chatRoom, blocker);
+
+            /// 실제로 나가지는 않았지만 채팅방 나가기 채팅 전송
+
+            // 채팅 생성
+            Chat leaveChat = Chat.builder()
+                    .chatRoomId(chatRoom.getId())
+                    .userId(blocker.getId())
+                    .nickname(blocker.getNickname())
+                    .content(blocker.getNickname() + " 님께서 채팅방을 나갔습니다.")
+                    .isNotification(true)
+                    .isPick(false)
+                    .pickInfo(null)
+                    .build();
+
+            // 채팅 전송
+            chatWebSocketService.sendMessageChat(blocker, chatRoom, leaveChat);
+
         });
 
     }
