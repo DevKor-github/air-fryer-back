@@ -1,6 +1,6 @@
 package com.airfryer.repicka.domain.chat.dto.message.sub.content;
 
-import com.airfryer.repicka.domain.chat.dto.message.sub.SubChatContent;
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageContent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @SuperBuilder
-public class MessageContent extends SubChatContent
+public class ChatContent extends SubMessageContent
 {
     private String chatId;              // 채팅 ID
     private Long userId;                // 사용자 ID
@@ -19,9 +19,9 @@ public class MessageContent extends SubChatContent
     private Chat.PickInfo pickInfo;     // PICK 정보
     private LocalDateTime createdAt;    // 채팅 생성 날짜
 
-    public static MessageContent from(Chat chat)
+    public static ChatContent from(Chat chat)
     {
-        return MessageContent.builder()
+        return ChatContent.builder()
                 .chatId(chat.getId().toHexString())
                 .userId(chat.getUserId())
                 .content(chat.getContent())

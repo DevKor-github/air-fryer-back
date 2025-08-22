@@ -5,5 +5,5 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class SubChatContent {
+public class SubMessageContent {
 }
