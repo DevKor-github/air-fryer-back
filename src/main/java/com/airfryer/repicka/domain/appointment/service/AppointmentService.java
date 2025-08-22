@@ -527,6 +527,37 @@ public class AppointmentService
         return AppointmentRes.from(newAppointment);
     }
 
+    // // 대여중인 약속 존재 여부 확인
+    @Transactional(readOnly = true)
+    public boolean isInProgressAppointmentPresent(User user, Long chatRoomId)
+    {
+        /// 채팅방 참여 데이터 조회
+
+        // 채팅방 참여 데이터 조회
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, user.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 이미 채팅방을 나갔는지 확인
+        if(participateChatRoom.getHasLeftRoom()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
+        }
+
+        /// 채팅방 조회
+
+        ChatRoom chatRoom = participateChatRoom.getChatRoom();
+
+        /// 대여중인 약속 조회
+
+        List<Appointment> inProgressAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
+                chatRoom.getItem().getId(),
+                chatRoom.getOwner().getId(),
+                chatRoom.getRequester().getId(),
+                List.of(AppointmentState.IN_PROGRESS)
+        );
+
+        return !inProgressAppointmentOptional.isEmpty();
+    }
+
     /// ============================ 공통 로직 ============================
 
     /// 해당 날짜에 예정된 대여 약속이 하나도 없는지 판별
