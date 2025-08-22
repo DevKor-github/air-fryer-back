@@ -13,7 +13,7 @@ import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository
 import com.airfryer.repicka.domain.chat.service.ChatWebSocketService;
 import com.airfryer.repicka.domain.chat.service.MappingSubWithRoomManager;
 import com.airfryer.repicka.domain.chat.service.OnlineStatusManager;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
