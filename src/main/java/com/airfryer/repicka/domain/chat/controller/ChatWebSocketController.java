@@ -19,10 +19,10 @@ public class ChatWebSocketController
 
     // 채팅 전송
     @MessageMapping("/chat")
-    public void send(Principal principal, SendChatMessage dto)
+    public void sendMessageChat(Principal principal, SendChatMessage dto)
     {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
         User user = oAuth2User.getUser();
-        chatWebSocketService.sendChatMessage(user, dto);
+        chatWebSocketService.sendMessageChat(user, dto);
     }
 }

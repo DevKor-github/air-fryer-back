@@ -168,6 +168,7 @@
                 🆔 <strong>${msg.message.chatId}</strong> |
                 👤 사용자 <strong>${msg.message.userId}</strong>:
                 ${msg.message.content} |
+                <strong>isNotification</strong>: ${msg.message.isNotification} |
                 <strong>isPick</strong>: ${msg.message.isPick} |
                 <strong>생성 날짜</strong>: ${msg.message.createdAt}
             `;
@@ -193,11 +194,10 @@
             div.innerHTML = `
                 <strong>타입:</strong> ${msg.type} |
                 🆔 <strong>${msg.message.chatRoomId}</strong> |
-                🆔 <strong>${msg.message.chatId}</strong> |
-                👤 사용자 <strong>${msg.message.userId}</strong>:
-                ${msg.message.content} |
-                <strong>isPick</strong>: ${msg.message.isPick} |
-                <strong>생성 날짜</strong>: ${msg.message.createdAt}
+                👤 나의 ID <strong>${msg.message.myUserId}</strong>
+                👤 상대방의 ID <strong>${msg.message.opponentUserId}</strong>
+                <strong>닉네임</strong>: ${msg.message.mostRecentChatNickname} |
+                <strong>내용</strong>: ${msg.message.mostRecentChatContent}
             `;
         } else {
             div.innerHTML = `<strong>타입:</strong> ${msg.type}`;

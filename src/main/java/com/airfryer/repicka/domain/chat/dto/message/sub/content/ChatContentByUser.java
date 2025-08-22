@@ -1,17 +1,18 @@
-package com.airfryer.repicka.domain.chat.dto;
+package com.airfryer.repicka.domain.chat.dto.message.sub.content;
 
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageContent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.user.entity.user.User;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
-@Builder
-public class ChatRoomDto
+@SuperBuilder
+public class ChatContentByUser extends SubMessageContent
 {
     private Long chatRoomId;                    // 채팅방 ID
     private Long myUserId;                      // 나의 사용자 ID
@@ -25,11 +26,11 @@ public class ChatRoomDto
     private LocalDateTime lastChatAt;           // 마지막 채팅 시점
     private int unreadChatCount;                // 읽지 않은 채팅 개수
 
-    public static ChatRoomDto from(ChatRoom chatRoom, User me, Chat mostRecentChat, int unreadChatCount)
+    public static ChatContentByUser from(ChatRoom chatRoom, User me, Chat mostRecentChat, int unreadChatCount)
     {
         User opponent = Objects.equals(chatRoom.getRequester().getId(), me.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
-        return ChatRoomDto.builder()
+        return ChatContentByUser.builder()
                 .chatRoomId(chatRoom.getId())
                 .myUserId(me.getId())
                 .opponentUserId(opponent.getId())

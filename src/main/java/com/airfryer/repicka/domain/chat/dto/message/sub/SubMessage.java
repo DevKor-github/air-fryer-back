@@ -1,10 +1,11 @@
 package com.airfryer.repicka.domain.chat.dto.message.sub;
 
 import com.airfryer.repicka.domain.chat.dto.message.sub.content.ChatContent;
-import com.airfryer.repicka.domain.chat.dto.message.sub.content.ChatContentWithRoom;
+import com.airfryer.repicka.domain.chat.dto.message.sub.content.ChatContentByUser;
 import com.airfryer.repicka.domain.chat.dto.message.sub.content.EnterOrExitContent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,11 +51,11 @@ public class SubMessage
                 .build();
     }
 
-    public static SubMessage createChatMessageWithRoom(Chat chat)
+    public static SubMessage createChatMessageByUser(ChatRoom chatRoom, User me, Chat mostRecentChat, int unreadChatCount)
     {
         return SubMessage.builder()
                 .type(SubMessageType.CHAT)
-                .message(ChatContentWithRoom.from(chat))
+                .message(ChatContentByUser.from(chatRoom, me, mostRecentChat, unreadChatCount))
                 .build();
     }
 }

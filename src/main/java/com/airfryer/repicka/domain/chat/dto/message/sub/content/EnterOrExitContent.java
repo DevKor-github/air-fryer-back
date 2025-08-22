@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public class EnterOrExitContent extends SubMessageContent
 {
-    private Long chatRoomId;            // 채팅방 ID
+    private Long chatRoomId;    // 채팅방 ID
 
     private Long requesterId;                   // 요청자 ID
     private Long ownerId;                       // 제품 소유자 ID
