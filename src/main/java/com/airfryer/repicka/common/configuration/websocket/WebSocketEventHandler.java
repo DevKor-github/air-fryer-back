@@ -3,7 +3,7 @@ package com.airfryer.repicka.common.configuration.websocket;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubChat;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
@@ -82,12 +82,12 @@ public class WebSocketEventHandler
             ParticipateChatRoom owner = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, chatRoom.getOwner().getId()).orElseThrow();
 
             // 채팅방 퇴장 메시지
-            SubMessage exitMessage = SubMessage.createExitMessage(
+            SubChat exitMessage = SubChat.createExitChat(
                     chatRoom,
                     onlineStatusManager.isUserOnline(chatRoomId, chatRoom.getRequester().getId()),
                     onlineStatusManager.isUserOnline(chatRoomId, chatRoom.getOwner().getId()),
-                    requester.getLastEnterAt(),
-                    owner.getLastEnterAt()
+                    requester.getLastReadAt(),
+                    owner.getLastReadAt()
             );
 
             // 채팅방 퇴장 이벤트 발생

@@ -1,6 +1,6 @@
 package com.airfryer.repicka.domain.chat.dto.message.sub.content;
 
-import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessageContent;
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubChatContent;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @SuperBuilder
-public class EnterOrExitContent extends SubMessageContent
+public class EnterOrExitContent extends SubChatContent
 {
-    private Long chatRoomId;            // 채팅방 ID
+    private Long chatRoomId;    // 채팅방 ID
 
     private Long requesterId;                   // 요청자 ID
     private Long ownerId;                       // 제품 소유자 ID
