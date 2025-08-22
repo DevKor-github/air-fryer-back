@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SendMessageChatReq
+public class SendChatMessage
 {
     private Long chatRoomId;    // 채팅방 ID
     private String content;     // 내용
