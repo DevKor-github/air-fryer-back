@@ -3,7 +3,7 @@ package com.airfryer.repicka.domain.appointment;
 import com.airfryer.repicka.domain.appointment.dto.FindMyAppointmentPageReq;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

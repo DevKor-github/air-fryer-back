@@ -17,7 +17,8 @@ import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
-import com.airfryer.repicka.domain.chat.repository.ChatRepository;
+import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
+import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
 import com.airfryer.repicka.domain.chat.service.ChatService;
 import com.airfryer.repicka.domain.chat.service.ChatWebSocketService;
 import com.airfryer.repicka.domain.item.entity.Item;
@@ -25,7 +26,7 @@ import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +43,7 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
-    private final ChatRepository chatRepository;
+    private final ParticipateChatRoomRepository participateChatRoomRepository;
 
     private final ChatService chatService;
     private final ChatWebSocketService chatWebSocketService;
@@ -106,6 +107,62 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.CURRENT_APPOINTMENT_EXIST, null);
         }
 
+        /// 채팅방 조회 (존재하지 않으면 생성)
+
+        ChatRoom chatRoom = chatService.createChatRoom(item, requester);
+
+        /// 채팅방 재입장
+
+        // 요청자의 채팅방 참여 정보 조회
+        ParticipateChatRoom requesterParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), requester.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 제품 소유자의 채팅방 참여 정보 조회
+        ParticipateChatRoom ownerParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), item.getOwner().getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 요청자가 이미 채팅방을 나간 경우
+        if(requesterParticipateChatRoom.getHasLeftRoom())
+        {
+            // 채팅방 재입장 처리
+            requesterParticipateChatRoom.reEnter();
+
+            // 채팅방 재입장 채팅 생성
+            Chat reEnterChat = Chat.builder()
+                    .chatRoomId(chatRoom.getId())
+                    .userId(requester.getId())
+                    .nickname(requester.getNickname())
+                    .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isNotification(true)
+                    .isPick(false)
+                    .pickInfo(null)
+                    .build();
+
+            // 채팅방 재입장 채팅 전송
+            chatWebSocketService.sendMessageChat(requester, chatRoom, reEnterChat);
+        }
+
+        // 제품 소유자가 이미 채팅방을 나간 경우
+        if(ownerParticipateChatRoom.getHasLeftRoom())
+        {
+            // 채팅방 재입장 처리
+            ownerParticipateChatRoom.reEnter();
+
+            // 채팅방 재입장 채팅 생성
+            Chat reEnterChat = Chat.builder()
+                    .chatRoomId(chatRoom.getId())
+                    .userId(item.getOwner().getId())
+                    .nickname(item.getOwner().getNickname())
+                    .content(item.getOwner().getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                    .isNotification(true)
+                    .isPick(false)
+                    .pickInfo(null)
+                    .build();
+
+            // 채팅방 재입장 채팅 전송
+            chatWebSocketService.sendMessageChat(item.getOwner(), chatRoom, reEnterChat);
+        }
+
         /// 새로운 약속 데이터 생성
 
         // 새로운 약속 데이터
@@ -114,10 +171,6 @@ public class AppointmentService
         // 약속 데이터 저장
         appointmentRepository.save(appointment);
 
-        /// 채팅방 조회 (존재하지 않으면 생성)
-
-        ChatRoom chatRoom = chatService.createChatRoom(item, requester);
-
         /// 제품 소유자에게 약속 제시 알림
 
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), requester.getNickname());
@@ -125,20 +178,19 @@ public class AppointmentService
 
         /// PICK 메시지 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat chat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(requester.getId())
                 .nickname(requester.getNickname())
                 .content(requester.getNickname() + " 님께서 설정하신 " + (isRental ? "대여" : "구매") + " 정보가 도착했어요.")
+                .isNotification(false)
                 .isPick(true)
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();
 
-        chatRepository.save(chat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(requester, chatRoom, chat);
+        chatWebSocketService.sendMessageChat(requester, chatRoom, chat);
 
         /// 채팅방 입장 데이터 반환
 
@@ -253,20 +305,19 @@ public class AppointmentService
 
         /// 약속 취소 채팅 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat cancelChat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                .isNotification(true)
                 .isPick(false)
                 .pickInfo(null)
                 .build();
 
-        chatRepository.save(cancelChat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, cancelChat);
+        chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
 
         /// 채팅 상대방에게 약속 취소 알림 전송
 
@@ -379,20 +430,19 @@ public class AppointmentService
 
         /// PICK 메시지 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat chat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
+                .isNotification(false)
                 .isPick(true)
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();
 
-        chatRepository.save(chat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, chat);
+        chatWebSocketService.sendMessageChat(user, chatRoom, chat);
 
         /// 데이터 반환
 
@@ -442,37 +492,35 @@ public class AppointmentService
 
         /// 약속 취소 채팅 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat cancelChat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                .isNotification(true)
                 .isPick(false)
                 .pickInfo(null)
                 .build();
 
-        chatRepository.save(cancelChat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, cancelChat);
+        chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
 
         /// PICK 메시지 전송
 
-        // 채팅 저장
+        // 채팅 생성
         Chat pickChat = Chat.builder()
                 .chatRoomId(chatRoom.getId())
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
+                .isNotification(false)
                 .isPick(true)
                 .pickInfo(Chat.PickInfo.from(appointment))
                 .build();
 
-        chatRepository.save(pickChat);
-
         // 채팅 전송
-        chatWebSocketService.sendChatMessage(user, chatRoom, pickChat);
+        chatWebSocketService.sendMessageChat(user, chatRoom, pickChat);
 
         /// 데이터 반환
 

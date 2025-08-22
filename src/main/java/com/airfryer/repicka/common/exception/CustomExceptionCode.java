@@ -20,6 +20,7 @@ public enum CustomExceptionCode
 
     // 사용자 관련 예외
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 데이터를 찾을 수 없습니다."),
+    SAME_REPORTER_AND_REPORTED(HttpStatus.BAD_REQUEST, "본인이 본인을 신고할 수 없습니다."),
 
     // 제품(Item) 관련 예외
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "제품 데이터를 찾을 수 없습니다."),
@@ -43,10 +44,12 @@ public enum CustomExceptionCode
     CURRENT_DATE_IS_LATER_THAN_RETURN_DATE(HttpStatus.BAD_REQUEST, "반납 일시는 현재 이후여야 합니다."),
     INVALID_LOCATION(HttpStatus.BAD_REQUEST, "입력한 장소 형식이 올바르지 않습니다."),
     PRICE_IS_NEGATIVE(HttpStatus.BAD_REQUEST, "가격은 0 또는 양수여야 합니다."),
+    UNRELATED_ITEM(HttpStatus.BAD_REQUEST, "연관 없는 제품입니다."),
     CANNOT_CONFIRM_APPOINTMENT_MYSELF(HttpStatus.FORBIDDEN, "본인이 제시한 약속을 본인이 확정할 수는 없습니다."),
     CANNOT_RESPONSE_UPDATE_IN_PROGRESS_APPOINTMENT_MYSELF(HttpStatus.FORBIDDEN, "본인이 제시한 대여중 약속 변경 제시를 본인이 수락 또는 거절할 수는 없습니다."),
     CANNOT_DELETE_OTHERS_UPDATE_IN_PROGRESS_APPOINTMENT_MYSELF(HttpStatus.FORBIDDEN, "타인이 제시한 대여중 약속 변경 제시를 본인이 취소할 수는 없습니다."),
     CURRENT_APPOINTMENT_EXIST(HttpStatus.CONFLICT, "완료되지 않은 약속이 존재합니다."),
+    IN_PROGRESS_APPOINTMENT_EXIST(HttpStatus.CONFLICT, "완료되지 않은 대여 중인 약속이 존재합니다."),
     ALREADY_RENTAL_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 대여 약속이 예정되어 있습니다."),
     ALREADY_SALE_RESERVED_PERIOD(HttpStatus.CONFLICT, "해당 구간 동안 이미 판매 약속이 예정되어 있습니다."),
     CONFLICT_APPOINTMENT_STATE(HttpStatus.CONFLICT, "현재 약속 상태는 해당 요청을 처리할 수 없습니다."),
@@ -64,6 +67,7 @@ public enum CustomExceptionCode
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방 데이터를 찾을 수 없습니다."),
     PARTICIPATE_CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방 참여 정보 데이터를 찾을 수 없습니다."),
     INVALID_CHAT_MESSAGE(HttpStatus.BAD_REQUEST, "유효하지 않은 채팅 메시지 형식입니다."),
+    ALREADY_LEFT_CHATROOM(HttpStatus.CONFLICT, "이미 나간 채팅방입니다."),
     ALREADY_FINISHED_CHATROOM(HttpStatus.CONFLICT, "이미 종료된 채팅방입니다."),
     INTERNAL_CHAT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 오류로 인해 채팅이 정상적으로 전송되지 않았습니다."),
 

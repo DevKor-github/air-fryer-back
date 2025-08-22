@@ -2,7 +2,7 @@ package com.airfryer.repicka.domain.chat.entity;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.item.entity.Item;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -38,11 +38,6 @@ public class ChatRoom extends BaseEntity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner")
     private User owner;
-
-    // 종료 여부
-    @NotNull
-    @Builder.Default
-    private Boolean isFinished = false;
 
     // 마지막 채팅 시점
     @NotNull

@@ -10,16 +10,16 @@ import lombok.Getter;
 @Builder(access = AccessLevel.PRIVATE)
 public class CurrentAppointmentRes
 {
-    private Boolean isPresent;              // 완료되지 않은 약속 존재 여부
     private Long chatRoomId;                // 채팅방 ID
+    private Boolean isPresent;              // 완료되지 않은 약속 존재 여부
     private AppointmentRes appointment;     // 약속 정보
 
     public static CurrentAppointmentRes from(boolean isPresent, Appointment appointment, ChatRoom chatRoom)
     {
         return CurrentAppointmentRes.builder()
                 .isPresent(isPresent)
-                .chatRoomId(isPresent ? chatRoom.getId() : null)
-                .appointment(isPresent ? AppointmentRes.createPreview(appointment) : null)
+                .chatRoomId(chatRoom != null ? chatRoom.getId() : null)
+                .appointment(appointment != null ? AppointmentRes.createPreview(appointment) : null)
                 .build();
     }
 
@@ -28,7 +28,7 @@ public class CurrentAppointmentRes
         return CurrentAppointmentRes.builder()
                 .isPresent(isPresent)
                 .chatRoomId(null)
-                .appointment(isPresent ? AppointmentRes.createPreview(appointment) : null)
+                .appointment(appointment != null ? AppointmentRes.createPreview(appointment) : null)
                 .build();
     }
 }

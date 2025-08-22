@@ -1,4 +1,4 @@
-package com.airfryer.repicka.domain.user.entity;
+package com.airfryer.repicka.domain.user.entity.user;
 
 import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.user.dto.UpdateUserReq;

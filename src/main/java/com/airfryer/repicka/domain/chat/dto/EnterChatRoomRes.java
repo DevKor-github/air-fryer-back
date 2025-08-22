@@ -6,7 +6,7 @@ import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.item.dto.ItemPreviewDto;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -55,7 +55,6 @@ public class EnterChatRoomRes
         private Boolean isOpponentKorean;           // 상대방의 고려대 인증 여부
         private Boolean isOpponentOnline;           // 상대방의 온라인 여부
         private LocalDateTime opponentLastEnterAt;  // 상대방의 마지막 채팅방 입장 시점
-        private Boolean isFinished;                 // 채팅방 종료 여부
         private LocalDateTime lastChatAt;           // 마지막 채팅 시점
 
         private static ChatRoomDto from(ChatRoom chatRoom, User me, boolean isOpponentOnline, ParticipateChatRoom opponentParticipateChatRoom)
@@ -70,8 +69,7 @@ public class EnterChatRoomRes
                     .opponentProfileImageUrl(opponent.getProfileImageUrl())
                     .isOpponentKorean(opponent.getIsKoreaUnivVerified())
                     .isOpponentOnline(isOpponentOnline)
-                    .opponentLastEnterAt(opponentParticipateChatRoom.getLastEnterAt())
-                    .isFinished(chatRoom.getIsFinished())
+                    .opponentLastEnterAt(opponentParticipateChatRoom.getLastReadAt())
                     .lastChatAt(chatRoom.getLastChatAt())
                     .build();
         }

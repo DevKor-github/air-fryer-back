@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 public class ChatPageDto
 {
-    private List<ChatContent> messages;     // 채팅 리스트
+    private List<ChatContent> messages;  // 채팅 리스트
     private String cursorId;                // 채팅: 커서 ID
     private Boolean hasNext;                // 채팅: 다음 페이지가 존재하는가?
 

@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SubMessageType
 {
-    CHAT("CHAT", "채팅"),
+    CHAT("CHAT", "채팅 메시지"),
     ENTER("ENTER", "채팅방 입장"),
     EXIT("EXIT", "채팅방 퇴장");
 

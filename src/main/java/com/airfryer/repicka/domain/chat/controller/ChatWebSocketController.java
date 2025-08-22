@@ -3,7 +3,7 @@ package com.airfryer.repicka.domain.chat.controller;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.chat.dto.message.pub.SendChatMessage;
 import com.airfryer.repicka.domain.chat.service.ChatWebSocketService;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.Authentication;
@@ -19,10 +19,10 @@ public class ChatWebSocketController
 
     // 채팅 전송
     @MessageMapping("/chat")
-    public void send(Principal principal, SendChatMessage dto)
+    public void sendMessageChat(Principal principal, SendChatMessage dto)
     {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) ((Authentication) principal).getPrincipal();
         User user = oAuth2User.getUser();
-        chatWebSocketService.sendChatMessage(user, dto);
+        chatWebSocketService.sendMessageChat(user, dto);
     }
 }

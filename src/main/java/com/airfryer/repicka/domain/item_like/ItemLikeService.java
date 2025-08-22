@@ -15,7 +15,7 @@ import com.airfryer.repicka.domain.item.dto.ItemPreviewDto;
 import com.airfryer.repicka.domain.item_like.entity.ItemLike;
 import com.airfryer.repicka.domain.item_image.ItemImageService;
 import com.airfryer.repicka.domain.item.entity.Item;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 

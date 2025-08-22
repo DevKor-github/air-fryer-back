@@ -4,7 +4,7 @@ import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
 import com.airfryer.repicka.domain.chat.dto.*;
 import com.airfryer.repicka.domain.chat.service.ChatService;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -86,6 +86,21 @@ public class ChatController
                 .body(SuccessResponseDto.builder()
                         .message("채팅을 성공적으로 불러왔습니다.")
                         .data(data)
+                        .build());
+    }
+
+    // 채팅방 나가기
+    @PatchMapping("/chatroom/{chatRoomId}/exit")
+    public ResponseEntity<SuccessResponseDto> exitChatRoom(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                           @PathVariable Long chatRoomId)
+    {
+        User user = oAuth2User.getUser();
+        chatService.exitChatRoom(user, chatRoomId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("채팅방을 성공적으로 나갔습니다.")
+                        .data(null)
                         .build());
     }
 }

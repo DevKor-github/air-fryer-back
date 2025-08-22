@@ -2,7 +2,7 @@ package com.airfryer.repicka.domain.test.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.user.entity.User;
+import com.airfryer.repicka.domain.user.entity.user.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +38,7 @@ public class TestController
                         .data(user.getId())
                         .build());
     }
-    
+
     // FCM 테스트
     // TODO: 테스트 완료 후 프로덕션 배포 전 삭제
     @PostMapping("/fcm")
