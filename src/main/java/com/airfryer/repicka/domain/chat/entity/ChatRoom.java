@@ -39,11 +39,6 @@ public class ChatRoom extends BaseEntity
     @JoinColumn(name = "owner")
     private User owner;
 
-    // 종료 여부
-    @NotNull
-    @Builder.Default
-    private Boolean isFinished = false;
-
     // 마지막 채팅 시점
     @NotNull
     @Builder.Default
