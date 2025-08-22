@@ -14,6 +14,7 @@ import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRepository;
 import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
 import com.airfryer.repicka.domain.user.entity.user.User;
+import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,6 +30,7 @@ public class ChatWebSocketService
 {
     private final ChatRepository chatRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
+    private final UserBlockRepository userBlockRepository;
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final OnlineStatusManager onlineStatusManager;
@@ -53,6 +55,11 @@ public class ChatWebSocketService
         // 이미 채팅방을 나갔는지 확인
         if(participateChatRoom.getHasLeftRoom()) {
             throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
+        }
+
+        // 유저 차단 데이터 존재 여부 체크
+        if(userBlockRepository.existsByUserIds(chatRoom.getRequester().getId(), chatRoom.getOwner().getId())) {
+            throw new CustomException(CustomExceptionCode.USER_BLOCK_EXIST, null);
         }
 
         // 채팅방 관계자인지 확인
