@@ -103,19 +103,4 @@ public class ChatController
                         .data(null)
                         .build());
     }
-
-    // 특정 채팅방의 대여중 상태인 약속 존재 여부 확인
-    @GetMapping("/chatroom/{chatRoomId}/in-progress-appointment/exist")
-    public ResponseEntity<SuccessResponseDto> isInProgressAppointmentExist(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                           @PathVariable Long chatRoomId)
-    {
-        User user = oAuth2User.getUser();
-        boolean data = chatService.isInProgressAppointmentExist(user, chatRoomId);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("특정 채팅방의 대여중 상태인 약속 존재 여부를 성공적으로 확인하였습니다.")
-                        .data(data)
-                        .build());
-    }
 }
