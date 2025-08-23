@@ -3,6 +3,7 @@ package com.airfryer.repicka.domain.appointment.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
+
 import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.common.firebase.service.FCMService;
@@ -27,6 +28,8 @@ import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.user.entity.user.User;
+import com.airfryer.repicka.domain.notification.NotificationService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +52,7 @@ public class AppointmentService
     private final ChatWebSocketService chatWebSocketService;
     private final RedisService delayedQueueService;
     private final FCMService fcmService;
-
+    private final NotificationService notificationService;
     /// 서비스
 
     // 약속 제시
@@ -176,6 +179,9 @@ public class AppointmentService
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), requester.getNickname());
         fcmService.sendNotification(item.getOwner().getFcmToken(), notificationReq);
 
+        // 약속 제시 알림 저장
+        notificationService.saveNotification(item.getOwner(), NotificationType.APPOINTMENT_PROPOSAL, appointment);
+
         /// PICK 메시지 전송
 
         // 채팅 생성
@@ -258,6 +264,10 @@ public class AppointmentService
         // 약속 확정 알림
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRM, appointment.getId().toString(), appointment.getItem().getTitle());
         fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+        
+        // 약속 확정 알림 저장
+        notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CONFIRM, appointment);
+        notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CONFIRM, appointment);
 
         // 약속 알림 발송 예약
         delayedQueueService.addDelayedTask(
@@ -296,6 +306,14 @@ public class AppointmentService
         Item item = appointment.getItem();
 
         /// 약속 취소
+        
+        // 약속 취소 알림 저장
+        if(appointment.getState() == AppointmentState.PENDING) {
+            notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_CANCEL, appointment);
+        } else {
+            notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CANCEL, appointment);
+            notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CANCEL, appointment);
+        }
 
         cancelAppointment(appointment, item);
 
@@ -327,7 +345,7 @@ public class AppointmentService
         // 푸시 알림 전송
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, appointment.getId().toString(), user.getNickname());
         fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
-
+        
         // TODO: 사용자 피드백 요청
 
         // 약속 데이터 반환

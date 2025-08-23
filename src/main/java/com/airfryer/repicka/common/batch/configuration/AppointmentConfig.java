@@ -5,6 +5,9 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.appointment.repository.UpdateInProgressAppointmentRepository;
+import com.airfryer.repicka.domain.notification.entity.NotificationType;
+import com.airfryer.repicka.domain.notification.NotificationService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -38,14 +41,15 @@ public class AppointmentConfig
 
     private final AppointmentRepository appointmentRepository;
     private final UpdateInProgressAppointmentRepository updateInProgressAppointmentRepository;
+    private final NotificationService notificationService;
 
     // 약속 만료 Job
     @Bean
     public Job expireAppointmentJob(Step expireAppointmentStep)
     {
         return new JobBuilder("expireAppointmentJob", jobRepository)
-                .start(expireAppointmentStep)
-                .build();
+            .start(expireAppointmentStep)
+            .build();
     }
 
     // 약속 성공 처리 Job
@@ -53,8 +57,8 @@ public class AppointmentConfig
     public Job successAppointmentJob(Step successAppointmentStep)
     {
         return new JobBuilder("successAppointmentJob", jobRepository)
-                .start(successAppointmentStep)
-                .build();
+            .start(successAppointmentStep)
+            .build();
     }
 
     // 약속 만료 Step
@@ -63,10 +67,10 @@ public class AppointmentConfig
                                       ItemWriter<Appointment> expireAppointmentWriter)
     {
         return new StepBuilder("expireAppointmentStep", jobRepository)
-                .<Appointment, Appointment>chunk(100, transactionManager)
-                .reader(expireAppointmentReader)
-                .writer(expireAppointmentWriter)
-                .build();
+            .<Appointment, Appointment>chunk(100, transactionManager)
+            .reader(expireAppointmentReader)
+            .writer(expireAppointmentWriter)
+            .build();
     }
 
     // 약속 성공 처리 Step
@@ -75,10 +79,10 @@ public class AppointmentConfig
                                        ItemWriter<Appointment> successAppointmentWriter)
     {
         return new StepBuilder("successAppointmentStep", jobRepository)
-                .<Appointment, Appointment>chunk(100, transactionManager)
-                .reader(successAppointmentReader)
-                .writer(successAppointmentWriter)
-                .build();
+            .<Appointment, Appointment>chunk(100, transactionManager)
+            .reader(successAppointmentReader)
+            .writer(successAppointmentWriter)
+            .build();
     }
 
     // 약속 만료 reader
@@ -88,13 +92,13 @@ public class AppointmentConfig
     {
         // updatedAt 일시가 일주일 이전인 Appointment 조회
         return new RepositoryItemReaderBuilder<Appointment>()
-                .repository(appointmentRepository)
-                .methodName("findByStateAndUpdatedAtBefore")
-                .arguments(List.of(AppointmentState.PENDING, LocalDateTime.parse(now).minusWeeks(1)))
-                .pageSize(100)
-                .sorts(Map.of("updatedAt", Sort.Direction.ASC))
-                .name("expireAppointmentReader")
-                .build();
+            .repository(appointmentRepository)
+            .methodName("findByStateAndUpdatedAtBefore")
+            .arguments(List.of(AppointmentState.PENDING, LocalDateTime.parse(now).minusWeeks(1)))
+            .pageSize(100)
+            .sorts(Map.of("updatedAt", Sort.Direction.ASC))
+            .name("expireAppointmentReader")
+            .build();
     }
 
     // 약속 성공 처리 reader
@@ -104,13 +108,13 @@ public class AppointmentConfig
     {
         // returnDate가 현재 시점 이전이고 IN_PROGRESS 상태인 Appointment 조회
         return new RepositoryItemReaderBuilder<Appointment>()
-                .repository(appointmentRepository)
-                .methodName("findByStateAndReturnDateBefore")
-                .arguments(List.of(AppointmentState.IN_PROGRESS, LocalDateTime.parse(now)))
-                .pageSize(100)
-                .sorts(Map.of("returnDate", Sort.Direction.ASC))
-                .name("successAppointmentReader")
-                .build();
+            .repository(appointmentRepository)
+            .methodName("findByStateAndReturnDateBefore")
+            .arguments(List.of(AppointmentState.IN_PROGRESS, LocalDateTime.parse(now)))
+            .pageSize(100)
+            .sorts(Map.of("returnDate", Sort.Direction.ASC))
+            .name("successAppointmentReader")
+            .build();
     }
 
     // PENDING 약속 만료 writer
@@ -125,12 +129,13 @@ public class AppointmentConfig
             // 모든 약속 상태를 EXPIRED로 변경
             for(Appointment appointment : appointments) {
                 appointment.expire();
+                notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_EXPIRE, appointment);
             }
 
             // 약속 ID 리스트
             List<Long> appointmentIdList = appointments.getItems().stream()
-                    .map(Appointment::getId)
-                    .toList();
+                .map(Appointment::getId)
+                .toList();
 
             // 연관된 모든 UpdateInProgressAppointment 데이터 삭제
             List<UpdateInProgressAppointment> deleteList = updateInProgressAppointmentRepository.findByAppointmentIdIn(appointmentIdList);
@@ -155,8 +160,8 @@ public class AppointmentConfig
 
             // 약속 ID 리스트
             List<Long> appointmentIdList = appointments.getItems().stream()
-                    .map(Appointment::getId)
-                    .toList();
+                .map(Appointment::getId)
+                .toList();
 
             // 연관된 모든 UpdateInProgressAppointment 데이터 삭제
             List<UpdateInProgressAppointment> deleteList = updateInProgressAppointmentRepository.findByAppointmentIdIn(appointmentIdList);
