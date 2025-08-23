@@ -56,6 +56,11 @@ jobs:
       REDIS_PORT: ${{ secrets.REDIS_PORT }}
       JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
       FRONTEND_URI: ${{ secrets.TEST_FRONTEND_URI }}
+      APPLE_CLIENT_ID: ${{ secrets.APPLE_CLIENT_ID }}
+      APPLE_CLIENT_SECRET: ${{ secrets.APPLE_CLIENT_SECRET }}
+      APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+      APPLE_REDIRECT_URI: ${{ secrets.APPLE_REDIRECT_URI }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
     steps:
       - name: Checkout Source Code
