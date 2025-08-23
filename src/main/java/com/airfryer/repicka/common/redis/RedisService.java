@@ -3,7 +3,7 @@ package com.airfryer.repicka.common.redis;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.common.redis.dto.KeyExpiredEvent;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
-import com.airfryer.repicka.common.firebase.type.NotificationType;
+import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -145,7 +145,7 @@ public class RedisService {
     
     // 예약 알림 발송
     private void sendAppointmentReminder(AppointmentTask task) {
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMINDER, task.getAppointmentId().toString(), task.getItemName());
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMIND, task.getAppointmentId().toString(), task.getItemName());
         List<String> fcmTokens = Arrays.asList(task.getOwnerFcmToken(), task.getRequesterFcmToken());
         fcmService.sendNotificationToMultiple(fcmTokens, notificationReq);
     }

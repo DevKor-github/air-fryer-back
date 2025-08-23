@@ -4,7 +4,7 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
-import com.airfryer.repicka.common.firebase.type.NotificationType;
+import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
