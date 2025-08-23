@@ -1,5 +1,7 @@
 package com.airfryer.repicka.common.batch.scheduler;
 
+import com.airfryer.repicka.domain.notification.NotificationService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -18,15 +20,15 @@ public class AppointmentScheduler
     private final JobLauncher jobLauncher;
     private final Job expireAppointmentJob;
     private final Job successAppointmentJob;
-
+    private final NotificationService notificationService;
     // 매일 오전 4시에 실행 - 만료 배치
     @Scheduled(cron = "0 0 4 * * *")
     public void runExpireBatch()
     {
         try {
             jobLauncher.run(expireAppointmentJob, new JobParametersBuilder()
-                    .addString("now", LocalDateTime.now().toString())
-                    .toJobParameters());
+                .addString("now", LocalDateTime.now().toString())
+                .toJobParameters());
         } catch (Exception e) {
             log.error("ExpireAppointmentJob 실행 중 오류 발생: {}", e.getMessage());
         }
@@ -38,8 +40,8 @@ public class AppointmentScheduler
     {
         try {
             jobLauncher.run(successAppointmentJob, new JobParametersBuilder()
-                    .addString("now", LocalDateTime.now().toString())
-                    .toJobParameters());
+                .addString("now", LocalDateTime.now().toString())
+                .toJobParameters());
         } catch (Exception e) {
             log.error("SuccessAppointmentJob 실행 중 오류 발생: {}", e.getMessage());
         }
