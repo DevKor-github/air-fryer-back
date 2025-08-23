@@ -155,7 +155,8 @@ public class SecurityConfig
                 "http://localhost:5174",
                 "http://localhost:63342",
                 "https://devkor-github.github.io",
-                "https://repicka.netlify.app"
+                "https://repicka.netlify.app",
+                "https://repicka-back-dev.shop"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setExposedHeaders(List.of("Set-Cookie"));

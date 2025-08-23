@@ -19,7 +19,8 @@ public class WebConfig implements WebMvcConfigurer
                         "http://localhost:5174",
                         "http://localhost:63342",
                         "https://devkor-github.github.io",
-                        "https://repicka.netlify.app"
+                        "https://repicka.netlify.app",
+                        "https://repicka-back-dev.shop"
                 )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
     }
