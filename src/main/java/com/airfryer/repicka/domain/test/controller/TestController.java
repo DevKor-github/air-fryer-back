@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
-import com.airfryer.repicka.common.firebase.type.NotificationType;
+import com.airfryer.repicka.domain.notification.entity.NotificationType;
 
 @RequiredArgsConstructor
 @RestController

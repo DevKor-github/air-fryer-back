@@ -4,7 +4,8 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
-import com.airfryer.repicka.common.firebase.type.NotificationType;
+import com.airfryer.repicka.domain.notification.NotificationService;
+import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
@@ -45,6 +46,7 @@ public class ChatService
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final AppointmentRepository appointmentRepository;
+    private final NotificationService notificationService;
 
     private final OnlineStatusManager onlineStatusManager;
 
@@ -63,7 +65,7 @@ public class ChatService
 
         // 제품 조회
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 이미 삭제된 제품인 경우, 예외 처리
         if(item.getIsDeleted()) {
@@ -78,7 +80,7 @@ public class ChatService
 
         // 채팅방 참여 정보 조회
         ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), requester.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         // 이미 채팅방을 나간 경우
         if(participateChatRoom.getHasLeftRoom())
@@ -88,14 +90,14 @@ public class ChatService
 
             // 채팅방 재입장 채팅 생성
             Chat reEnterChat = Chat.builder()
-                    .chatRoomId(chatRoom.getId())
-                    .userId(requester.getId())
-                    .nickname(requester.getNickname())
-                    .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
-                    .isNotification(true)
-                    .isPick(false)
-                    .pickInfo(null)
-                    .build();
+                .chatRoomId(chatRoom.getId())
+                .userId(requester.getId())
+                .nickname(requester.getNickname())
+                .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                .isNotification(true)
+                .isPick(false)
+                .pickInfo(null)
+                .build();
 
             // 채팅방 재입장 채팅 전송
             chatWebSocketService.sendMessageChat(requester, chatRoom, reEnterChat);
@@ -114,7 +116,7 @@ public class ChatService
 
         // 채팅방 조회
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
 
         return enterChatRoom(user, chatRoom, pageSize);
     }
@@ -125,7 +127,7 @@ public class ChatService
         /// 채팅방 참여 데이터 조회
 
         ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         /// 예외 처리
 
@@ -138,7 +140,7 @@ public class ChatService
 
         // 썸네일 데이터 조회
         ItemImage thumbnail = itemImageRepository.findFirstByItemId(chatRoom.getItem().getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_IMAGE_NOT_FOUND, chatRoom.getItem().getId()));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_IMAGE_NOT_FOUND, chatRoom.getItem().getId()));
 
         /// 채팅 페이지 조회
 
@@ -171,30 +173,30 @@ public class ChatService
 
         // 상대방의 채팅방 참여 정보 조회
         ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         /// 완료되지 않은 약속 조회
 
         List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
-                chatRoom.getItem().getId(),
-                chatRoom.getOwner().getId(),
-                chatRoom.getRequester().getId(),
-                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
+            chatRoom.getItem().getId(),
+            chatRoom.getOwner().getId(),
+            chatRoom.getRequester().getId(),
+            List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
         );
 
         /// 데이터 반환
 
         return EnterChatRoomRes.of(
-                chatRoom,
-                user,
-                thumbnail.getFileKey(),
-                chatPage,
-                isOpponentOnline,
-                opponentParticipateChatRoom,
-                !currentAppointmentOptional.isEmpty(),
-                !currentAppointmentOptional.isEmpty() ? currentAppointmentOptional.getFirst() : null,
-                chatCursorId,
-                hasNext
+            chatRoom,
+            user,
+            thumbnail.getFileKey(),
+            chatPage,
+            isOpponentOnline,
+            opponentParticipateChatRoom,
+            !currentAppointmentOptional.isEmpty(),
+            !currentAppointmentOptional.isEmpty() ? currentAppointmentOptional.getFirst() : null,
+            chatCursorId,
+            hasNext
         );
     }
 
@@ -220,9 +222,9 @@ public class ChatService
         /// 데이터 반환
 
         return createChatRoomListDto(
-                user,
-                participateChatRoomList.stream().map(ParticipateChatRoom::getChatRoom).toList(),
-                dto.getPageSize()
+            user,
+            participateChatRoomList.stream().map(ParticipateChatRoom::getChatRoom).toList(),
+            dto.getPageSize()
         );
     }
 
@@ -234,7 +236,7 @@ public class ChatService
 
         // 제품 조회
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
         // 제품 소유자가 아닌 경우, 예외 처리
         if(!Objects.equals(user.getId(), item.getOwner().getId())) {
@@ -259,9 +261,9 @@ public class ChatService
         /// 데이터 반환
 
         return createChatRoomListDto(
-                user,
-                participateChatRoomList.stream().map(ParticipateChatRoom::getChatRoom).toList(),
-                dto.getPageSize()
+            user,
+            participateChatRoomList.stream().map(ParticipateChatRoom::getChatRoom).toList(),
+            dto.getPageSize()
         );
     }
 
@@ -273,12 +275,12 @@ public class ChatService
 
         // 채팅방 조회
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
 
         /// 채팅방 참여 데이터 조회
 
         ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         /// 예외 처리
 
@@ -294,8 +296,8 @@ public class ChatService
 
         // 채팅 페이지 조회
         List<Chat> chatPage = cursorId == null ?
-                chatRepository.findFirstChatList(chatRoomId, participateChatRoom.getLastReEnterAt(), pageable):
-                chatRepository.findChatList(chatRoomId, new ObjectId(cursorId), participateChatRoom.getLastReEnterAt(), pageable);
+            chatRepository.findFirstChatList(chatRoomId, participateChatRoom.getLastReEnterAt(), pageable):
+            chatRepository.findChatList(chatRoomId, new ObjectId(cursorId), participateChatRoom.getLastReEnterAt(), pageable);
 
         /// 채팅 페이지 정보 계산
 
@@ -313,9 +315,9 @@ public class ChatService
         /// 데이터 반환
 
         return ChatPageDto.of(
-                chatPage,
-                nextCursorId,
-                hasNext
+            chatPage,
+            nextCursorId,
+            hasNext
         );
     }
 
@@ -327,7 +329,7 @@ public class ChatService
 
         // 채팅방 참여 데이터 조회
         ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, user.getId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
         // 이미 채팅방을 나갔는지 확인
         if(participateChatRoom.getHasLeftRoom()) {
@@ -346,10 +348,10 @@ public class ChatService
 
         // 완료되지 않은 약속 조회
         List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
-                chatRoom.getItem().getId(),
-                chatRoom.getOwner().getId(),
-                chatRoom.getRequester().getId(),
-                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
+            chatRoom.getItem().getId(),
+            chatRoom.getOwner().getId(),
+            chatRoom.getRequester().getId(),
+            List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
         );
 
         // 완료되지 않은 약속이 존재하는 경우
@@ -378,14 +380,14 @@ public class ChatService
 
             // 채팅 생성
             Chat cancelChat = Chat.builder()
-                    .chatRoomId(chatRoom.getId())
-                    .userId(user.getId())
-                    .nickname(user.getNickname())
-                    .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
-                    .isNotification(true)
-                    .isPick(false)
-                    .pickInfo(null)
-                    .build();
+                .chatRoomId(chatRoom.getId())
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                .isNotification(true)
+                .isPick(false)
+                .pickInfo(null)
+                .build();
 
             // 채팅 전송
             chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
@@ -393,6 +395,10 @@ public class ChatService
             // 푸시 알림 전송
             FCMNotificationReq cancelNotificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, currentAppointment.getId().toString(), user.getNickname());
             fcmService.sendNotification(opponent.getFcmToken(), cancelNotificationReq);
+
+            // 약속 취소 알림 저장
+            notificationService.saveNotification(user, NotificationType.APPOINTMENT_CANCEL, currentAppointment);
+            notificationService.saveNotification(opponent, NotificationType.APPOINTMENT_CANCEL, currentAppointment);
         }
 
         /// 채팅방 나가기 처리
@@ -404,14 +410,14 @@ public class ChatService
 
         // 채팅 생성
         Chat leaveChat = Chat.builder()
-                .chatRoomId(chatRoom.getId())
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .content(user.getNickname() + " 님께서 채팅방을 나갔습니다.")
-                .isNotification(true)
-                .isPick(false)
-                .pickInfo(null)
-                .build();
+            .chatRoomId(chatRoom.getId())
+            .userId(user.getId())
+            .nickname(user.getNickname())
+            .content(user.getNickname() + " 님께서 채팅방을 나갔습니다.")
+            .isNotification(true)
+            .isPick(false)
+            .pickInfo(null)
+            .build();
 
         // 채팅 전송
         chatWebSocketService.sendMessageChat(user, chatRoom, leaveChat);
@@ -442,13 +448,13 @@ public class ChatService
 
             // 채팅방 참여 정보
             ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
-                    .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
             return ChatRoomDto.from(
-                    chatRoom,
-                    user,
-                    chatOptional.orElse(null),
-                    participateChatRoom.getUnreadChatCount()
+                chatRoom,
+                user,
+                chatOptional.orElse(null),
+                participateChatRoom.getUnreadChatCount()
             );
 
         }).toList();
@@ -456,11 +462,11 @@ public class ChatService
         /// 데이터 반환
 
         return ChatRoomListDto.builder()
-                .chatRooms(chatRoomDtoList)
-                .hasNext(hasNext)
-                .cursorLastChatAt(cursorLastChatAt)
-                .cursorId(cursorId)
-                .build();
+            .chatRooms(chatRoomDtoList)
+            .hasNext(hasNext)
+            .cursorLastChatAt(cursorLastChatAt)
+            .cursorId(cursorId)
+            .build();
     }
 
     // 채팅방 조회 (존재하지 않으면 생성)
@@ -488,10 +494,10 @@ public class ChatService
             /// 채팅방 생성
 
             ChatRoom chatRoom = ChatRoom.builder()
-                    .item(item)
-                    .requester(requester)
-                    .owner(item.getOwner())
-                    .build();
+                .item(item)
+                .requester(requester)
+                .owner(item.getOwner())
+                .build();
 
             chatRoomRepository.save(chatRoom);
 
@@ -499,15 +505,15 @@ public class ChatService
 
             // 요청자 참여 정보 생성
             participateChatRoomRepository.save(ParticipateChatRoom.builder()
-                    .chatRoom(chatRoom)
-                    .participant(requester)
-                    .build());
+                .chatRoom(chatRoom)
+                .participant(requester)
+                .build());
 
             // 제품 소유자 참여 정보 생성
             participateChatRoomRepository.save(ParticipateChatRoom.builder()
-                    .chatRoom(chatRoom)
-                    .participant(item.getOwner())
-                    .build());
+                .chatRoom(chatRoom)
+                .participant(item.getOwner())
+                .build());
 
             /// 제품의 채팅방 개수 증가
 
