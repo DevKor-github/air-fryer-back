@@ -74,11 +74,7 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
         {
             // client-secret 생성 및 대입
             try {
-                String clientId = registrationId.equals("apple-web")
-                        ? APPLE_WEB_CLIENT_ID
-                        : APPLE_APP_CLIENT_ID;
-
-                Objects.requireNonNull(params).set("client_secret", createClientSecret(clientId));
+                Objects.requireNonNull(params).set("client_secret", createClientSecret(APPLE_WEB_CLIENT_ID));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new CustomException(CustomExceptionCode.CREATE_CLIENT_SECRET_FAILED, e.getMessage());
