@@ -133,6 +133,11 @@ jobs:
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
+          echo "APPLE_CLIENT_ID=${{ secrets.APPLE_CLIENT_ID }}" >> .env
+          echo "APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET }}" >> .env
+          echo "APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }}" >> .env
+          echo "APPLE_REDIRECT_URI=${{ secrets.APPLE_REDIRECT_URI }}" >> .env
+          echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> .env
           echo "FRONTEND_URI=${{ secrets.FRONTEND_URI }}" >> .env
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env

@@ -18,6 +18,10 @@ public enum CustomExceptionCode
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Refresh token이 존재하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Refresh token입니다."),
 
+    // 애플 로그인 관련 예외
+    CREATE_CLIENT_SECRET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "애플 로그인 도중 client-secret 생성에 실패하였습니다."),
+    DECODE_ID_TOKEN_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ID 토큰으로부터 사용자 정보를 추출하는 도중 에러가 발생하였습니다."),
+
     // 사용자 관련 예외
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 데이터를 찾을 수 없습니다."),
     SAME_REPORTER_AND_REPORTED(HttpStatus.BAD_REQUEST, "본인이 본인을 신고할 수 없습니다."),
