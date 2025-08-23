@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.user;
 
+import com.airfryer.repicka.domain.item.dto.res.OwnedItemListRes;
 import com.airfryer.repicka.domain.user.dto.ReportUserReq;
 import com.airfryer.repicka.domain.user.entity.user.User;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ import com.airfryer.repicka.domain.user.dto.BaseUserDto;
 import com.airfryer.repicka.domain.user.dto.UpdateUserReq;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -90,5 +93,17 @@ public class UserController {
                         .message("유저를 성공적으로 신고하였습니다.")
                         .data(null)
                         .build());
+    }
+
+    // 특정 사용자가 소유한 제품 리스트 조회
+    @GetMapping("/{userId}/item")
+    public ResponseEntity<SuccessResponseDto> getOwnedItemList(@PathVariable Long userId)
+    {
+        List<OwnedItemListRes> data = userService.getOwnedItemList(userId);
+
+        return ResponseEntity.ok(SuccessResponseDto.builder()
+                .message("해당 사용자가 소유한 제품 리스트를 성공적으로 조회하였습니다.")
+                .data(data)
+                .build());
     }
 }

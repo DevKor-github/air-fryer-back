@@ -91,6 +91,7 @@ public class SecurityConfig
                         .requestMatchers("/api/v1/refresh-token").permitAll()
 
                         // User
+                        .requestMatchers("/api/v1/user/*/item").permitAll()
                         .requestMatchers("/api/v1/user/**").hasAnyAuthority("USER", "ADMIN")
 
                         // Appointment
