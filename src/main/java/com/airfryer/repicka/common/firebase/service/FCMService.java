@@ -44,8 +44,8 @@ public class FCMService {
     public void sendNotificationToMultiple(List<String> tokens, FCMNotificationReq request) {
         // 존재하는 토큰만 필터링
         tokens = tokens.stream()
-                .filter(token -> token != null && !token.isEmpty())
-                .toList();
+            .filter(token -> token != null && !token.isEmpty())
+            .toList();
         
         if (tokens.isEmpty()) {
             return;
