@@ -173,5 +173,6 @@ jobs:
           --network host \
           --env-file .env \
           -v /home/ec2-user/secrets:/app/secrets:ro \
+          --user 1000:1000 \
           --name repicka \
           ${{ env.DOCKER_IMAGE }}
