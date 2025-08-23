@@ -1,5 +1,9 @@
 spring:
 
+  ## 시간대 기준을 서울로 설정
+  jackson:
+    time-zone: Asia/Seoul
+
   ## PostgreSQL 연동
   datasource:
     driver-class-name: org.postgresql.Driver

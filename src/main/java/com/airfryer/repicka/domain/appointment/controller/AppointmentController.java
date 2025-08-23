@@ -165,4 +165,19 @@ public class AppointmentController
                         .data(data)
                         .build());
     }
+
+    // 대여중인 약속 존재 여부 확인
+    @GetMapping("/in-progress")
+    public ResponseEntity<SuccessResponseDto> isInProgressAppointmentPresent(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                             @RequestParam Long chatRoomId)
+    {
+        User user = oAuth2User.getUser();
+        boolean isPresent = appointmentService.isInProgressAppointmentPresent(user, chatRoomId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("대여중인 약속 존재 여부를 성공적으로 조회하였습니다.")
+                        .data(isPresent)
+                        .build());
+    }
 }
