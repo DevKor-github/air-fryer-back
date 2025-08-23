@@ -158,4 +158,10 @@ public class Appointment extends BaseEntity
     public void expire() {
         this.state = AppointmentState.EXPIRED;
     }
+
+    /// 약속 완료
+
+    public void success() {
+        this.state = AppointmentState.SUCCESS;
+    }
 }

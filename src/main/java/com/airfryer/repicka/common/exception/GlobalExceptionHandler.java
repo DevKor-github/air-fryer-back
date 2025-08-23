@@ -26,7 +26,8 @@ public class GlobalExceptionHandler
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ExceptionResponseDto> customExceptionHandler(CustomException e)
     {
-        log.error("CustomException occurred: ", e);
+        log.error("CustomException occurred");
+        log.error("{}: {}", e.getCode().name(), e.getCode().getMessage());
 
         return ResponseEntity.status(e.getCode().getHttpStatus())
                 .body(ExceptionResponseDto.builder()
