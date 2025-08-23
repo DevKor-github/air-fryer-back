@@ -174,5 +174,10 @@ jobs:
           --env-file .env \
           -v /home/ec2-user/secrets:/app/secrets:ro \
           --user 1000:1000 \
+          -e APPLE_CLIENT_ID=${{ secrets.APPLE_CLIENT_ID }} \
+          -e APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET }} \
+          -e APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }} \
+          -e APPLE_REDIRECT_URI=${{ secrets.APPLE_REDIRECT_URI }} \
+          -e APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }} \
           --name repicka \
           ${{ env.DOCKER_IMAGE }}
