@@ -8,7 +8,6 @@ import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.common.redis.type.TaskType;
-import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
@@ -360,13 +359,11 @@ public class AppointmentService
 
     // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
     @Transactional(readOnly = true)
-    public AppointmentPageRes findMyAppointmentPage(User user,
-                                                    FindMyAppointmentSubject subject,
-                                                    FindMyAppointmentPageReq dto)
+    public AppointmentPageRes findMyAppointmentPage(User user, FindMyAppointmentPageReq dto)
     {
         /// 약속 페이지 조회
 
-        List<Appointment> appointmentPage = subject.findAppointmentPage(
+        List<Appointment> appointmentPage = dto.getSubject().findAppointmentPage(
                 appointmentRepository,
                 user,
                 dto
@@ -412,7 +409,6 @@ public class AppointmentService
 
         return AppointmentPageRes.of(
                 map,
-                dto.getType(),
                 cursorState,
                 cursorDate,
                 cursorId,
