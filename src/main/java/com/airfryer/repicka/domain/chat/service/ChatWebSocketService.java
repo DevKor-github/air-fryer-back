@@ -160,6 +160,12 @@ public class ChatWebSocketService
                     .message(userMessage)
                     .build());
 
+            applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                    .userId(user.getId())
+                    .destination("/sub")
+                    .message(userMessage)
+                    .build());
+
             /// 푸시 알림 전송
 
             // 푸시 알림 전송
