@@ -20,7 +20,7 @@ public class CorsFilter implements Filter {
     private static final List<String> ALLOWED_ORIGINS = Arrays.asList(
             "http://localhost:5173",
             "http://localhost:5174",
-            "https://repicka-back-dev.shop/"
+            "https://repicka-back-dev.shop"
     );
 
     @Override
