@@ -152,6 +152,7 @@ public class SecurityConfig
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
+                "http://localhost:5174",
                 "http://localhost:63342",
                 "https://devkor-github.github.io",
                 "https://repicka.netlify.app"
