@@ -48,11 +48,22 @@ spring:
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
 
-          apple:
-            client-id: ${APPLE_CLIENT_ID}
-            client-secret: ${APPLE_CLIENT_SECRET}
+          apple-web:
+            client-id: ${APPLE_WEB_CLIENT_ID}
+            client-secret: /home/ec2-user/secrets/${APPLE_CLIENT_SECRET}
             redirect-uri: ${APPLE_REDIRECT_URI}
-            client-name: Apple
+            client-name: Apple Web
+            scope:
+              - name
+              - email
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+
+          apple-app:
+            client-id: ${APPLE_APP_CLIENT_ID}
+            client-secret: /home/ec2-user/secrets/${APPLE_CLIENT_SECRET}
+            redirect-uri: ${APPLE_REDIRECT_URI}
+            client-name: Apple App
             scope:
               - name
               - email
@@ -65,7 +76,10 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
-          apple:
+          apple-web:
+            authorizationUri: https://appleid.apple.com/auth/authorize?scope=name%20email&response_mode=form_post
+            tokenUri: https://appleid.apple.com/auth/token
+          apple-app:
             authorizationUri: https://appleid.apple.com/auth/authorize?scope=name%20email&response_mode=form_post
             tokenUri: https://appleid.apple.com/auth/token
 

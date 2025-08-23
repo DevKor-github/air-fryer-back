@@ -37,20 +37,23 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
     private final OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
 
     public CustomRequestEntityConverter(
-            @Value("${APPLE_CLIENT_ID}") String APPLE_CLIENT_ID,
+            @Value("${APPLE_WEB_CLIENT_ID}") String APPLE_WEB_CLIENT_ID,
+            @Value("${APPLE_APP_CLIENT_ID}") String APPLE_APP_CLIENT_ID,
             @Value("${APPLE_CLIENT_SECRET}") String APPLE_CLIENT_SECRET,
             @Value("${APPLE_TEAM_ID}") String APPLE_TEAM_ID,
             @Value("${APPLE_KEY_ID}") String APPLE_KEY_ID
     ) {
         defaultConverter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
 
-        this.APPLE_CLIENT_ID = APPLE_CLIENT_ID;
+        this.APPLE_WEB_CLIENT_ID = APPLE_WEB_CLIENT_ID;
+        this.APPLE_APP_CLIENT_ID = APPLE_APP_CLIENT_ID;
         this.APPLE_CLIENT_SECRET = APPLE_CLIENT_SECRET;
         this.APPLE_TEAM_ID = APPLE_TEAM_ID;
         this.APPLE_KEY_ID = APPLE_KEY_ID;
     }
 
-    private final String APPLE_CLIENT_ID;
+    private final String APPLE_WEB_CLIENT_ID;
+    private final String APPLE_APP_CLIENT_ID;
     private final String APPLE_CLIENT_SECRET;
     private final String APPLE_TEAM_ID;
     private final String APPLE_KEY_ID;
@@ -71,7 +74,11 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
         {
             // client-secret 생성 및 대입
             try {
-                Objects.requireNonNull(params).set("client_secret", createClientSecret());
+                String clientId = registrationId.equals("apple-web")
+                        ? APPLE_WEB_CLIENT_ID
+                        : APPLE_APP_CLIENT_ID;
+
+                Objects.requireNonNull(params).set("client_secret", createClientSecret(clientId));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new CustomException(CustomExceptionCode.CREATE_CLIENT_SECRET_FAILED, e.getMessage());
@@ -85,7 +92,7 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
     }
 
     // 커스텀 client-secret 생성
-    public String createClientSecret() throws IOException
+    public String createClientSecret(String clientId) throws IOException
     {
         // JWT 헤더
         Map<String, Object> jwtHeader = new HashMap<>();
@@ -98,7 +105,7 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant()))
                 .setAudience("https://appleid.apple.com")
-                .setSubject(APPLE_CLIENT_ID)
+                .setSubject(clientId)
                 .signWith(getPrivateKey())
                 .compact();
     }
