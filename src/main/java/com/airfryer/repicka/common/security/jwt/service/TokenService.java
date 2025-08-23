@@ -5,7 +5,6 @@ import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.security.jwt.JwtUtil;
 import com.airfryer.repicka.common.security.jwt.Token;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
@@ -51,5 +50,17 @@ public class TokenService
 
         // 토큰을 쿠키로 변환 후, 반환
         return jwtUtil.parseTokenToCookie(accessToken, Token.ACCESS_TOKEN);
+    }
+
+    // Access token 만료
+    public ResponseCookie expireAccessToken()
+    {
+        return jwtUtil.deleteTokenCookie(Token.ACCESS_TOKEN);
+    }
+
+    // Refresh token 만료
+    public ResponseCookie expireRefreshToken()
+    {
+        return jwtUtil.deleteTokenCookie(Token.REFRESH_TOKEN);
     }
 }
