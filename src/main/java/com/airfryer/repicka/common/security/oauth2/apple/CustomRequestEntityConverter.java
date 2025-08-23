@@ -4,6 +4,7 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import io.jsonwebtoken.Jwts;
 import io.micrometer.core.instrument.util.IOUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -30,6 +31,7 @@ import java.util.Objects;
 
 // 애플 로그인 시, client-secret을 동적으로 생성해주는 클래스
 @Service
+@Slf4j
 public class CustomRequestEntityConverter implements Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>>
 {
     private final OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
@@ -42,8 +44,6 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
     @Value("${APPLE_CLIENT_SECRET}") private String APPLE_CLIENT_SECRET;
     @Value("${APPLE_TEAM_ID}") private String APPLE_TEAM_ID;
     @Value("${APPLE_KEY_ID}") private String APPLE_KEY_ID;
-
-    private final String APPLE_KEY_PATH = "/app/secrets/" + APPLE_CLIENT_SECRET;
 
     // 커스텀 client-secret을 생성하여 RequestEntity 반환
     @Override
@@ -63,6 +63,7 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
             try {
                 Objects.requireNonNull(params).set("client_secret", createClientSecret());
             } catch (Exception e) {
+                log.error(e.getMessage(), e);
                 throw new CustomException(CustomExceptionCode.CREATE_CLIENT_SECRET_FAILED, e.getMessage());
             }
         }
@@ -95,7 +96,8 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
     // 애플 key를 사용하여 서명
     public PrivateKey getPrivateKey() throws IOException
     {
-        FileSystemResource resource = new FileSystemResource(APPLE_KEY_PATH);
+        String keyPath = "/app/secrets/" + APPLE_CLIENT_SECRET;
+        FileSystemResource resource = new FileSystemResource(keyPath);
 
         try (InputStream in = resource.getInputStream();
              PEMParser pemParser = new PEMParser(new StringReader(IOUtils.toString(in, StandardCharsets.UTF_8)))) {
