@@ -13,7 +13,7 @@ public class ReviewReq {
     @NotNull(message = "평점을 입력해주세요.")
     @Min(value = 1, message = "평점은 1점 이상이어야 합니다.")
     @Max(value = 5, message = "평점은 5점 이하이어야 합니다.")
-    private Integer rating;
+    private int rating;
 
     private String content;
 }

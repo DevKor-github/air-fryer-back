@@ -43,13 +43,8 @@ public class ReviewService {
                 appointment.success();
             }
             else {  // 약속 타입에 따른 날짜가 오늘이 아니면 예외 발생
-                throw new CustomException(CustomExceptionCode.REVIEW_NOT_ALLOWED, "리뷰 작성이 불가능한 상태입니다.");
+                throw new CustomException(CustomExceptionCode.APPOINTMENT_NOT_SUCCESS, null);
             }
-        }
-
-        // 약속 상태가 SUCCESS가 아니면 예외 발생 (위에서 처리되지 않은 경우)
-        if (appointment.getState() != AppointmentState.SUCCESS) {
-            throw new CustomException(CustomExceptionCode.REVIEW_NOT_ALLOWED, "완료된 약속에만 리뷰 작성이 가능합니다.");
         }
 
         // 리뷰가 이미 존재하면 예외 발생
@@ -65,7 +60,7 @@ public class ReviewService {
             .reviewer(appointment.getOwner().getId() == userId ? appointment.getOwner() : appointment.getRequester())
             .reviewed(appointment.getOwner().getId() == userId ? appointment.getRequester() : appointment.getOwner())
             .build();
-            
+
         reviewRepository.save(review);
     }
 

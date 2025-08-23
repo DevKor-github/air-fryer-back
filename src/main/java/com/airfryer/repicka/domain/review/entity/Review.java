@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "review")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -44,6 +44,6 @@ public class Review extends BaseEntity {
     @Column(length = 1024)
     private String content;
 
-    @Column()
-    private Integer rating;
+    @Column(nullable = false)
+    private int rating;
 }
