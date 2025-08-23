@@ -172,5 +172,6 @@ jobs:
           docker run -d \
           --network host \
           --env-file .env \
+          -v /home/ec2-user/secrets:/app/secrets:ro \
           --name repicka \
-          ${{ env.DOCKER_IMAGE }} 
+          ${{ env.DOCKER_IMAGE }}

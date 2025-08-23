@@ -9,7 +9,7 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequestEntityConverter;
@@ -43,7 +43,7 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
     @Value("${APPLE_TEAM_ID}") private String APPLE_TEAM_ID;
     @Value("${APPLE_KEY_ID}") private String APPLE_KEY_ID;
 
-    private final String APPLE_KEY_PATH = "static/apple/" + APPLE_CLIENT_SECRET;
+    private final String APPLE_KEY_PATH = "/app/secrets/" + APPLE_CLIENT_SECRET;
 
     // 커스텀 client-secret을 생성하여 RequestEntity 반환
     @Override
@@ -95,14 +95,13 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
     // 애플 key를 사용하여 서명
     public PrivateKey getPrivateKey() throws IOException
     {
-        ClassPathResource resource = new ClassPathResource(APPLE_KEY_PATH);
-        // 배포시 jar 파일을 찾지 못함
-        // String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
+        FileSystemResource resource = new FileSystemResource(APPLE_KEY_PATH);
 
-        InputStream in = resource.getInputStream();
-        PEMParser pemParser = new PEMParser(new StringReader(IOUtils.toString(in, StandardCharsets.UTF_8)));
-        PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
-        JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-        return converter.getPrivateKey(object);
+        try (InputStream in = resource.getInputStream();
+             PEMParser pemParser = new PEMParser(new StringReader(IOUtils.toString(in, StandardCharsets.UTF_8)))) {
+            PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+            return converter.getPrivateKey(object);
+        }
     }
 }
