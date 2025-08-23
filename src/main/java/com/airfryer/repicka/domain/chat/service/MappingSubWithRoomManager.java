@@ -23,7 +23,7 @@ public class MappingSubWithRoomManager
     public Long get(String sessionId, String subId)
     {
         String key = buildKey(sessionId, subId);
-        String value = (String) redisTemplate.opsForValue().get(key);
+        String value = redisTemplate.opsForValue().get(key);
 
         return value != null ? Long.parseLong(value) : null;
     }
@@ -42,7 +42,7 @@ public class MappingSubWithRoomManager
 
         for(String key : keys)
         {
-            String value = (String) redisTemplate.opsForValue().get(key);
+            String value = redisTemplate.opsForValue().get(key);
 
             if(value != null) {
                 result.add(Long.parseLong(value));

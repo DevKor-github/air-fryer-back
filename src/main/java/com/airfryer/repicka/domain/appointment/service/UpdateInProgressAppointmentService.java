@@ -25,7 +25,7 @@ public class UpdateInProgressAppointmentService
     private final AppointmentRepository appointmentRepository;
     private final UpdateInProgressAppointmentRepository updateInProgressAppointmentRepository;
 
-    private final AppointmentService appointmentService;
+    private final AppointmentUtil appointmentUtil;
 
     /// 서비스
 
@@ -52,7 +52,7 @@ public class UpdateInProgressAppointmentService
         // 기존 반납 일시부터 새로운 반납 일시까지의 대여 구간 가능 여부 체크
         if(appointment.getReturnDate().isBefore(dto.getReturnDate()))
         {
-            appointmentService.checkRentalPeriodPossibility(
+            appointmentUtil.checkRentalPeriodPossibility(
                     appointment.getReturnDate(),
                     dto.getReturnDate(),
                     appointment.getItem()
@@ -169,7 +169,7 @@ public class UpdateInProgressAppointmentService
             // 기존 반납 일시부터 새로운 반납 일시까지의 대여 구간 가능 여부 체크
             if(appointment.getReturnDate().isBefore(updateInProgressAppointment.getReturnDate()))
             {
-                appointmentService.checkRentalPeriodPossibility(
+                appointmentUtil.checkRentalPeriodPossibility(
                         appointment.getReturnDate(),
                         updateInProgressAppointment.getReturnDate(),
                         appointment.getItem()

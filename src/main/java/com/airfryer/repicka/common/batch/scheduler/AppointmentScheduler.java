@@ -20,7 +20,7 @@ public class AppointmentScheduler
     private final JobLauncher jobLauncher;
     private final Job expireAppointmentJob;
     private final Job successAppointmentJob;
-    private final NotificationService notificationService;
+
     // 매일 오전 4시에 실행 - 만료 배치
     @Scheduled(cron = "0 0 4 * * *")
     public void runExpireBatch()

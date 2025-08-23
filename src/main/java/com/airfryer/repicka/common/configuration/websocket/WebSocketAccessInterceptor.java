@@ -14,6 +14,7 @@ import com.airfryer.repicka.domain.chat.service.ChatWebSocketService;
 import com.airfryer.repicka.domain.chat.service.MappingSubWithRoomManager;
 import com.airfryer.repicka.domain.chat.service.OnlineStatusManager;
 import com.airfryer.repicka.domain.user.entity.user.User;
+import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,6 +37,7 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
+    private final UserBlockRepository userBlockRepository;
 
     private final ChatWebSocketService chatWebSocketService;
 
@@ -74,6 +76,11 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // 채팅방 참여 정보 조회
                 ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), userId)
                         .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+                // 유저 차단 데이터 존재 여부 체크
+                if(userBlockRepository.existsByUserIds(chatRoom.getRequester().getId(), chatRoom.getOwner().getId())) {
+                    throw new CustomException(CustomExceptionCode.USER_BLOCK_EXIST, null);
+                }
 
                 /// 채팅방 재입장 처리
 

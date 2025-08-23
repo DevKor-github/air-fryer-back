@@ -1,12 +1,18 @@
 package com.airfryer.repicka.domain.user;
 
+import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
+import com.airfryer.repicka.domain.chat.entity.ChatRoom;
+import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.item.dto.res.OwnedItemListRes;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
+import com.airfryer.repicka.domain.user.dto.BlockUserReq;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.user.dto.ReportUserReq;
+import com.airfryer.repicka.domain.user.entity.user_block.UserBlock;
 import com.airfryer.repicka.domain.user.entity.user_report.UserReport;
+import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import com.airfryer.repicka.domain.user.repository.UserReportRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -29,11 +35,16 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
-
+public class UserService
+{
     private final UserRepository userRepository;
     private final UserReportRepository userReportRepository;
+    private final UserBlockRepository userBlockRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final ItemRepository itemRepository;
+
+    private final AppointmentUtil appointmentUtil;
+
     private final ItemImageRepository itemImageRepository;
     private final S3Service s3Service;
 
@@ -109,7 +120,7 @@ public class UserService {
             throw new CustomException(CustomExceptionCode.UNRELATED_ITEM, null);
         }
 
-        /// 유저 신고 데이터 존재 여부에 따른 분기 처리
+        /// 유저 신고 데이터 저장
 
         // 기존의 유저 신고 데이터 조회
         Optional<UserReport> userReportOptional = userReportRepository.findByReporterIdAndReportedIdAndItemId(
@@ -139,6 +150,72 @@ public class UserService {
 
             userReportRepository.save(userReport);
         }
+
+        /// 유저 차단
+
+        blockUser(reported, reported);
+    }
+
+    // 유저 차단
+    @Transactional
+    public void blockUser(User blocker, BlockUserReq dto)
+    {
+        // 피차단자 조회
+        User blocked = userRepository.findById(dto.getBlockedUserId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, dto.getBlockedUserId()));
+
+        blockUser(blocker, blocked);
+    }
+
+    @Transactional
+    public void blockUser(User blocker, User blocked)
+    {
+        /// 예외 처리
+
+        // 이미 차단한 사용자인 경우, 종료
+        if(userBlockRepository.findByBlockerIdAndBlockedId(blocker.getId(), blocked.getId()).isPresent()) {
+            return;
+        }
+
+        // 본인이 본인을 차단하는 경우, 예외 처리
+        if(Objects.equals(blocker.getId(), blocked.getId())) {
+            throw new CustomException(CustomExceptionCode.SAME_BLOCKER_AND_BLOCKED, null);
+        }
+
+        /// 유저 차단 데이터 저장
+
+        UserBlock userBlock = UserBlock.builder()
+                .blocker(blocker)
+                .blocked(blocked)
+                .build();
+
+        userBlockRepository.save(userBlock);
+
+        /// 차단한 사용자와의 모든 완료되지 않은 약속 취소
+
+        List<ChatRoom> chatRoomList = chatRoomRepository.findByParticipantIds(blocker.getId(), blocked.getId());
+
+        chatRoomList.forEach(chatRoom -> {
+
+            // 완료되지 않은 약속 취소
+            appointmentUtil.cancelCurrentAppointment(chatRoom, blocker);
+
+        });
+
+    }
+
+    // 유저 차단 해제
+    @Transactional
+    public void unblockUser(User blocker, BlockUserReq dto)
+    {
+        /// 유저 차단 데이터 조회
+
+        UserBlock userBlock = userBlockRepository.findByBlockerIdAndBlockedId(blocker.getId(), dto.getBlockedUserId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_BLOCK_NOT_FOUND, dto.getBlockedUserId()));
+
+        /// 유저 차단 데이터 삭제
+
+        userBlockRepository.delete(userBlock);
     }
 
     // 특정 사용자가 소유한 제품 리스트 조회

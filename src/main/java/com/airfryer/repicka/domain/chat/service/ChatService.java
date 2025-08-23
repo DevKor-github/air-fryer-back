@@ -2,14 +2,11 @@ package com.airfryer.repicka.domain.chat.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
-import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.domain.notification.NotificationService;
-import com.airfryer.repicka.domain.notification.entity.NotificationType;
-import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
 import com.airfryer.repicka.domain.chat.dto.ChatPageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.dto.*;
@@ -24,6 +21,7 @@ import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.user.entity.user.User;
+import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
@@ -46,14 +44,13 @@ public class ChatService
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final AppointmentRepository appointmentRepository;
-    private final NotificationService notificationService;
+    private final UserBlockRepository userBlockRepository;
+
+    private final AppointmentUtil appointmentUtil;
 
     private final OnlineStatusManager onlineStatusManager;
 
     private final ChatWebSocketService chatWebSocketService;
-
-    private final RedisService delayedQueueService;
-    private final FCMService fcmService;
 
     /// 서비스
 
@@ -70,6 +67,11 @@ public class ChatService
         // 이미 삭제된 제품인 경우, 예외 처리
         if(item.getIsDeleted()) {
             throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
+        }
+
+        // 유저 차단 데이터 존재 여부 체크
+        if(userBlockRepository.existsByUserIds(requester.getId(), item.getOwner().getId())) {
+            throw new CustomException(CustomExceptionCode.USER_BLOCK_EXIST, null);
         }
 
         /// 채팅방 조회 (존재하지 않으면 생성)
@@ -340,73 +342,15 @@ public class ChatService
 
         ChatRoom chatRoom = participateChatRoom.getChatRoom();
 
-        /// 채팅 상대방 조회
-
-        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
-
         /// 완료되지 않은 약속 취소
 
-        // 완료되지 않은 약속 조회
-        List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
-            chatRoom.getItem().getId(),
-            chatRoom.getOwner().getId(),
-            chatRoom.getRequester().getId(),
-            List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
-        );
-
-        // 완료되지 않은 약속이 존재하는 경우
-        if(!currentAppointmentOptional.isEmpty())
-        {
-            // 완료되지 않은 약속
-            Appointment currentAppointment = currentAppointmentOptional.getFirst();
-
-            // 완료되지 않은 약속이 대여 중 상태인 경우, 예외 처리
-            if(currentAppointment.getState().equals(AppointmentState.IN_PROGRESS)) {
-                throw new CustomException(CustomExceptionCode.IN_PROGRESS_APPOINTMENT_EXIST, null);
-            }
-
-            /// 약속 취소 처리
-
-            // 제품의 판매 예정 날짜 초기화
-            currentAppointment.getItem().cancelSale();
-
-            // 약속 취소
-            currentAppointment.cancel();
-
-            // 약속 알림 발송 예약 취소
-            delayedQueueService.cancelDelayedTask("appointment", currentAppointment.getId());
-
-            /// 약속 취소 채팅 및 알림 전송
-
-            // 채팅 생성
-            Chat cancelChat = Chat.builder()
-                .chatRoomId(chatRoom.getId())
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
-                .isNotification(true)
-                .isPick(false)
-                .pickInfo(null)
-                .build();
-
-            // 채팅 전송
-            chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
-
-            // 푸시 알림 전송
-            FCMNotificationReq cancelNotificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, currentAppointment.getId().toString(), user.getNickname());
-            fcmService.sendNotification(opponent.getFcmToken(), cancelNotificationReq);
-
-            // 약속 취소 알림 저장
-            notificationService.saveNotification(user, NotificationType.APPOINTMENT_CANCEL, currentAppointment);
-            notificationService.saveNotification(opponent, NotificationType.APPOINTMENT_CANCEL, currentAppointment);
-        }
+        appointmentUtil.cancelCurrentAppointment(chatRoom, user);
 
         /// 채팅방 나가기 처리
 
-        // 채팅방 나가기
         participateChatRoom.exit();
 
-        /// 채팅방 나가기 채팅 및 알림 전송
+        /// 채팅방 나가기 채팅 전송
 
         // 채팅 생성
         Chat leaveChat = Chat.builder()

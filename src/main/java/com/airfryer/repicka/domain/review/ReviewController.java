@@ -39,7 +39,7 @@ public class ReviewController {
     }
     
     // 리뷰 조회
-    @GetMapping
+    @GetMapping("/{userId}")
     public ResponseEntity<SuccessResponseDto> getReview(@PathVariable Long userId) {
         List<Review> data = reviewService.getReview(userId);
         return ResponseEntity.ok(SuccessResponseDto.builder()

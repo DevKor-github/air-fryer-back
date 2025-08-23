@@ -11,7 +11,7 @@ import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
-import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.item.dto.req.*;
@@ -44,7 +44,7 @@ public class ItemService
     private final ItemImageService itemImageService;
     
     private final AppointmentRepository appointmentRepository;
-    private final AppointmentService appointmentService;
+    private final AppointmentUtil appointmentUtil;
 
     private final ItemLikeRepository itemLikeRepository;
 
@@ -131,7 +131,7 @@ public class ItemService
         }
 
         // 예정된 약속이 존재하는 경우, 삭제 불가능
-        if(!appointmentService.isItemAvailableOnInterval(itemId, LocalDateTime.now())) {
+        if(!appointmentUtil.isItemAvailableOnInterval(itemId, LocalDateTime.now())) {
             throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_ITEM, null);
         }
 
@@ -362,7 +362,7 @@ public class ItemService
 
         /// 제품 구매가 가능한 첫 날짜 반환
 
-        return appointmentService.getFirstSaleAvailableDate(item.getId());
+        return appointmentUtil.getFirstSaleAvailableDate(item.getId());
     }
 
     // 완료되지 않은 약속 및 채팅방 조회
