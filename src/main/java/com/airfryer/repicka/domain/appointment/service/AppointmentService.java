@@ -9,7 +9,6 @@ import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.common.redis.type.TaskType;
-import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
@@ -264,7 +263,7 @@ public class AppointmentService
         // 약속 확정 알림
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRM, appointment.getId().toString(), appointment.getItem().getTitle());
         fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
-        
+
         // 약속 확정 알림 저장
         notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CONFIRM, appointment);
         notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CONFIRM, appointment);
@@ -306,7 +305,7 @@ public class AppointmentService
         Item item = appointment.getItem();
 
         /// 약속 취소
-        
+
         // 약속 취소 알림 저장
         if(appointment.getState() == AppointmentState.PENDING) {
             notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_CANCEL, appointment);
@@ -345,7 +344,7 @@ public class AppointmentService
         // 푸시 알림 전송
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, appointment.getId().toString(), user.getNickname());
         fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
-        
+
         // TODO: 사용자 피드백 요청
 
         // 약속 데이터 반환
@@ -376,18 +375,17 @@ public class AppointmentService
         return AppointmentInfo.from(appointment, thumbnail.map(ItemImage::getFileKey));
     }
 
-    // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
+    // 나의 약속 페이지 조회 (나의 PICK 조회)
+    // (확정/대여중/완료) 상태인 나의 약속 페이지 조회
     @Transactional(readOnly = true)
-    public AppointmentPageRes findMyAppointmentPage(User user,
-                                                    FindMyAppointmentSubject subject,
-                                                    FindMyAppointmentPageReq dto)
+    public AppointmentPageRes findMyAppointmentPage(User user, FindMyAppointmentPageReq dto)
     {
         /// 약속 페이지 조회
 
-        List<Appointment> appointmentPage = subject.findAppointmentPage(
-            appointmentRepository,
-            user,
-            dto
+        List<Appointment> appointmentPage = dto.getSubject().findAppointmentPage(
+                appointmentRepository,
+                user,
+                dto
         );
 
         /// 페이지 정보 계산
@@ -430,7 +428,6 @@ public class AppointmentService
 
         return AppointmentPageRes.of(
             map,
-            dto.getType(),
             cursorState,
             cursorDate,
             cursorId,

@@ -1,7 +1,6 @@
 package com.airfryer.repicka.common.batch.scheduler;
 
 import com.airfryer.repicka.domain.notification.NotificationService;
-import com.airfryer.repicka.domain.notification.entity.NotificationType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

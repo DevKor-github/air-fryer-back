@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.appointment.controller;
 
 import com.airfryer.repicka.common.response.SuccessResponseDto;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2User;
-import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
@@ -96,42 +95,18 @@ public class AppointmentController
                         .build());
     }
 
-    // 내가 requester인 약속 페이지 조회 (나의 PICK 조회)
-    // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
-    @GetMapping("/requester")
+    // 나의 약속 페이지 조회 (나의 PICK 조회)
+    // (확정/대여중/완료) 상태인 나의 약속 페이지 조회
+    @GetMapping
     public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsRequester(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                @Valid FindMyAppointmentPageReq dto)
     {
-        User requester = oAuth2User.getUser();
-        AppointmentPageRes data = appointmentService.findMyAppointmentPage(
-                requester,
-                FindMyAppointmentSubject.REQUESTER,
-                dto
-        );
+        User user = oAuth2User.getUser();
+        AppointmentPageRes data = appointmentService.findMyAppointmentPage(user, dto);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()
-                        .message("내가 requester인 약속 페이지를 성공적으로 조회하였습니다.")
-                        .data(data)
-                        .build());
-    }
-
-    // 내가 owner인 약속 페이지 조회
-    // 요청자가 owner인 (확정/대여중/완료) 상태의 약속 페이지 조회
-    @GetMapping("/owner")
-    public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsOwner(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                                                           @Valid FindMyAppointmentPageReq dto)
-    {
-        User requester = oAuth2User.getUser();
-        AppointmentPageRes data = appointmentService.findMyAppointmentPage(
-                requester,
-                FindMyAppointmentSubject.OWNER,
-                dto
-        );
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponseDto.builder()
-                        .message("내가 owner인 약속 페이지를 성공적으로 조회하였습니다.")
+                        .message("약속 페이지를 성공적으로 조회하였습니다.")
                         .data(data)
                         .build());
     }

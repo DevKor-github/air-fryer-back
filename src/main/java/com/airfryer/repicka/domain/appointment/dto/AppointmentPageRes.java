@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.appointment.dto;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,13 +15,10 @@ import java.util.Optional;
 @Builder(access = AccessLevel.PRIVATE)
 public class AppointmentPageRes
 {
-    private AppointmentType type;   // 타입 (대여/구매)
-
     private List<AppointmentInfo> appointmentInfoList;  // 약속 정보 리스트
     private PageInfo pageInfo;                          // 페이지 정보
 
     public static AppointmentPageRes of(Map<Appointment, Optional<String>> map,
-                                        AppointmentType type,
                                         AppointmentState cursorState,
                                         LocalDateTime cursorDate,
                                         Long cursorId,
@@ -32,7 +28,6 @@ public class AppointmentPageRes
                 .appointmentInfoList(map.entrySet().stream().map(entry ->
                         AppointmentInfo.from(entry.getKey(), entry.getValue())).toList()
                 )
-                .type(type)
                 .pageInfo(PageInfo.builder()
                         .cursorState(cursorState)
                         .cursorDate(cursorDate)
