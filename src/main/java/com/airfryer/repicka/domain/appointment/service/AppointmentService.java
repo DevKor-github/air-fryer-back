@@ -357,7 +357,8 @@ public class AppointmentService
         return AppointmentInfo.from(appointment, thumbnail.map(ItemImage::getFileKey));
     }
 
-    // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
+    // 나의 약속 페이지 조회 (나의 PICK 조회)
+    // (확정/대여중/완료) 상태인 나의 약속 페이지 조회
     @Transactional(readOnly = true)
     public AppointmentPageRes findMyAppointmentPage(User user, FindMyAppointmentPageReq dto)
     {

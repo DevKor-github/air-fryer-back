@@ -95,8 +95,8 @@ public class AppointmentController
                         .build());
     }
 
-    // 약속 페이지 조회 (나의 PICK 조회)
-    // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
+    // 나의 약속 페이지 조회 (나의 PICK 조회)
+    // (확정/대여중/완료) 상태인 나의 약속 페이지 조회
     @GetMapping
     public ResponseEntity<SuccessResponseDto> findMyAppointmentPageAsRequester(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                                @Valid FindMyAppointmentPageReq dto)
