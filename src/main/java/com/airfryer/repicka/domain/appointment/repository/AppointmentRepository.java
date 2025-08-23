@@ -250,4 +250,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
 
     // 레코드 수정 날짜가 특정 시점 이전인 특정 상태의 약속 페이지 조회
     Page<Appointment> findByStateAndUpdatedAtBefore(AppointmentState state, LocalDateTime localDateTime, Pageable pageable);
+
+    // 반납 날짜가 특정 시점 이전이고 특정 상태인 약속 페이지 조회 (SUCCESS 배치용)
+    Page<Appointment> findByStateAndReturnDateBefore(AppointmentState state, LocalDateTime localDateTime, Pageable pageable);
 }
