@@ -1,14 +1,14 @@
 package com.airfryer.repicka.domain.chat.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class OnlineStatusManager
 {
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
     // 채팅방 입장
     public void markUserOnline(Long chatRoomId, Long userId)

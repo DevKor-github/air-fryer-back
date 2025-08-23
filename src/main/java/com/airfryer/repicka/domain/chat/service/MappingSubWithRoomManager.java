@@ -1,7 +1,7 @@
 package com.airfryer.repicka.domain.chat.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class MappingSubWithRoomManager
 {
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
     // (세션 ID + 구독 ID) -> 채팅방 ID 매핑 정보 생성(갱신)
     public void set(String sessionId, String subId, Long chatRoomId)
