@@ -3,9 +3,12 @@ package com.airfryer.repicka.domain.user;
 import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
+import com.airfryer.repicka.domain.item.dto.res.OwnedItemListRes;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.user.dto.BlockUserReq;
+import com.airfryer.repicka.domain.item_image.entity.ItemImage;
+import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.user.dto.ReportUserReq;
 import com.airfryer.repicka.domain.user.entity.user_block.UserBlock;
 import com.airfryer.repicka.domain.user.entity.user_report.UserReport;
@@ -42,6 +45,7 @@ public class UserService
 
     private final AppointmentUtil appointmentUtil;
 
+    private final ItemImageRepository itemImageRepository;
     private final S3Service s3Service;
 
     // fcm 토큰 업데이트
@@ -212,5 +216,26 @@ public class UserService
         /// 유저 차단 데이터 삭제
 
         userBlockRepository.delete(userBlock);
+    }
+
+    // 특정 사용자가 소유한 제품 리스트 조회
+    @Transactional(readOnly = true)
+    public List<OwnedItemListRes> getOwnedItemList(Long userId)
+    {
+        // 제품 리스트 조회
+        List<Item> itemList = itemRepository.findAllByOwnerIdAndIsDeletedFalse(userId);
+
+        return itemList.stream().map(item -> {
+
+            // 대표 이미지 조회
+            ItemImage thumbnail = itemImageRepository.findFirstByItemId(item.getId())
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_IMAGE_NOT_FOUND, null));
+
+            // 판매 여부
+            boolean isSold = item.getSaleDate() != null;
+
+            return OwnedItemListRes.from(item, thumbnail.getFileKey(), isSold);
+
+        }).toList();
     }
 }

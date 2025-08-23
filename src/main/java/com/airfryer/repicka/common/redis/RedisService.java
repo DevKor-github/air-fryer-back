@@ -3,19 +3,20 @@ package com.airfryer.repicka.common.redis;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.common.redis.dto.KeyExpiredEvent;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
-import com.airfryer.repicka.common.firebase.type.NotificationType;
+import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -23,7 +24,7 @@ import java.util.List;
 @Slf4j
 public class RedisService {
     
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
     private final FCMService fcmService;
     private static final String DELAYED_TASK_PREFIX = "delayed:task:";
@@ -144,7 +145,8 @@ public class RedisService {
     
     // 예약 알림 발송
     private void sendAppointmentReminder(AppointmentTask task) {
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMINDER, task.getAppointmentId().toString(), task.getItemName());
-        fcmService.sendNotificationToMultiple(List.of(task.getOwnerFcmToken(), task.getRequesterFcmToken()), notificationReq);
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMIND, task.getAppointmentId().toString(), task.getItemName());
+        List<String> fcmTokens = Arrays.asList(task.getOwnerFcmToken(), task.getRequesterFcmToken());
+        fcmService.sendNotificationToMultiple(fcmTokens, notificationReq);
     }
 } 

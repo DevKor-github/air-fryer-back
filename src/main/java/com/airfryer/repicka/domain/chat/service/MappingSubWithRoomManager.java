@@ -1,7 +1,7 @@
 package com.airfryer.repicka.domain.chat.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class MappingSubWithRoomManager
 {
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
     // (세션 ID + 구독 ID) -> 채팅방 ID 매핑 정보 생성(갱신)
     public void set(String sessionId, String subId, Long chatRoomId)
@@ -23,7 +23,7 @@ public class MappingSubWithRoomManager
     public Long get(String sessionId, String subId)
     {
         String key = buildKey(sessionId, subId);
-        String value = (String) redisTemplate.opsForValue().get(key);
+        String value = redisTemplate.opsForValue().get(key);
 
         return value != null ? Long.parseLong(value) : null;
     }
@@ -42,7 +42,7 @@ public class MappingSubWithRoomManager
 
         for(String key : keys)
         {
-            String value = (String) redisTemplate.opsForValue().get(key);
+            String value = redisTemplate.opsForValue().get(key);
 
             if(value != null) {
                 result.add(Long.parseLong(value));

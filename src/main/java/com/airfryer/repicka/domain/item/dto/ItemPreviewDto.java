@@ -11,9 +11,10 @@ import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
+@SuperBuilder
 public class ItemPreviewDto
 {
     private Long itemId;    // 제품 ID

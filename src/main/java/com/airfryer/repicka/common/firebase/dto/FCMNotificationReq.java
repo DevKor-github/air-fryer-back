@@ -1,6 +1,6 @@
 package com.airfryer.repicka.common.firebase.dto;
 
-import com.airfryer.repicka.common.firebase.type.NotificationType;
+import com.airfryer.repicka.domain.notification.entity.NotificationType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

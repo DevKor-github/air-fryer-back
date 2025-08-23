@@ -5,6 +5,7 @@ import com.airfryer.repicka.common.security.exception.CustomAuthenticationEntryP
 import com.airfryer.repicka.common.security.jwt.JwtFilter;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2UserService;
 import com.airfryer.repicka.common.security.oauth2.OAuth2SuccessHandler;
+import com.airfryer.repicka.common.security.oauth2.apple.CustomRequestEntityConverter;
 import com.airfryer.repicka.common.security.redirect.CustomAuthorizationRequestResolver;
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +18,9 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -46,6 +50,8 @@ public class SecurityConfig
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
+    private final CustomRequestEntityConverter customRequestEntityConverter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception
     {
@@ -66,6 +72,9 @@ public class SecurityConfig
                                         new CustomAuthorizationRequestResolver(clientRegistrationRepository)
                                 )
                         )
+                        .tokenEndpoint(tokenEndpointConfig -> tokenEndpointConfig
+                                .accessTokenResponseClient(accessTokenResponseClient(customRequestEntityConverter))
+                        )
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
@@ -82,6 +91,7 @@ public class SecurityConfig
                         .requestMatchers("/api/v1/refresh-token").permitAll()
 
                         // User
+                        .requestMatchers("/api/v1/user/*/item").permitAll()
                         .requestMatchers("/api/v1/user/**").hasAnyAuthority("USER", "ADMIN")
 
                         // Appointment
@@ -105,6 +115,12 @@ public class SecurityConfig
                         .requestMatchers("/api/v1/chatroom/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/api/v1/chat/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/ws/**").hasAnyAuthority("USER", "ADMIN")
+
+                        // Review
+                        .requestMatchers("/api/v1/review/**").hasAnyAuthority("USER", "ADMIN")
+
+                        // Notification
+                        .requestMatchers("/api/v1/notification/**").hasAnyAuthority("USER", "ADMIN")
 
                         // Test
                         .requestMatchers("/api/test/is-login").hasAnyAuthority("USER", "ADMIN")
@@ -145,9 +161,11 @@ public class SecurityConfig
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
+                "http://localhost:5174",
                 "http://localhost:63342",
                 "https://devkor-github.github.io",
-                "https://repicka.netlify.app"
+                "https://repicka.netlify.app",
+                "https://repicka-back-dev.shop"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setExposedHeaders(List.of("Set-Cookie"));
@@ -156,5 +174,13 @@ public class SecurityConfig
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    @Bean
+    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient(CustomRequestEntityConverter converter)
+    {
+        DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+        accessTokenResponseClient.setRequestEntityConverter(converter); // 스프링이 주입
+        return accessTokenResponseClient;
     }
 }

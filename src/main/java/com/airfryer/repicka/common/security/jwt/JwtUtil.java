@@ -5,8 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
@@ -77,5 +75,16 @@ public class JwtUtil
         }
 
         return null;
+    }
+
+    // 토큰 쿠키 삭제
+    public ResponseCookie deleteTokenCookie(Token tokenType) {
+        return ResponseCookie.from(tokenType.getName(), "")
+                .httpOnly(tokenType.isHttpOnly())
+                .sameSite("None")
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
     }
 }

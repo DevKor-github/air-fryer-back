@@ -1,5 +1,9 @@
 spring:
 
+  ## 시간대 기준을 서울로 설정
+  jackson:
+    time-zone: Asia/Seoul
+
   ## PostgreSQL 연동
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -13,6 +17,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: Asia/Seoul
 
   data:
 
@@ -30,6 +36,7 @@ spring:
     oauth2:
       client:
         registration:
+
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
@@ -47,12 +54,26 @@ spring:
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
 
+          apple:
+            client-id: ${APPLE_WEB_CLIENT_ID}
+            client-secret: /home/ec2-user/secrets/${APPLE_CLIENT_SECRET}
+            redirect-uri: ${APPLE_REDIRECT_URI}
+            client-name: Apple Web
+            scope:
+              - name
+              - email
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+          apple:
+            authorizationUri: https://appleid.apple.com/auth/authorize?response_mode=form_post
+            tokenUri: https://appleid.apple.com/auth/token
 
   ## S3 Cloud 설정
   cloud:
@@ -77,6 +98,8 @@ file:
 logging:
   level:
     org.springframework.security: DEBUG
+    org.springframework.security.oauth2.client.endpoint: DEBUG
+    org.springframework.web.client.RestTemplate: DEBUG
 
 ## Firebase 설정
 firebase:

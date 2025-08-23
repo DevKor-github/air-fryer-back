@@ -4,7 +4,7 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
-import com.airfryer.repicka.common.firebase.type.NotificationType;
+import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.domain.chat.dto.message.pub.SendChatMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
@@ -140,8 +140,11 @@ public class ChatWebSocketService
         ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-        // 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
-        if(!onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())) {
+        // 알림 메시지가 아니고, 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
+        if(
+                !chat.getIsNotification() &&
+                !onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())
+        ) {
             opponentParticipateChatRoom.increaseUnreadChatCount();
         }
 
@@ -163,6 +166,12 @@ public class ChatWebSocketService
 
             applicationEventPublisher.publishEvent(SubMessageEvent.builder()
                     .userId(opponent.getId())
+                    .destination("/sub")
+                    .message(userMessage)
+                    .build());
+
+            applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                    .userId(user.getId())
                     .destination("/sub")
                     .message(userMessage)
                     .build());

@@ -1,4 +1,4 @@
-package com.airfryer.repicka.common.configuration;
+package com.airfryer.repicka.common.configuration.cors;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -16,9 +16,11 @@ public class WebConfig implements WebMvcConfigurer
                 .allowCredentials(true)
                 .allowedOrigins(
                         "http://localhost:5173",
+                        "http://localhost:5174",
                         "http://localhost:63342",
                         "https://devkor-github.github.io",
-                        "https://repicka.netlify.app"
+                        "https://repicka.netlify.app",
+                        "https://repicka-back-dev.shop"
                 )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
     }

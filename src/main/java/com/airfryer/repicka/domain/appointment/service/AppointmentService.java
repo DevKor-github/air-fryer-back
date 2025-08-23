@@ -3,12 +3,12 @@ package com.airfryer.repicka.domain.appointment.service;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
-import com.airfryer.repicka.common.firebase.type.NotificationType;
+
+import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.common.redis.type.TaskType;
-import com.airfryer.repicka.domain.appointment.FindMyAppointmentSubject;
 import com.airfryer.repicka.domain.appointment.dto.*;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
@@ -27,6 +27,8 @@ import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
 import com.airfryer.repicka.domain.user.entity.user.User;
+import com.airfryer.repicka.domain.notification.NotificationService;
+
 import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,7 +53,7 @@ public class AppointmentService
     private final ChatWebSocketService chatWebSocketService;
     private final RedisService delayedQueueService;
     private final FCMService fcmService;
-
+    private final NotificationService notificationService;
     /// 서비스
 
     // 약속 제시
@@ -62,7 +64,7 @@ public class AppointmentService
 
         // 제품 데이터 조회
         Item item = itemRepository.findById(dto.getItemId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
 
         // 제품 삭제 여부 확인
         if(item.getIsDeleted()) {
@@ -76,11 +78,11 @@ public class AppointmentService
 
         // 가격 협의가 불가능한데 가격을 바꾸지는 않았는지 체크
         if(
-                !item.getCanDeal() &&
-                (
-                        (dto.getPrice() != (isRental ? item.getRentalFee() : item.getSalePrice())) ||
-                        (isRental && (dto.getDeposit() != item.getDeposit()))
-                )
+            !item.getCanDeal() &&
+            (
+                (dto.getPrice() != (isRental ? item.getRentalFee() : item.getSalePrice())) ||
+                (isRental && (dto.getDeposit() != item.getDeposit()))
+            )
         ) {
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
@@ -104,10 +106,10 @@ public class AppointmentService
 
         // 완료되지 않은 약속 데이터가 존재하지 않는지 체크
         List<Appointment> currentAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
-                item.getId(),
-                item.getOwner().getId(),
-                requester.getId(),
-                List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
+            item.getId(),
+            item.getOwner().getId(),
+            requester.getId(),
+            List.of(AppointmentState.PENDING, AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS)
         );
 
         if(!currentAppointmentOptional.isEmpty()) {
@@ -136,14 +138,14 @@ public class AppointmentService
 
             // 채팅방 재입장 채팅 생성
             Chat reEnterChat = Chat.builder()
-                    .chatRoomId(chatRoom.getId())
-                    .userId(requester.getId())
-                    .nickname(requester.getNickname())
-                    .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
-                    .isNotification(true)
-                    .isPick(false)
-                    .pickInfo(null)
-                    .build();
+                .chatRoomId(chatRoom.getId())
+                .userId(requester.getId())
+                .nickname(requester.getNickname())
+                .content(requester.getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                .isNotification(true)
+                .isPick(false)
+                .pickInfo(null)
+                .build();
 
             // 채팅방 재입장 채팅 전송
             chatWebSocketService.sendMessageChat(requester, chatRoom, reEnterChat);
@@ -157,14 +159,14 @@ public class AppointmentService
 
             // 채팅방 재입장 채팅 생성
             Chat reEnterChat = Chat.builder()
-                    .chatRoomId(chatRoom.getId())
-                    .userId(item.getOwner().getId())
-                    .nickname(item.getOwner().getNickname())
-                    .content(item.getOwner().getNickname() + " 님께서 채팅방에 재입장하였습니다.")
-                    .isNotification(true)
-                    .isPick(false)
-                    .pickInfo(null)
-                    .build();
+                .chatRoomId(chatRoom.getId())
+                .userId(item.getOwner().getId())
+                .nickname(item.getOwner().getNickname())
+                .content(item.getOwner().getNickname() + " 님께서 채팅방에 재입장하였습니다.")
+                .isNotification(true)
+                .isPick(false)
+                .pickInfo(null)
+                .build();
 
             // 채팅방 재입장 채팅 전송
             chatWebSocketService.sendMessageChat(item.getOwner(), chatRoom, reEnterChat);
@@ -183,18 +185,21 @@ public class AppointmentService
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_PROPOSAL, appointment.getId().toString(), requester.getNickname());
         fcmService.sendNotification(item.getOwner().getFcmToken(), notificationReq);
 
+        // 약속 제시 알림 저장
+        notificationService.saveNotification(item.getOwner(), NotificationType.APPOINTMENT_PROPOSAL, appointment);
+
         /// PICK 메시지 전송
 
         // 채팅 생성
         Chat chat = Chat.builder()
-                .chatRoomId(chatRoom.getId())
-                .userId(requester.getId())
-                .nickname(requester.getNickname())
-                .content(requester.getNickname() + " 님께서 설정하신 " + (isRental ? "대여" : "구매") + " 정보가 도착했어요.")
-                .isNotification(false)
-                .isPick(true)
-                .pickInfo(Chat.PickInfo.from(appointment))
-                .build();
+            .chatRoomId(chatRoom.getId())
+            .userId(requester.getId())
+            .nickname(requester.getNickname())
+            .content(requester.getNickname() + " 님께서 설정하신 " + (isRental ? "대여" : "구매") + " 정보가 도착했어요.")
+            .isNotification(false)
+            .isPick(true)
+            .pickInfo(Chat.PickInfo.from(appointment))
+            .build();
 
         // 채팅 전송
         chatWebSocketService.sendMessageChat(requester, chatRoom, chat);
@@ -242,7 +247,6 @@ public class AppointmentService
         // 대여 약속의 경우
         if(appointment.getType() == AppointmentType.RENTAL)
         {
-            // 대여 구간 가능 여부 체크
             appointmentUtil.checkRentalPeriodPossibility(
                     appointment.getRentalDate(),
                     appointment.getReturnDate(),
@@ -263,14 +267,18 @@ public class AppointmentService
         appointment.confirm();
 
         // 약속 확정 알림
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRMATION, appointment.getId().toString(), appointment.getItem().getTitle());
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRM, appointment.getId().toString(), appointment.getItem().getTitle());
         fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+
+        // 약속 확정 알림 저장
+        notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CONFIRM, appointment);
+        notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CONFIRM, appointment);
 
         // 약속 알림 발송 예약
         delayedQueueService.addDelayedTask(
-                "appointment",
-                AppointmentTask.from(appointment, TaskType.REMIND),
-                appointment.getRentalDate().minusDays(1)
+            "appointment",
+            AppointmentTask.from(appointment, TaskType.REMIND),
+            appointment.getRentalDate().minusDays(1)
         );
 
         // 약속 데이터 반환
@@ -285,7 +293,7 @@ public class AppointmentService
 
         // 약속 데이터 조회
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
 
         // 협의 중이거나 확정된 약속인지 체크
         if(appointment.getState() != AppointmentState.PENDING && appointment.getState() != AppointmentState.CONFIRMED) {
@@ -304,6 +312,14 @@ public class AppointmentService
 
         /// 약속 취소
 
+        // 약속 취소 알림 저장
+        if(appointment.getState() == AppointmentState.PENDING) {
+            notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_CANCEL, appointment);
+        } else {
+            notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CANCEL, appointment);
+            notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CANCEL, appointment);
+        }
+
         appointmentUtil.cancelAppointment(appointment);
 
         /// 채팅방 조회 (존재하지 않으면 생성)
@@ -314,14 +330,14 @@ public class AppointmentService
 
         // 채팅 생성
         Chat cancelChat = Chat.builder()
-                .chatRoomId(chatRoom.getId())
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
-                .isNotification(true)
-                .isPick(false)
-                .pickInfo(null)
-                .build();
+            .chatRoomId(chatRoom.getId())
+            .userId(user.getId())
+            .nickname(user.getNickname())
+            .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+            .isNotification(true)
+            .isPick(false)
+            .pickInfo(null)
+            .build();
 
         // 채팅 전송
         chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
@@ -341,15 +357,38 @@ public class AppointmentService
         return AppointmentRes.from(appointment);
     }
 
-    // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
+    // 약속 상세 조회
     @Transactional(readOnly = true)
-    public AppointmentPageRes findMyAppointmentPage(User user,
-                                                    FindMyAppointmentSubject subject,
-                                                    FindMyAppointmentPageReq dto)
+    public AppointmentInfo getAppointmentDetail(User user, Long appointmentId)
+    {
+        /// 약속 조회
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
+
+        /// 예외 처리
+
+        if(!appointment.getRequester().getId().equals(user.getId()) && !appointment.getOwner().getId().equals(user.getId())) {
+            throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
+        }
+
+        /// 대표 이미지 조회
+
+        Optional<ItemImage> thumbnail = itemImageRepository.findFirstByItemId(appointment.getItem().getId());
+
+        /// 데이터 반환
+
+        return AppointmentInfo.from(appointment, thumbnail.map(ItemImage::getFileKey));
+    }
+
+    // 나의 약속 페이지 조회 (나의 PICK 조회)
+    // (확정/대여중/완료) 상태인 나의 약속 페이지 조회
+    @Transactional(readOnly = true)
+    public AppointmentPageRes findMyAppointmentPage(User user, FindMyAppointmentPageReq dto)
     {
         /// 약속 페이지 조회
 
-        List<Appointment> appointmentPage = subject.findAppointmentPage(
+        List<Appointment> appointmentPage = dto.getSubject().findAppointmentPage(
                 appointmentRepository,
                 user,
                 dto
@@ -377,29 +416,28 @@ public class AppointmentService
 
         // Map(제품 ID, 대표 이미지 URL) 생성
         Map<Long, String> thumbnailUrlMap = thumbnailList.stream()
-                .collect(Collectors.toMap(
-                        itemImage -> itemImage.getItem().getId(),
-                        ItemImage::getFileKey
-                ));
+            .collect(Collectors.toMap(
+                itemImage -> itemImage.getItem().getId(),
+                ItemImage::getFileKey
+            ));
 
         // Map(약속, 대표 이미지 URL) 생성
         Map<Appointment, Optional<String>> map = appointmentPage.stream()
-                .collect(Collectors.toMap(
-                        appointment -> appointment,
-                        appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getItem().getId())),
-                        (a, b) -> b,
-                        LinkedHashMap::new
-                ));
+            .collect(Collectors.toMap(
+                appointment -> appointment,
+                appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getItem().getId())),
+                (a, b) -> b,
+                LinkedHashMap::new
+            ));
 
         /// 데이터 반환
 
         return AppointmentPageRes.of(
-                map,
-                dto.getType(),
-                cursorState,
-                cursorDate,
-                cursorId,
-                hasNext
+            map,
+            cursorState,
+            cursorDate,
+            cursorId,
+            hasNext
         );
     }
 
@@ -410,7 +448,7 @@ public class AppointmentService
         /// 약속 데이터 조회
 
         Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
 
         /// 제품 데이터 조회
 
@@ -439,14 +477,14 @@ public class AppointmentService
 
         // 채팅 생성
         Chat chat = Chat.builder()
-                .chatRoomId(chatRoom.getId())
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
-                .isNotification(false)
-                .isPick(true)
-                .pickInfo(Chat.PickInfo.from(appointment))
-                .build();
+            .chatRoomId(chatRoom.getId())
+            .userId(user.getId())
+            .nickname(user.getNickname())
+            .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
+            .isNotification(false)
+            .isPick(true)
+            .pickInfo(Chat.PickInfo.from(appointment))
+            .build();
 
         // 채팅 전송
         chatWebSocketService.sendMessageChat(user, chatRoom, chat);
@@ -464,7 +502,7 @@ public class AppointmentService
         /// 약속 데이터 조회
 
         Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
 
         /// 제품 데이터 조회
 
@@ -501,14 +539,14 @@ public class AppointmentService
 
         // 채팅 생성
         Chat cancelChat = Chat.builder()
-                .chatRoomId(chatRoom.getId())
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
-                .isNotification(true)
-                .isPick(false)
-                .pickInfo(null)
-                .build();
+            .chatRoomId(chatRoom.getId())
+            .userId(user.getId())
+            .nickname(user.getNickname())
+            .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+            .isNotification(true)
+            .isPick(false)
+            .pickInfo(null)
+            .build();
 
         // 채팅 전송
         chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
@@ -517,14 +555,14 @@ public class AppointmentService
 
         // 채팅 생성
         Chat pickChat = Chat.builder()
-                .chatRoomId(chatRoom.getId())
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
-                .isNotification(false)
-                .isPick(true)
-                .pickInfo(Chat.PickInfo.from(appointment))
-                .build();
+            .chatRoomId(chatRoom.getId())
+            .userId(user.getId())
+            .nickname(user.getNickname())
+            .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
+            .isNotification(false)
+            .isPick(true)
+            .pickInfo(Chat.PickInfo.from(appointment))
+            .build();
 
         // 채팅 전송
         chatWebSocketService.sendMessageChat(user, chatRoom, pickChat);
@@ -532,5 +570,36 @@ public class AppointmentService
         /// 데이터 반환
 
         return AppointmentRes.from(newAppointment);
+    }
+
+    // 대여중인 약속 존재 여부 확인
+    @Transactional(readOnly = true)
+    public boolean isInProgressAppointmentPresent(User user, Long chatRoomId)
+    {
+        /// 채팅방 참여 데이터 조회
+
+        // 채팅방 참여 데이터 조회
+        ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoomId, user.getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
+
+        // 이미 채팅방을 나갔는지 확인
+        if(participateChatRoom.getHasLeftRoom()) {
+            throw new CustomException(CustomExceptionCode.ALREADY_LEFT_CHATROOM, null);
+        }
+
+        /// 채팅방 조회
+
+        ChatRoom chatRoom = participateChatRoom.getChatRoom();
+
+        /// 대여중인 약속 조회
+
+        List<Appointment> inProgressAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
+                chatRoom.getItem().getId(),
+                chatRoom.getOwner().getId(),
+                chatRoom.getRequester().getId(),
+                List.of(AppointmentState.IN_PROGRESS)
+        );
+
+        return !inProgressAppointmentOptional.isEmpty();
     }
 }

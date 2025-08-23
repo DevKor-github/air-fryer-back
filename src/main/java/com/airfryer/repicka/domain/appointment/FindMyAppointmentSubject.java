@@ -24,7 +24,6 @@ public enum FindMyAppointmentSubject
             {
                 return repository.findMyAppointmentFirstPageAsRequester(
                         user.getId(),
-                        dto.getType().name(),
                         dto.getPeriod().calculateFromDate(LocalDateTime.now()),
                         dto.getPageSize() + 1
                 );
@@ -33,7 +32,6 @@ public enum FindMyAppointmentSubject
             {
                 return repository.findMyAppointmentPageAsRequester(
                         user.getId(),
-                        dto.getType().name(),
                         dto.getPeriod().calculateFromDate(LocalDateTime.now()),
                         dto.getCursorState().name(),
                         dto.getCursorDate(),
@@ -53,7 +51,6 @@ public enum FindMyAppointmentSubject
             {
                 return repository.findMyAppointmentFirstPageAsOwner(
                         user.getId(),
-                        dto.getType().name(),
                         dto.getPeriod().calculateFromDate(LocalDateTime.now()),
                         dto.getPageSize() + 1
                 );
@@ -62,7 +59,6 @@ public enum FindMyAppointmentSubject
             {
                 return repository.findMyAppointmentPageAsOwner(
                         user.getId(),
-                        dto.getType().name(),
                         dto.getPeriod().calculateFromDate(LocalDateTime.now()),
                         dto.getCursorState().name(),
                         dto.getCursorDate(),

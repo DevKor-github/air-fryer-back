@@ -18,6 +18,10 @@ public enum CustomExceptionCode
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Refresh token이 존재하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Refresh token입니다."),
 
+    // 애플 로그인 관련 예외
+    CREATE_CLIENT_SECRET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "애플 로그인 도중 client-secret 생성에 실패하였습니다."),
+    DECODE_ID_TOKEN_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ID 토큰으로부터 사용자 정보를 추출하는 도중 에러가 발생하였습니다."),
+
     // 사용자 관련 예외
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 데이터를 찾을 수 없습니다."),
     USER_BLOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "유저 차단 데이터를 찾을 수 없습니다."),
@@ -54,6 +58,7 @@ public enum CustomExceptionCode
     CONFLICT_APPOINTMENT_STATE(HttpStatus.CONFLICT, "현재 약속 상태는 해당 요청을 처리할 수 없습니다."),
     NOT_IN_PROGRESS_APPOINTMENT(HttpStatus.CONFLICT, "대여 중인 약속이 아닙니다."),
     APPOINTMENT_CANNOT_CANCELLED(HttpStatus.CONFLICT, "취소할 수 없는 상태입니다."),
+    APPOINTMENT_STATE_NOT_SUCCESS(HttpStatus.CONFLICT, "완료되지 않은 약속입니다."),
 
     // 파일 관련 예외
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
@@ -69,6 +74,10 @@ public enum CustomExceptionCode
     ALREADY_LEFT_CHATROOM(HttpStatus.CONFLICT, "이미 나간 채팅방입니다."),
     ALREADY_FINISHED_CHATROOM(HttpStatus.CONFLICT, "이미 종료된 채팅방입니다."),
     INTERNAL_CHAT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 오류로 인해 채팅이 정상적으로 전송되지 않았습니다."),
+
+    // 리뷰 관련 예외
+    REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 리뷰를 작성하였습니다."),
+    APPOINTMENT_NOT_SUCCESS(HttpStatus.CONFLICT, "약속이 완료되지 않았습니다."),
 
     // 내부 로직 오류 (발생하면 안됨!)
     SALE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "제품은 판매 예정인데, 판매 게시글 데이터를 찾을 수 없습니다. (내부 로직 오류)"),
