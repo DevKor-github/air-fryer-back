@@ -11,6 +11,7 @@ import com.airfryer.repicka.domain.user.entity.user.User;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -23,6 +24,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService
 {
     private final UserRepository userRepository;
@@ -45,10 +47,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService
 
             // ID 토큰 추출
             String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
+            log.info("idToken: {}", idToken);
 
             // ID 토큰으로부터 사용자 정보 디코딩
             Map<String, Object> attributes = decodeIdToken(idToken);
             attributes.put("id_token", idToken);
+
+
+            log.info("attributes");
+            for(Map.Entry<String, Object> entry : attributes.entrySet())
+            {
+                log.info("key: {}", entry.getKey());
+                log.info("value: {}", entry.getValue());
+            }
 
             oAuth2Response = new AppleResponse(attributes);
 
@@ -98,6 +109,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService
 
             byte[] decodedBytes = decoder.decode(parts[1].getBytes(StandardCharsets.UTF_8));
             String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
+            log.info("decodedString: {}", decodedString);
 
             Map<String, Object> map = objectMapper.readValue(decodedString, Map.class);
             jwtClaims.putAll(map);

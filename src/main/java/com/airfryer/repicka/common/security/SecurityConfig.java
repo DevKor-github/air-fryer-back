@@ -70,6 +70,9 @@ public class SecurityConfig
                                         new CustomAuthorizationRequestResolver(clientRegistrationRepository)
                                 )
                         )
+                        .tokenEndpoint(tokenEndpointConfig -> tokenEndpointConfig
+                                .accessTokenResponseClient(accessTokenResponseClient())
+                        )
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
@@ -147,12 +150,7 @@ public class SecurityConfig
 
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://localhost:63342",
-                "https://devkor-github.github.io",
-                "https://repicka.netlify.app"
-        ));
+        configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setExposedHeaders(List.of("Set-Cookie"));
 
