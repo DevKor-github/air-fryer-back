@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -145,6 +146,7 @@ public class RedisService {
     // 예약 알림 발송
     private void sendAppointmentReminder(AppointmentTask task) {
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMINDER, task.getAppointmentId().toString(), task.getItemName());
-        fcmService.sendNotificationToMultiple(List.of(task.getOwnerFcmToken(), task.getRequesterFcmToken()), notificationReq);
+        List<String> fcmTokens = Arrays.asList(task.getOwnerFcmToken(), task.getRequesterFcmToken());
+        fcmService.sendNotificationToMultiple(fcmTokens, notificationReq);
     }
 } 

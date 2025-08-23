@@ -59,6 +59,7 @@ public enum CustomExceptionCode
     CONFLICT_APPOINTMENT_STATE(HttpStatus.CONFLICT, "현재 약속 상태는 해당 요청을 처리할 수 없습니다."),
     NOT_IN_PROGRESS_APPOINTMENT(HttpStatus.CONFLICT, "대여 중인 약속이 아닙니다."),
     APPOINTMENT_CANNOT_CANCELLED(HttpStatus.CONFLICT, "취소할 수 없는 상태입니다."),
+    APPOINTMENT_STATE_NOT_SUCCESS(HttpStatus.CONFLICT, "완료되지 않은 약속입니다."),
 
     // 파일 관련 예외
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
@@ -74,6 +75,10 @@ public enum CustomExceptionCode
     ALREADY_LEFT_CHATROOM(HttpStatus.CONFLICT, "이미 나간 채팅방입니다."),
     ALREADY_FINISHED_CHATROOM(HttpStatus.CONFLICT, "이미 종료된 채팅방입니다."),
     INTERNAL_CHAT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 오류로 인해 채팅이 정상적으로 전송되지 않았습니다."),
+
+    // 리뷰 관련 예외
+    REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 리뷰를 작성하였습니다."),
+    APPOINTMENT_NOT_SUCCESS(HttpStatus.CONFLICT, "약속이 완료되지 않았습니다."),
 
     // 내부 로직 오류 (발생하면 안됨!)
     SALE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "제품은 판매 예정인데, 판매 게시글 데이터를 찾을 수 없습니다. (내부 로직 오류)"),
