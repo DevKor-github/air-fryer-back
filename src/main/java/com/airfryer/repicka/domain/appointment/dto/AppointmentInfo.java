@@ -5,6 +5,7 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.entity.ProductType;
+import com.airfryer.repicka.domain.item.entity.TradeMethod;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +34,7 @@ public class AppointmentInfo
     private int deposit;                // 보증금
     private AppointmentState state;     // 약속 상태
     private AppointmentType type;       // 약속 타입
+    private TradeMethod tradeMethod;    // 거래 방식
 
     public static AppointmentInfo from(Appointment appointment, Optional<String> imageUrl)
     {
@@ -55,6 +57,7 @@ public class AppointmentInfo
                 .deposit(appointment.getDeposit())
                 .state(appointment.getState())
                 .type(appointment.getType())
+                .tradeMethod(appointment.getTradeMethod())
                 .build();
     }
 }
