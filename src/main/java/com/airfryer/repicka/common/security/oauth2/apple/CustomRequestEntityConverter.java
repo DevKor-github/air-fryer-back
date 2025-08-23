@@ -36,21 +36,24 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
 {
     private final OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
 
-    public CustomRequestEntityConverter() {
+    public CustomRequestEntityConverter(
+            @Value("${APPLE_CLIENT_ID}") String APPLE_CLIENT_ID,
+            @Value("${APPLE_CLIENT_SECRET}") String APPLE_CLIENT_SECRET,
+            @Value("${APPLE_TEAM_ID}") String APPLE_TEAM_ID,
+            @Value("${APPLE_KEY_ID}") String APPLE_KEY_ID
+    ) {
         defaultConverter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
+
+        this.APPLE_CLIENT_ID = APPLE_CLIENT_ID;
+        this.APPLE_CLIENT_SECRET = APPLE_CLIENT_SECRET;
+        this.APPLE_TEAM_ID = APPLE_TEAM_ID;
+        this.APPLE_KEY_ID = APPLE_KEY_ID;
     }
 
-    @Value("${APPLE_CLIENT_ID}")
-    private String APPLE_CLIENT_ID;
-
-    @Value("${APPLE_CLIENT_SECRET}")
-    private String APPLE_CLIENT_SECRET;
-
-    @Value("${APPLE_TEAM_ID}")
-    private String APPLE_TEAM_ID;
-
-    @Value("${APPLE_KEY_ID}")
-    private String APPLE_KEY_ID;
+    private final String APPLE_CLIENT_ID;
+    private final String APPLE_CLIENT_SECRET;
+    private final String APPLE_TEAM_ID;
+    private final String APPLE_KEY_ID;
 
     // 커스텀 client-secret을 생성하여 RequestEntity 반환
     @Override

@@ -50,6 +50,8 @@ public class SecurityConfig
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
+    private final CustomRequestEntityConverter customRequestEntityConverter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception
     {
@@ -71,7 +73,7 @@ public class SecurityConfig
                                 )
                         )
                         .tokenEndpoint(tokenEndpointConfig -> tokenEndpointConfig
-                                .accessTokenResponseClient(accessTokenResponseClient())
+                                .accessTokenResponseClient(accessTokenResponseClient(customRequestEntityConverter))
                         )
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService))
@@ -168,10 +170,10 @@ public class SecurityConfig
     }
 
     @Bean
-    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
+    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient(CustomRequestEntityConverter converter)
+    {
         DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
-        accessTokenResponseClient.setRequestEntityConverter(new CustomRequestEntityConverter());
-
+        accessTokenResponseClient.setRequestEntityConverter(converter); // 스프링이 주입
         return accessTokenResponseClient;
     }
 }
