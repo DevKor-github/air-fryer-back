@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.review;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import com.airfryer.repicka.domain.review.entity.Review;
 import com.airfryer.repicka.domain.review.repository.ReviewRepository;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
@@ -29,9 +31,25 @@ public class ReviewService {
         Appointment appointment = appointmentRepository.findByIdAndUserId(reviewReq.getAppointmentId(), userId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, null));
 
-        // 약속 상태가 SUCCESS가 아니면 예외 발생
+        // SUCCESS가 아니면 약속 타입에 따른 날짜 확인 및 상태 변경
+        LocalDate today = LocalDate.now();
         if (appointment.getState() != AppointmentState.SUCCESS) {
-            throw new CustomException(CustomExceptionCode.REVIEW_NOT_ALLOWED, null);
+            if (appointment.getType() == AppointmentType.RENTAL && today.equals(appointment.getReturnDate().toLocalDate())) {
+                // 대여 약속이면 반납 날짜가 오늘인지 확인
+                appointment.success();
+            } 
+            else if (appointment.getType() == AppointmentType.SALE && today.equals(appointment.getRentalDate().toLocalDate())) {
+                // 구매 약속이면 구매 날짜가 오늘인지 확인
+                appointment.success();
+            }
+            else {  // 약속 타입에 따른 날짜가 오늘이 아니면 예외 발생
+                throw new CustomException(CustomExceptionCode.REVIEW_NOT_ALLOWED, "리뷰 작성이 불가능한 상태입니다.");
+            }
+        }
+
+        // 약속 상태가 SUCCESS가 아니면 예외 발생 (위에서 처리되지 않은 경우)
+        if (appointment.getState() != AppointmentState.SUCCESS) {
+            throw new CustomException(CustomExceptionCode.REVIEW_NOT_ALLOWED, "완료된 약속에만 리뷰 작성이 가능합니다.");
         }
 
         // 리뷰가 이미 존재하면 예외 발생
@@ -47,6 +65,7 @@ public class ReviewService {
             .reviewer(appointment.getOwner().getId() == userId ? appointment.getOwner() : appointment.getRequester())
             .reviewed(appointment.getOwner().getId() == userId ? appointment.getRequester() : appointment.getOwner())
             .build();
+            
         reviewRepository.save(review);
     }
 
