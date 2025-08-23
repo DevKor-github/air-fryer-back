@@ -56,6 +56,12 @@ jobs:
       REDIS_PORT: ${{ secrets.REDIS_PORT }}
       JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
       FRONTEND_URI: ${{ secrets.TEST_FRONTEND_URI }}
+      APPLE_WEB_CLIENT_ID: ${{ secrets.APPLE_WEB_CLIENT_ID }}
+      APPLE_APP_CLIENT_ID: ${{ secrets.APPLE_APP_CLIENT_ID }}
+      APPLE_CLIENT_SECRET: ${{ secrets.APPLE_CLIENT_SECRET }}
+      APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+      APPLE_REDIRECT_URI: ${{ secrets.APPLE_REDIRECT_URI }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
     steps:
       - name: Checkout Source Code
@@ -133,6 +139,12 @@ jobs:
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
+          echo "APPLE_WEB_CLIENT_ID=${{ secrets.APPLE_WEB_CLIENT_ID }}" >> .env
+          echo "APPLE_APP_CLIENT_ID=${{ secrets.APPLE_APP_CLIENT_ID }}" >> .env
+          echo "APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET }}" >> .env
+          echo "APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }}" >> .env
+          echo "APPLE_REDIRECT_URI=${{ secrets.APPLE_REDIRECT_URI }}" >> .env
+          echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> .env
           echo "FRONTEND_URI=${{ secrets.FRONTEND_URI }}" >> .env
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
@@ -162,5 +174,13 @@ jobs:
           docker run -d \
           --network host \
           --env-file .env \
+          -v /home/ec2-user/secrets:/app/secrets:ro \
+          --user 1000:1000 \
+          -e APPLE_WEB_CLIENT_ID=${{ secrets.APPLE_WEB_CLIENT_ID }} \
+          -e APPLE_APP_CLIENT_ID=${{ secrets.APPLE_APP_CLIENT_ID }} \
+          -e APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET }} \
+          -e APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }} \
+          -e APPLE_REDIRECT_URI=${{ secrets.APPLE_REDIRECT_URI }} \
+          -e APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }} \
           --name repicka \
-          ${{ env.DOCKER_IMAGE }} 
+          ${{ env.DOCKER_IMAGE }}

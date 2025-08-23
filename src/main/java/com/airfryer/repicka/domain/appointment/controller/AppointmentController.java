@@ -81,6 +81,21 @@ public class AppointmentController
                         .build());
     }
 
+    // 약속 상세 조회
+    @GetMapping("/{appointmentId}")
+    public ResponseEntity<SuccessResponseDto> getAppointmentDetail(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                                   @PathVariable Long appointmentId)
+    {
+        User user = oAuth2User.getUser();
+        AppointmentInfo data = appointmentService.getAppointmentDetail(user, appointmentId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SuccessResponseDto.builder()
+                        .message("약속 상세 조회를 성공하였습니다.")
+                        .data(data)
+                        .build());
+    }
+
     // 내가 requester인 약속 페이지 조회 (나의 PICK 조회)
     // 요청자가 requester인 (확정/대여중/완료) 상태의 약속 페이지 조회
     @GetMapping("/requester")

@@ -334,6 +334,30 @@ public class AppointmentService
         return AppointmentRes.from(appointment);
     }
 
+    // 약속 상세 조회
+    @Transactional(readOnly = true)
+    public AppointmentInfo getAppointmentDetail(User user, Long appointmentId)
+    {
+        /// 약속 조회
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, appointmentId));
+
+        /// 예외 처리
+
+        if(!appointment.getRequester().getId().equals(user.getId()) && !appointment.getOwner().getId().equals(user.getId())) {
+            throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
+        }
+
+        /// 대표 이미지 조회
+
+        Optional<ItemImage> thumbnail = itemImageRepository.findFirstByItemId(appointment.getItem().getId());
+
+        /// 데이터 반환
+
+        return AppointmentInfo.from(appointment, thumbnail.map(ItemImage::getFileKey));
+    }
+
     // (확정/대여중/완료) 상태의 나의 약속 페이지 조회
     @Transactional(readOnly = true)
     public AppointmentPageRes findMyAppointmentPage(User user,

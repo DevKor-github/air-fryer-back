@@ -2,7 +2,6 @@ package com.airfryer.repicka.common.security.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
 
 // JWT 토큰 종류
 @AllArgsConstructor

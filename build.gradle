@@ -53,8 +53,10 @@ dependencies {
 	// Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
-	// OAuth
+	// OAuth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'com.nimbusds:nimbus-jose-jwt:10.4.2'
+	implementation 'org.bouncycastle:bcpkix-jdk18on:1.81'
 
 	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'

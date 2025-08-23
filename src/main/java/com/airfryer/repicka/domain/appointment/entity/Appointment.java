@@ -4,6 +4,7 @@ import com.airfryer.repicka.common.entity.BaseEntity;
 import com.airfryer.repicka.domain.appointment.dto.OfferAppointmentReq;
 import com.airfryer.repicka.domain.appointment.dto.UpdateAppointmentReq;
 import com.airfryer.repicka.domain.item.entity.Item;
+import com.airfryer.repicka.domain.item.entity.TradeMethod;
 import com.airfryer.repicka.domain.user.entity.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -81,6 +82,10 @@ public class Appointment extends BaseEntity
     @Builder.Default
     private int deposit = 0;
 
+    // 거래 방식
+    @NotNull
+    private TradeMethod tradeMethod;
+
     /// 약속 데이터 생성
 
     public static Appointment of(Item item, User requester, OfferAppointmentReq dto, boolean isRental)
@@ -98,6 +103,7 @@ public class Appointment extends BaseEntity
                 .returnLocation(isRental ? dto.getEndLocation() : null)
                 .price(dto.getPrice())
                 .deposit(isRental ? dto.getDeposit() : 0)
+                .tradeMethod(dto.getTradeMethod())
                 .build();
     }
 
@@ -157,5 +163,11 @@ public class Appointment extends BaseEntity
 
     public void expire() {
         this.state = AppointmentState.EXPIRED;
+    }
+
+    /// 약속 완료
+
+    public void success() {
+        this.state = AppointmentState.SUCCESS;
     }
 }

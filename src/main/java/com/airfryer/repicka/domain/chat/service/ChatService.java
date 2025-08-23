@@ -251,9 +251,9 @@ public class ChatService
 
         // 채팅방 페이지 조회
         if(dto.getCursorLastChatAt() == null || dto.getCursorId() == null) {
-            participateChatRoomList = participateChatRoomRepository.findFirstPageByItemId(itemId, pageable);
+            participateChatRoomList = participateChatRoomRepository.findFirstPageByUserIdAndItemId(user.getId(), itemId, pageable);
         } else {
-            participateChatRoomList = participateChatRoomRepository.findPageByItemId(itemId, dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
+            participateChatRoomList = participateChatRoomRepository.findPageByUserIdAndItemId(user.getId(), itemId, dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
         }
 
         /// 데이터 반환
@@ -424,21 +424,18 @@ public class ChatService
     {
         /// 커서 데이터 계산
 
-        // 채팅방: 다음 페이지가 존재하는가?
         boolean hasNext = chatRoomList.size() > pageSize;
 
         // 채팅방: 커서 데이터
-        LocalDateTime cursorLastChatAt = hasNext ? chatRoomList.getLast().getLastChatAt() : null;
-        Long cursorId = hasNext ? chatRoomList.getLast().getId() : null;
+        LocalDateTime cursorLastChatAt = hasNext ? chatRoomList.get(pageSize).getLastChatAt() : null;
+        Long cursorId = hasNext ? chatRoomList.get(pageSize).getId() : null;
 
         // 다음 페이지가 존재한다면, 마지막 아이템 제거
-        if(hasNext) {
-            chatRoomList.removeLast();
-        }
+        List<ChatRoom> actualChatRoomList = hasNext ? chatRoomList.subList(0, pageSize) : chatRoomList;
 
         /// ChatRoomDto 리스트 생성
 
-        List<ChatRoomDto> chatRoomDtoList = chatRoomList.stream().map(chatRoom -> {
+        List<ChatRoomDto> chatRoomDtoList = actualChatRoomList.stream().map(chatRoom -> {
 
             // 가장 최근 채팅
             Optional<Chat> chatOptional = chatRepository.findFirstByChatRoomIdOrderByIdDesc(chatRoom.getId());
