@@ -133,8 +133,11 @@ public class ChatWebSocketService
         ParticipateChatRoom opponentParticipateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), opponent.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
-        // 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
-        if(!onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())) {
+        // 알림 메시지가 아니고, 상대방이 오프라인이라면 읽지 않은 채팅 개수 증가
+        if(
+                !chat.getIsNotification() &&
+                !onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())
+        ) {
             opponentParticipateChatRoom.increaseUnreadChatCount();
         }
 
