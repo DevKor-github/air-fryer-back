@@ -115,6 +115,12 @@ public class SecurityConfig
                         .requestMatchers("/api/v1/chat/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/ws/**").hasAnyAuthority("USER", "ADMIN")
 
+                        // Review
+                        .requestMatchers("/api/v1/review/**").hasAnyAuthority("USER", "ADMIN")
+
+                        // Notification
+                        .requestMatchers("/api/v1/notification/**").hasAnyAuthority("USER", "ADMIN")
+
                         // Test
                         .requestMatchers("/api/test/is-login").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/chatTest.html").permitAll()
