@@ -92,6 +92,8 @@ file:
 logging:
   level:
     org.springframework.security: DEBUG
+    org.springframework.security.oauth2.client.endpoint: DEBUG
+    org.springframework.web.client.RestTemplate: DEBUG
 
 ## Firebase 설정
 firebase:
