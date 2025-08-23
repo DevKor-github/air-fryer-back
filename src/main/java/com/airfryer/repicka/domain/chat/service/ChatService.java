@@ -251,9 +251,9 @@ public class ChatService
 
         // 채팅방 페이지 조회
         if(dto.getCursorLastChatAt() == null || dto.getCursorId() == null) {
-            participateChatRoomList = participateChatRoomRepository.findFirstPageByOwnerIdAndItemId(user.getId(), itemId, pageable);
+            participateChatRoomList = participateChatRoomRepository.findFirstPageByUserIdAndItemId(user.getId(), itemId, pageable);
         } else {
-            participateChatRoomList = participateChatRoomRepository.findPageByOwnerIdAndItemId(user.getId(), itemId, dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
+            participateChatRoomList = participateChatRoomRepository.findPageByUserIdAndItemId(user.getId(), itemId, dto.getCursorLastChatAt(), dto.getCursorId(), pageable);
         }
 
         /// 데이터 반환
