@@ -12,9 +12,11 @@ import com.airfryer.repicka.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +35,31 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException
     {
-        OAuth2User oAuth2User = super.loadUser(userRequest);
+        log.info("loadUser 호출!!!!!!!!!!!!!!!");
+
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
+
+        OAuth2User oAuth2User;
+
+        if (registrationId.contains("apple"))
+        {
+            // Apple 로그인은 super.loadUser() 호출하지 않고 직접 id_token 디코딩
+            String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
+            log.info("Apple ID Token: {}", idToken);
+
+            Map<String, Object> attributes = decodeIdToken(idToken);
+            attributes.put("id_token", idToken);
+
+            oAuth2User = new DefaultOAuth2User(
+                    List.of(new SimpleGrantedAuthority("USER")),
+                    attributes,
+                    "sub"
+            );
+        } else
+        {
+            // Google, Kakao 등은 기존 방식 그대로
+            oAuth2User = super.loadUser(userRequest);
+        }
 
         // OAuth2 로그인 응답
         OAuth2Response oAuth2Response;
