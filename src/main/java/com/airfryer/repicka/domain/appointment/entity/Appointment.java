@@ -84,6 +84,8 @@ public class Appointment extends BaseEntity
 
     // 거래 방식
     @NotNull
+    @Column(name = "trade_method")
+    @Enumerated(EnumType.STRING)
     private TradeMethod tradeMethod;
 
     /// 약속 데이터 생성
