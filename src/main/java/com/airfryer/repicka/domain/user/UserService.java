@@ -141,7 +141,7 @@ public class UserService {
         }
     }
 
-    // 소유한 제품 리스트 조회
+    // 특정 사용자가 소유한 제품 리스트 조회
     @Transactional(readOnly = true)
     public List<OwnedItemListRes> getOwnedItemList(Long userId)
     {

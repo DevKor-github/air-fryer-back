@@ -95,7 +95,7 @@ public class UserController {
                         .build());
     }
 
-    // 소유한 제품 리스트 조회
+    // 특정 사용자가 소유한 제품 리스트 조회
     @GetMapping("/{userId}/item")
     public ResponseEntity<SuccessResponseDto> getOwnedItemList(@PathVariable Long userId)
     {
