@@ -2,6 +2,7 @@ package com.airfryer.repicka.domain.appointment.dto;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
+import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.entity.ProductType;
 import lombok.AccessLevel;
@@ -31,6 +32,7 @@ public class AppointmentInfo
     private int price;                  // 대여료(판매값)
     private int deposit;                // 보증금
     private AppointmentState state;     // 약속 상태
+    private AppointmentType type;       // 약속 타입
 
     public static AppointmentInfo from(Appointment appointment, Optional<String> imageUrl)
     {
@@ -52,6 +54,7 @@ public class AppointmentInfo
                 .price(appointment.getPrice())
                 .deposit(appointment.getDeposit())
                 .state(appointment.getState())
+                .type(appointment.getType())
                 .build();
     }
 }
