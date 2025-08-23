@@ -423,36 +423,6 @@ public class ChatService
         chatWebSocketService.sendMessageChat(user, chatRoom, leaveChat);
     }
 
-    // 특정 채팅방의 대여중 상태인 약속 존재 여부 확인
-    @Transactional
-    public boolean isInProgressAppointmentExist(User user, Long chatRoomId)
-    {
-        /// 채팅방 조회
-
-        // 채팅방 조회
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, chatRoomId));
-
-        // 채팅방 참가자인지 확인
-        if(!Objects.equals(user.getId(), chatRoom.getRequester().getId()) && !Objects.equals(user.getId(), chatRoom.getOwner().getId())) {
-            throw new CustomException(CustomExceptionCode.NOT_CHATROOM_PARTICIPANT, null);
-        }
-
-        /// 완료되지 않은 대여중 약속 조회
-
-        // 완료되지 않은 약속 조회
-        List<Appointment> inProgressAppointmentOptional = appointmentRepository.findByItemIdAndOwnerIdAndRequesterIdAndStateIn(
-                chatRoom.getItem().getId(),
-                chatRoom.getOwner().getId(),
-                chatRoom.getRequester().getId(),
-                List.of(AppointmentState.IN_PROGRESS)
-        );
-
-        /// 데이터 반환
-
-        return !inProgressAppointmentOptional.isEmpty();
-    }
-
     /// 공통 로직
 
     // ChatRoomListDto 생성
