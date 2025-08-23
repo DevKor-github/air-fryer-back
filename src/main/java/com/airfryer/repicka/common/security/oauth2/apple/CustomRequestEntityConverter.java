@@ -72,11 +72,15 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
         // 애플 로그인의 경우
         if(registrationId.contains("apple"))
         {
+            log.info("Apple OAuth client_secret 생성 시작. registrationId={}", registrationId);
+
             // client-secret 생성 및 대입
             try {
-                Objects.requireNonNull(params).set("client_secret", createClientSecret(APPLE_WEB_CLIENT_ID));
+                String clientSecret = createClientSecret(APPLE_WEB_CLIENT_ID);
+                log.info("생성된 client_secret 길이: {}", clientSecret.length());
+                Objects.requireNonNull(params).set("client_secret", clientSecret);
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                log.error("client_secret 생성 실패", e);
                 throw new CustomException(CustomExceptionCode.CREATE_CLIENT_SECRET_FAILED, e.getMessage());
             }
         }
