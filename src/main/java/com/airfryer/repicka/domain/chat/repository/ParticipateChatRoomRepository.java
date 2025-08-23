@@ -48,15 +48,16 @@ public interface ParticipateChatRoomRepository extends JpaRepository<Participate
             Pageable pageable
     );
 
-    /// 제품 ID로 나가지 않은 채팅방 참여 정보 페이지 조회
+    /// 사용자 ID, 제품 ID로 나가지 않은 채팅방 참여 정보 페이지 조회
 
     // 첫 페이지 조회
     @Query("""
         SELECT pc FROM ParticipateChatRoom pc
-        WHERE pc.chatRoom.item.id = :itemId AND pc.hasLeftRoom = false
+        WHERE (pc.chatRoom.owner.id = :userId OR pc.chatRoom.requester.id = :userId) AND pc.chatRoom.item.id = :itemId AND pc.hasLeftRoom = false
         ORDER BY pc.chatRoom.lastChatAt DESC, pc.chatRoom.id DESC
     """)
-    List<ParticipateChatRoom> findFirstPageByItemId(
+    List<ParticipateChatRoom> findFirstPageByUserIdAndItemId(
+            @Param("userId") Long userId,
             @Param("itemId") Long itemId,
             Pageable pageable
     );
@@ -64,14 +65,15 @@ public interface ParticipateChatRoomRepository extends JpaRepository<Participate
     // 처음 이후 페이지 조회
     @Query("""
         SELECT pc FROM ParticipateChatRoom pc
-        WHERE pc.chatRoom.item.id = :itemId AND pc.hasLeftRoom = false
+        WHERE (pc.chatRoom.owner.id = :userId OR pc.chatRoom.requester.id = :userId) AND pc.chatRoom.item.id = :itemId AND pc.hasLeftRoom = false
           AND (
             pc.chatRoom.lastChatAt < :cursorLastChatAt
             OR (pc.chatRoom.lastChatAt = :cursorLastChatAt AND pc.chatRoom.id <= :cursorId)
           )
         ORDER BY pc.chatRoom.lastChatAt DESC, pc.chatRoom.id DESC
     """)
-    List<ParticipateChatRoom> findPageByItemId(
+    List<ParticipateChatRoom> findPageByUserIdAndItemId(
+            @Param("userId") Long userId,
             @Param("itemId") Long itemId,
             @Param("cursorLastChatAt") LocalDateTime cursorLastChatAt,
             @Param("cursorId") Long cursorId,
