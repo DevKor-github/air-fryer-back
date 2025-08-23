@@ -103,6 +103,7 @@ public class Appointment extends BaseEntity
                 .returnLocation(isRental ? dto.getEndLocation() : null)
                 .price(dto.getPrice())
                 .deposit(isRental ? dto.getDeposit() : 0)
+                .tradeMethod(dto.getTradeMethod())
                 .build();
     }
 
