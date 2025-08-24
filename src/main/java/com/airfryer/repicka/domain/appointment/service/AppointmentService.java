@@ -378,7 +378,7 @@ public class AppointmentService
 
         /// 데이터 반환
 
-        return AppointmentInfo.from(appointment, thumbnail.map(ItemImage::getFileKey));
+        return AppointmentInfo.from(user, appointment, thumbnail.map(ItemImage::getFileKey));
     }
 
     // 나의 약속 페이지 조회 (나의 PICK 조회)
