@@ -441,41 +441,67 @@ public class AppointmentService
         );
     }
 
-    // 협의 중인 약속 수정
+    // 협의 중이거나 확정된 약속 수정
     @Transactional
-    public AppointmentRes updatePendingAppointment(User user, UpdateAppointmentReq dto)
+    public AppointmentRes updateAppointment(User user, UpdateAppointmentReq dto)
     {
         /// 약속 데이터 조회
 
         Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
             .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
 
-        /// 제품 데이터 조회
-
-        Item item = appointment.getItem();
-
-        /// 약속 수정이 가능한지 체크
+        /// 약속 수정 가능 여부 체크
 
         appointmentUtil.checkUpdateAppointmentPossibility(
                 appointment,
-                item,
                 user,
-                dto,
-                AppointmentState.PENDING
+                dto
         );
-
-        /// 약속 변경
-
-        // 약속 데이터 변경
-        appointment.update(user, dto, appointment.getType() == AppointmentType.RENTAL);
 
         /// 채팅방 조회 (존재하지 않으면 생성)
 
-        ChatRoom chatRoom = chatService.createChatRoom(item, user);
+        ChatRoom chatRoom = chatService.createChatRoom(appointment.getItem(), user);
+
+        /// 확정된 약속의 경우, 약속 취소
+
+        if(appointment.getState() == AppointmentState.CONFIRMED)
+        {
+            /// 약속 취소 채팅 전송
+
+            Chat cancelChat = Chat.builder()
+                    .chatRoomId(chatRoom.getId())
+                    .userId(user.getId())
+                    .nickname(user.getNickname())
+                    .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
+                    .isNotification(true)
+                    .isPick(false)
+                    .pickInfo(null)
+                    .build();
+
+            chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
+
+            /// 채팅 상대방에게 약속 취소 알림 전송
+
+            // 채팅 상대방 조회
+            User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+
+            // 푸시 알림 전송
+            FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, appointment.getId().toString(), user.getNickname());
+            fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
+
+            /// 약속 취소 알림 저장
+
+            notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CANCEL, appointment);
+            notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CANCEL, appointment);
+        }
+
+        /// 약속 수정
+
+        appointment.update(user, dto, appointment.getType() == AppointmentType.RENTAL);
 
         /// PICK 메시지 전송
 
-        // 채팅 생성
+        // PICK 메시지 생성
         Chat chat = Chat.builder()
             .chatRoomId(chatRoom.getId())
             .userId(user.getId())
@@ -486,90 +512,13 @@ public class AppointmentService
             .pickInfo(Chat.PickInfo.from(appointment))
             .build();
 
-        // 채팅 전송
+        // PICK 메시지 전송
         chatWebSocketService.sendMessageChat(user, chatRoom, chat);
 
         /// 데이터 반환
 
         // 약속 데이터 반환
         return AppointmentRes.from(appointment);
-    }
-
-    // 확정된 약속 수정
-    @Transactional
-    public AppointmentRes updateConfirmedAppointment(User user, UpdateAppointmentReq dto)
-    {
-        /// 약속 데이터 조회
-
-        Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
-            .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
-
-        /// 제품 데이터 조회
-
-        Item item = appointment.getItem();
-
-        /// 약속 수정이 가능한지 체크
-
-        appointmentUtil.checkUpdateAppointmentPossibility(
-                appointment,
-                item,
-                user,
-                dto,
-                AppointmentState.CONFIRMED
-        );
-
-        /// 기존 약속 취소
-
-        appointmentUtil.cancelAppointment(appointment);
-
-        /// 새로운 약속 생성
-
-        // 새로운 약속 데이터 생성
-        Appointment newAppointment = appointment.clone();
-        newAppointment.update(user, dto, appointment.getType() == AppointmentType.RENTAL);
-
-        // 약속 데이터 저장
-        appointmentRepository.save(newAppointment);
-
-        /// 채팅방 조회 (존재하지 않으면 생성)
-
-        ChatRoom chatRoom = chatService.createChatRoom(item, user);
-
-        /// 약속 취소 채팅 전송
-
-        // 채팅 생성
-        Chat cancelChat = Chat.builder()
-            .chatRoomId(chatRoom.getId())
-            .userId(user.getId())
-            .nickname(user.getNickname())
-            .content(user.getNickname() + " 님께서 약속을 취소하였습니다.")
-            .isNotification(true)
-            .isPick(false)
-            .pickInfo(null)
-            .build();
-
-        // 채팅 전송
-        chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
-
-        /// PICK 메시지 전송
-
-        // 채팅 생성
-        Chat pickChat = Chat.builder()
-            .chatRoomId(chatRoom.getId())
-            .userId(user.getId())
-            .nickname(user.getNickname())
-            .content(user.getNickname() + " 님께서 설정하신 " + (appointment.getType() == AppointmentType.RENTAL ? "대여" : "구매") + " 정보가 도착했어요.")
-            .isNotification(false)
-            .isPick(true)
-            .pickInfo(Chat.PickInfo.from(appointment))
-            .build();
-
-        // 채팅 전송
-        chatWebSocketService.sendMessageChat(user, chatRoom, pickChat);
-
-        /// 데이터 반환
-
-        return AppointmentRes.from(newAppointment);
     }
 
     // 대여중인 약속 존재 여부 확인

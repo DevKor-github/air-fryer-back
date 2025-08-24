@@ -113,13 +113,15 @@ public class Appointment extends BaseEntity
     public void update(User user, UpdateAppointmentReq dto, boolean isRental)
     {
         this.creator = user;
+        this.state = AppointmentState.PENDING;
+
         this.rentalLocation = dto.getRentalLocation();
         this.returnLocation = isRental ? dto.getReturnLocation() : null;
         this.rentalDate = dto.getRentalDate();
         this.returnDate = isRental ? dto.getReturnDate() : null;
         this.price = dto.getPrice();
         this.deposit = isRental ? dto.getDeposit() : 0;
-        this.state = AppointmentState.PENDING;
+        this.tradeMethod = dto.getTradeMethod();
     }
 
     public void update(LocalDateTime returnDate, String returnLocation)
@@ -138,26 +140,6 @@ public class Appointment extends BaseEntity
 
     public void cancel() {
         this.state = AppointmentState.CANCELLED;
-    }
-
-    /// 약속 데이터 복사
-
-    public Appointment clone()
-    {
-        return Appointment.builder()
-                .item(this.item)
-                .requester(this.requester)
-                .owner(this.owner)
-                .creator(this.creator)
-                .type(this.type)
-                .state(this.state)
-                .rentalDate(this.rentalDate)
-                .returnDate(this.returnDate)
-                .rentalLocation(this.rentalLocation)
-                .returnLocation(this.returnLocation)
-                .price(this.price)
-                .deposit(this.deposit)
-                .build();
     }
 
     /// 약속 만료
