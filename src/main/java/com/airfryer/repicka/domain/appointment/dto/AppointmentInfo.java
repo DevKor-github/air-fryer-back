@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
@@ -41,9 +42,13 @@ public class AppointmentInfo
     private AppointmentType type;       // 약속 타입
     private TradeMethod tradeMethod;    // 거래 방식
 
-    public static AppointmentInfo from(User user, Appointment appointment, ChatRoom chatRoom, String imageUrl)
+    private String opponentNickname;    // 상대방 닉네임
+    private Boolean isReviewed;         // 리뷰 완료 여부
+
+    public static AppointmentInfo from(User user, Appointment appointment, ChatRoom chatRoom, String imageUrl, boolean isReviewed)
     {
         Item item = appointment.getItem();
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
 
         return AppointmentInfo.builder()
                 .appointmentId(appointment.getId())
@@ -68,36 +73,8 @@ public class AppointmentInfo
                 .state(appointment.getState())
                 .type(appointment.getType())
                 .tradeMethod(appointment.getTradeMethod())
-                .build();
-    }
-
-    public static AppointmentInfo from(Appointment appointment, ChatRoom chatRoom, String imageUrl)
-    {
-        Item item = appointment.getItem();
-
-        return AppointmentInfo.builder()
-                .appointmentId(appointment.getId())
-                .itemId(item.getId())
-                .chatRoomId(chatRoom.getId())
-                .requesterId(appointment.getRequester().getId())
-                .ownerId(appointment.getOwner().getId())
-                .isCreator(null)
-                .imageUrl(imageUrl)
-                .title(item.getTitle())
-                .description(item.getDescription())
-                .productTypes(item.getProductTypes())
-                .quality(item.getQuality())
-                .size(item.getSize())
-                .color(item.getColor())
-                .rentalDate(appointment.getRentalDate())
-                .returnDate(appointment.getReturnDate())
-                .rentalLocation(appointment.getRentalLocation())
-                .returnLocation(appointment.getReturnLocation())
-                .price(appointment.getPrice())
-                .deposit(appointment.getDeposit())
-                .state(appointment.getState())
-                .type(appointment.getType())
-                .tradeMethod(appointment.getTradeMethod())
+                .opponentNickname(opponent.getNickname())
+                .isReviewed(isReviewed)
                 .build();
     }
 }

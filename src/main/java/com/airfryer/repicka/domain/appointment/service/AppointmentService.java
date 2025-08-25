@@ -27,6 +27,8 @@ import com.airfryer.repicka.domain.item.repository.ItemRepository;
 import com.airfryer.repicka.domain.item_image.entity.ItemImage;
 import com.airfryer.repicka.domain.item_image.repository.ItemImageRepository;
 import com.airfryer.repicka.domain.item.entity.TransactionType;
+import com.airfryer.repicka.domain.review.entity.Review;
+import com.airfryer.repicka.domain.review.repository.ReviewRepository;
 import com.airfryer.repicka.domain.user.entity.user.User;
 import com.airfryer.repicka.domain.notification.NotificationService;
 
@@ -49,6 +51,7 @@ public class AppointmentService
     private final ChatRoomRepository chatRoomRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
     private final UserBlockRepository userBlockRepository;
+    private final ReviewRepository reviewRepository;
 
     private final AppointmentUtil appointmentUtil;
     private final ChatService chatService;
@@ -384,9 +387,14 @@ public class AppointmentService
         ItemImage thumbnail = itemImageRepository.findFirstByItemId(appointment.getItem().getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_IMAGE_NOT_FOUND, null));
 
+        /// 리뷰 조회
+
+        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+        Optional<Review> reviewOptional = reviewRepository.findByReviewedIdAndReviewerIdAndAppointmentId(opponent.getId(), user.getId(), appointment.getId());
+
         /// 데이터 반환
 
-        return AppointmentInfo.from(user, appointment, chatRoom, thumbnail.getFileKey());
+        return AppointmentInfo.from(user, appointment, chatRoom, thumbnail.getFileKey(), reviewOptional.isPresent());
     }
 
     // 나의 약속 페이지 조회 (나의 PICK 조회)
@@ -436,8 +444,13 @@ public class AppointmentService
             // 채팅방 조회
             ChatRoom chatRoom = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(appointment.getItem().getId(), appointment.getOwner().getId(), appointment.getRequester().getId())
                     .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, null));
-            
-            return AppointmentInfo.from(appointment, chatRoom, itemIdThumbnailUrlMap.get(appointment.getItem().getId()));
+
+            // 리뷰 조회
+            User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
+            Optional<Review> reviewOptional = reviewRepository.findByReviewedIdAndReviewerIdAndAppointmentId(opponent.getId(), user.getId(), appointment.getId());
+
+
+            return AppointmentInfo.from(user, appointment, chatRoom, itemIdThumbnailUrlMap.get(appointment.getItem().getId()), reviewOptional.isPresent());
 
         }).toList();
 
