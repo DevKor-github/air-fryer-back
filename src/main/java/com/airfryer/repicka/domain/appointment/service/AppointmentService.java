@@ -59,6 +59,7 @@ public class AppointmentService
     private final RedisService delayedQueueService;
     private final FCMService fcmService;
     private final NotificationService notificationService;
+
     /// 서비스
 
     // 약속 제시
@@ -268,8 +269,30 @@ public class AppointmentService
             item.confirmSale(LocalDateTime.now());
         }
 
-        // 약속 상태 변경
+        /// 약속 확정
+
         appointment.confirm();
+
+        /// 약속 확정 채팅
+
+        // 채팅방 조회
+        ChatRoom chatRoom = chatService.createChatRoom(item, user);
+
+        // 약속 확정 채팅 생성
+        Chat chat = Chat.builder()
+                .chatRoomId(chatRoom.getId())
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .content(user.getNickname() + " 님께서 약속을 확정하였습니다.")
+                .isNotification(true)
+                .isPick(false)
+                .pickInfo(null)
+                .build();
+
+        // 약속 확정 채팅 전송
+        chatWebSocketService.sendMessageChat(user, chatRoom, chat);
+
+        /// 약속 확정 알림
 
         // 약속 확정 알림
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRM, appointment.getId().toString(), appointment.getItem().getTitle());
