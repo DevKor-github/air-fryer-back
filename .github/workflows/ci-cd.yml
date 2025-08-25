@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  DOCKER_IMAGE: ghcr.io/kyeahxx19/repicka:latest
+  DOCKER_IMAGE: ghcr.io/kyeahxx19/repicka:main
 
 permissions:
   contents: read
