@@ -474,6 +474,10 @@ public class AppointmentService
         Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
             .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
 
+        /// 약속 수정
+
+        appointment.update(user, dto, appointment.getType() == AppointmentType.RENTAL);
+
         /// 약속 수정 가능 여부 체크
 
         appointmentUtil.checkUpdateAppointmentPossibility(
@@ -486,7 +490,7 @@ public class AppointmentService
 
         ChatRoom chatRoom = chatService.createChatRoom(appointment.getItem(), user);
 
-        /// 확정된 약속의 경우, 약속 취소
+        /// 확정된 약속의 경우, 약속 취소 채팅 및 알림 전송
 
         if(appointment.getState() == AppointmentState.CONFIRMED)
         {
@@ -518,10 +522,6 @@ public class AppointmentService
             notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CANCEL, appointment);
             notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CANCEL, appointment);
         }
-
-        /// 약속 수정
-
-        appointment.update(user, dto, appointment.getType() == AppointmentType.RENTAL);
 
         /// PICK 메시지 전송
 
