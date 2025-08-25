@@ -153,7 +153,7 @@ public class UserService
 
         /// 유저 차단
 
-        blockUser(reported, reported);
+        blockUser(reporter, reported);
     }
 
     // 유저 차단
