@@ -6,6 +6,7 @@ import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.item.entity.Item;
 import com.airfryer.repicka.domain.item.entity.ProductType;
 import com.airfryer.repicka.domain.item.entity.TradeMethod;
+import com.airfryer.repicka.domain.user.entity.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class AppointmentInfo
     private Long itemId;            // 제품 ID
     private Long requesterId;       // 대여자(구매자) ID
     private Long ownerId;           // 소유자 ID
+    private Boolean isCreator;      // 약속 생성자인가?
 
     private String imageUrl;            // 이미지 URL
     private String title;               // 게시글 제목
@@ -36,6 +38,32 @@ public class AppointmentInfo
     private AppointmentType type;       // 약속 타입
     private TradeMethod tradeMethod;    // 거래 방식
 
+    public static AppointmentInfo from(User user, Appointment appointment, Optional<String> imageUrl)
+    {
+        Item item = appointment.getItem();
+
+        return AppointmentInfo.builder()
+                .appointmentId(appointment.getId())
+                .itemId(item.getId())
+                .requesterId(appointment.getRequester().getId())
+                .ownerId(appointment.getOwner().getId())
+                .isCreator(appointment.getCreator().getId().equals(user.getId()))
+                .imageUrl(imageUrl.orElse(null))
+                .title(item.getTitle())
+                .description(item.getDescription())
+                .productTypes(item.getProductTypes())
+                .rentalDate(appointment.getRentalDate())
+                .returnDate(appointment.getReturnDate())
+                .rentalLocation(appointment.getRentalLocation())
+                .returnLocation(appointment.getReturnLocation())
+                .price(appointment.getPrice())
+                .deposit(appointment.getDeposit())
+                .state(appointment.getState())
+                .type(appointment.getType())
+                .tradeMethod(appointment.getTradeMethod())
+                .build();
+    }
+
     public static AppointmentInfo from(Appointment appointment, Optional<String> imageUrl)
     {
         Item item = appointment.getItem();
@@ -45,6 +73,7 @@ public class AppointmentInfo
                 .itemId(item.getId())
                 .requesterId(appointment.getRequester().getId())
                 .ownerId(appointment.getOwner().getId())
+                .isCreator(null)
                 .imageUrl(imageUrl.orElse(null))
                 .title(item.getTitle())
                 .description(item.getDescription())

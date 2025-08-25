@@ -165,13 +165,11 @@ public class AppointmentUtil
 
     // 약속 수정 가능 여부 체크
     public void checkUpdateAppointmentPossibility(Appointment appointment,
-                                                   Item item,
-                                                   User user,
-                                                   UpdateAppointmentReq dto,
-                                                   AppointmentState state)
+                                                  User user,
+                                                  UpdateAppointmentReq dto)
     {
         // 약속 상태 체크
-        if(appointment.getState() != state) {
+        if(appointment.getState() != AppointmentState.PENDING && appointment.getState() != AppointmentState.CONFIRMED) {
             throw new CustomException(CustomExceptionCode.CONFLICT_APPOINTMENT_STATE, appointment.getState());
         }
 
@@ -181,12 +179,12 @@ public class AppointmentUtil
         }
 
         // 제품 삭제 여부 확인
-        if(item.getIsDeleted()) {
+        if(appointment.getItem().getIsDeleted()) {
             throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
         }
 
         // 가격 협의가 불가능한데 가격을 바꿔서 요청을 보내는 경우, 예외 처리
-        if(!item.getCanDeal() && (dto.getPrice() != appointment.getPrice() || dto.getDeposit() != appointment.getDeposit())) {
+        if(!appointment.getItem().getCanDeal() && (dto.getPrice() != appointment.getPrice() || dto.getDeposit() != appointment.getDeposit())) {
             throw new CustomException(CustomExceptionCode.DEAL_NOT_ALLOWED, null);
         }
 
@@ -199,13 +197,13 @@ public class AppointmentUtil
             }
 
             // 대여 구간 가능 여부 체크
-            checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), item);
+            checkRentalPeriodPossibility(dto.getRentalDate(), dto.getReturnDate(), appointment.getItem());
         }
         // 판매 게시글의 경우
         else
         {
             // 구매 날짜 가능 여부 체크
-            checkSaleDatePossibility(dto.getRentalDate(), item);
+            checkSaleDatePossibility(dto.getRentalDate(), appointment.getItem());
         }
     }
 

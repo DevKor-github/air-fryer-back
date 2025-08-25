@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.appointment.dto;
 
+import com.airfryer.repicka.domain.item.entity.TradeMethod;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -33,4 +34,7 @@ public class UpdateAppointmentReq
 
     @Min(value = 0, message = "보증금은 0원 이상이어야 합니다.")
     private Integer deposit;
+
+    @NotNull(message = "거래 방식을 입력해주세요.")
+    private TradeMethod tradeMethod;
 }

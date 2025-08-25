@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.chat.service;
 
 import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
-import com.airfryer.repicka.domain.notification.NotificationService;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
@@ -394,9 +393,14 @@ public class ChatService
             ParticipateChatRoom participateChatRoom = participateChatRoomRepository.findByChatRoomIdAndParticipantId(chatRoom.getId(), user.getId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.PARTICIPATE_CHATROOM_NOT_FOUND, null));
 
+            // 제품 썸네일
+            ItemImage thumbnail = itemImageRepository.findFirstByItemId(chatRoom.getItem().getId())
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_IMAGE_NOT_FOUND, null));
+
             return ChatRoomDto.from(
                 chatRoom,
                 user,
+                thumbnail.getFileKey(),
                 chatOptional.orElse(null),
                 participateChatRoom.getUnreadChatCount()
             );
