@@ -122,7 +122,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: self-hosted
+    runs-on: [self-hosted, main]
     # main 브랜치에 push될 때만 Docker Deploy 실행
     if: github.event_name == 'push'
     
