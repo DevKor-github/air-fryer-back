@@ -63,6 +63,8 @@ public class ChatService
         Item item = itemRepository.findById(itemId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, itemId));
 
+        /// 예외 처리
+
         // 이미 삭제된 제품인 경우, 예외 처리
         if(item.getIsDeleted()) {
             throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
@@ -71,6 +73,11 @@ public class ChatService
         // 유저 차단 데이터 존재 여부 체크
         if(userBlockRepository.existsByUserIds(requester.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.USER_BLOCK_EXIST, null);
+        }
+
+        // 요청자와 제품 소유자가 다른 사용자인지 체크
+        if(Objects.equals(requester.getId(), item.getOwner().getId())) {
+            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
         }
 
         /// 채팅방 조회 (존재하지 않으면 생성)
@@ -421,13 +428,6 @@ public class ChatService
     @Transactional
     public ChatRoom createChatRoom(Item item, User requester)
     {
-        /// 예외 처리
-
-        // 요청자와 제품 소유자가 다른 사용자인지 체크
-        if(Objects.equals(requester.getId(), item.getOwner().getId())) {
-            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
-        }
-
         // 채팅방 조회
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(item.getId(), item.getOwner().getId(), requester.getId());
 
@@ -439,13 +439,11 @@ public class ChatService
         }
         else
         {
-            /// 채팅방 생성
-
             ChatRoom chatRoom = ChatRoom.builder()
-                .item(item)
-                .requester(requester)
-                .owner(item.getOwner())
-                .build();
+                    .item(item)
+                    .requester(requester)
+                    .owner(item.getOwner())
+                    .build();
 
             chatRoomRepository.save(chatRoom);
 
@@ -453,15 +451,15 @@ public class ChatService
 
             // 요청자 참여 정보 생성
             participateChatRoomRepository.save(ParticipateChatRoom.builder()
-                .chatRoom(chatRoom)
-                .participant(requester)
-                .build());
+                    .chatRoom(chatRoom)
+                    .participant(requester)
+                    .build());
 
             // 제품 소유자 참여 정보 생성
             participateChatRoomRepository.save(ParticipateChatRoom.builder()
-                .chatRoom(chatRoom)
-                .participant(item.getOwner())
-                .build());
+                    .chatRoom(chatRoom)
+                    .participant(item.getOwner())
+                    .build());
 
             /// 제품의 채팅방 개수 증가
 

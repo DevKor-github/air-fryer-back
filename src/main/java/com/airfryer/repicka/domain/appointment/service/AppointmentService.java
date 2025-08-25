@@ -72,6 +72,8 @@ public class AppointmentService
         Item item = itemRepository.findById(dto.getItemId())
             .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_NOT_FOUND, dto.getItemId()));
 
+        /// 예외 처리
+
         // 제품 삭제 여부 확인
         if(item.getIsDeleted()) {
             throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
@@ -122,7 +124,7 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.CURRENT_APPOINTMENT_EXIST, null);
         }
 
-        /// 채팅방 조회 (존재하지 않으면 생성)
+        /// 채팅방 조회 (존재하지 않으면 생성)\
 
         ChatRoom chatRoom = chatService.createChatRoom(item, requester);
 
@@ -276,7 +278,8 @@ public class AppointmentService
         /// 약속 확정 채팅
 
         // 채팅방 조회
-        ChatRoom chatRoom = chatService.createChatRoom(item, user);
+        ChatRoom chatRoom = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(item.getId(), appointment.getOwner().getId(), appointment.getRequester().getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, null));
 
         // 약속 확정 채팅 생성
         Chat chat = Chat.builder()
@@ -350,9 +353,10 @@ public class AppointmentService
 
         appointmentUtil.cancelAppointment(appointment);
 
-        /// 채팅방 조회 (존재하지 않으면 생성)
+        /// 채팅방 조회
 
-        ChatRoom chatRoom = chatService.createChatRoom(item, user);
+        ChatRoom chatRoom = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(item.getId(), appointment.getOwner().getId(), appointment.getRequester().getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, null));
 
         /// 약속 취소 채팅 전송
 
@@ -509,9 +513,10 @@ public class AppointmentService
                 dto
         );
 
-        /// 채팅방 조회 (존재하지 않으면 생성)
+        /// 채팅방 조회
 
-        ChatRoom chatRoom = chatService.createChatRoom(appointment.getItem(), user);
+        ChatRoom chatRoom = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(appointment.getItem().getId(), appointment.getOwner().getId(), appointment.getRequester().getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, null));
 
         /// 확정된 약속의 경우, 약속 취소 채팅 및 알림 전송
 

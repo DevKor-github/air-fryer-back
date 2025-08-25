@@ -8,5 +8,5 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long>
 {
     // 소유자 ID로 삭제되지 않은 제품 리스트 조회
-    List<Item> findAllByOwnerIdAndIsDeletedFalse(Long ownerId);
+    List<Item> findAllByOwnerIdAndIsDeletedFalseOrderByCreatedAtDesc(Long ownerId);
 }

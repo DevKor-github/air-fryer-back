@@ -223,7 +223,7 @@ public class UserService
     public List<OwnedItemListRes> getOwnedItemList(Long userId)
     {
         // 제품 리스트 조회
-        List<Item> itemList = itemRepository.findAllByOwnerIdAndIsDeletedFalse(userId);
+        List<Item> itemList = itemRepository.findAllByOwnerIdAndIsDeletedFalseOrderByCreatedAtDesc(userId);
 
         return itemList.stream().map(item -> {
 
