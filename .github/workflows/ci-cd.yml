@@ -2,9 +2,9 @@ name: CI/CD with github actions & docker
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ develop ]
+    branches: [ main ]
 
 env:
   DOCKER_IMAGE: ghcr.io/kyeahxx19/repicka:latest
@@ -41,8 +41,8 @@ jobs:
         ports:
           - 6379:6379
         env:
-          REDIS_HOST: ${{ secrets.DEV_REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.DEV_REDIS_PORT }}
+          REDIS_HOST: ${{ secrets.MAIN_REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.MAIN_REDIS_PORT }}
 
     env:
       TEST_DB_URL: ${{ secrets.TEST_DB_URL }}
@@ -52,8 +52,8 @@ jobs:
       TEST_MONGODB_USERNAME: ${{ secrets.TEST_MONGODB_USERNAME }}
       TEST_MONGODB_PASSWORD: ${{ secrets.TEST_MONGODB_PASSWORD }}
       TEST_MONGODB_DATABASE: ${{ secrets.TEST_MONGODB_DATABASE }}
-      REDIS_HOST: ${{ secrets.DEV_REDIS_HOST }}
-      REDIS_PORT: ${{ secrets.DEV_REDIS_PORT }}
+      REDIS_HOST: ${{ secrets.MAIN_REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.MAIN_REDIS_PORT }}
       JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
       FRONTEND_URI: ${{ secrets.TEST_FRONTEND_URI }}
       APPLE_WEB_CLIENT_ID: ${{ secrets.APPLE_WEB_CLIENT_ID }}
@@ -87,7 +87,7 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-    # develop 브랜치에 push될 때만 Docker Build 실행
+    # main 브랜치에 push될 때만 Docker Build 실행
     if: github.event_name == 'push'
     
     steps:
@@ -123,16 +123,16 @@ jobs:
   deploy:
     needs: build
     runs-on: self-hosted
-    # develop 브랜치에 push될 때만 Docker Deploy 실행
+    # main 브랜치에 push될 때만 Docker Deploy 실행
     if: github.event_name == 'push'
     
     steps:
       - name: Create .env
         run: |
-          echo "DB_URL=${{ secrets.DEV_DB_URL }}" >> .env
-          echo "DB_USERNAME=${{ secrets.DEV_DB_USERNAME }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }}" >> .env
-          echo "JWT_SECRET=${{ secrets.DEV_JWT_SECRET }}" >> .env
+          echo "DB_URL=${{ secrets.MAIN_DB_URL }}" >> .env
+          echo "DB_USERNAME=${{ secrets.MAIN_DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.MAIN_DB_PASSWORD }}" >> .env
+          echo "JWT_SECRET=${{ secrets.MAIN_JWT_SECRET }}" >> .env
           echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
           echo "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}" >> .env
@@ -145,18 +145,18 @@ jobs:
           echo "APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }}" >> .env
           echo "APPLE_REDIRECT_URI=${{ secrets.APPLE_REDIRECT_URI }}" >> .env
           echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> .env
-          echo "FRONTEND_URI=${{ secrets.DEV_FRONTEND_URI }}" >> .env
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.DEV_AWS_ACCESS_KEY_ID }}" >> .env
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}" >> .env
-          echo "AWS_REGION=${{ secrets.DEV_AWS_REGION }}" >> .env
-          echo "AWS_S3_BUCKET_NAME=${{ secrets.DEV_AWS_S3_BUCKET_NAME }}" >> .env
-          echo "AWS_CLOUDFRONT_DOMAIN=${{ secrets.DEV_AWS_CLOUDFRONT_DOMAIN }}" >> .env
-          echo "MONGODB_URL=${{ secrets.DEV_MONGODB_URL }}" >> .env
-          echo "MONGODB_USERNAME=${{ secrets.DEV_MONGODB_USERNAME }}" >> .env
-          echo "MONGODB_PASSWORD=${{ secrets.DEV_MONGODB_PASSWORD }}" >> .env
-          echo "MONGODB_DATABASE=${{ secrets.DEV_MONGODB_DATABASE }}" >> .env
-          echo "REDIS_HOST=${{ secrets.DEV_REDIS_HOST }}" >> .env
-          echo "REDIS_PORT=${{ secrets.DEV_REDIS_PORT }}" >> .env
+          echo "FRONTEND_URI=${{ secrets.MAIN_FRONTEND_URI }}" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.MAIN_AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.MAIN_AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_REGION=${{ secrets.MAIN_AWS_REGION }}" >> .env
+          echo "AWS_S3_BUCKET_NAME=${{ secrets.MAIN_AWS_S3_BUCKET_NAME }}" >> .env
+          echo "AWS_CLOUDFRONT_DOMAIN=${{ secrets.MAIN_AWS_CLOUDFRONT_DOMAIN }}" >> .env
+          echo "MONGODB_URL=${{ secrets.MAIN_MONGODB_URL }}" >> .env
+          echo "MONGODB_USERNAME=${{ secrets.MAIN_MONGODB_USERNAME }}" >> .env
+          echo "MONGODB_PASSWORD=${{ secrets.MAIN_MONGODB_PASSWORD }}" >> .env
+          echo "MONGODB_DATABASE=${{ secrets.MAIN_MONGODB_DATABASE }}" >> .env
+          echo "REDIS_HOST=${{ secrets.MAIN_REDIS_HOST }}" >> .env
+          echo "REDIS_PORT=${{ secrets.MAIN_REDIS_PORT }}" >> .env
 
       - name: Login to GitHub Container Registry
         run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u kyeahxx19 --password-stdin
