@@ -421,13 +421,6 @@ public class ChatService
     @Transactional
     public ChatRoom createChatRoom(Item item, User requester)
     {
-        /// 예외 처리
-
-        // 요청자와 제품 소유자가 다른 사용자인지 체크
-        if(Objects.equals(requester.getId(), item.getOwner().getId())) {
-            throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
-        }
-
         // 채팅방 조회
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(item.getId(), item.getOwner().getId(), requester.getId());
 
@@ -439,6 +432,13 @@ public class ChatService
         }
         else
         {
+            /// 예외 처리
+
+            // 요청자와 제품 소유자가 다른 사용자인지 체크
+            if(Objects.equals(requester.getId(), item.getOwner().getId())) {
+                throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
+            }
+
             /// 채팅방 생성
 
             ChatRoom chatRoom = ChatRoom.builder()
