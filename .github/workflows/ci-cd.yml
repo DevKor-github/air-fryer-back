@@ -162,7 +162,7 @@ jobs:
         run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u kyeahxx19 --password-stdin
 
       - name: Pull latest Docker image
-        run: docker pull ${{ env.DOCKER_IMAGE }}
+        run: sudo docker pull ${{ env.DOCKER_IMAGE }}
 
       - name: Stop existing container (if any)
         run: |
