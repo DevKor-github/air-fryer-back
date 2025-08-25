@@ -4,6 +4,7 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 
+import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.common.redis.RedisService;
 import com.airfryer.repicka.common.firebase.service.FCMService;
@@ -45,6 +46,7 @@ public class AppointmentService
     private final AppointmentRepository appointmentRepository;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
     private final UserBlockRepository userBlockRepository;
 
@@ -372,13 +374,19 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.NOT_APPOINTMENT_PARTICIPANT, null);
         }
 
+        /// 채팅방 조회
+
+        ChatRoom chatRoom = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(appointment.getItem().getId(), appointment.getOwner().getId(), appointment.getRequester().getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, null));
+
         /// 대표 이미지 조회
 
-        Optional<ItemImage> thumbnail = itemImageRepository.findFirstByItemId(appointment.getItem().getId());
+        ItemImage thumbnail = itemImageRepository.findFirstByItemId(appointment.getItem().getId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.ITEM_IMAGE_NOT_FOUND, null));
 
         /// 데이터 반환
 
-        return AppointmentInfo.from(user, appointment, thumbnail.map(ItemImage::getFileKey));
+        return AppointmentInfo.from(user, appointment, chatRoom, thumbnail.getFileKey());
     }
 
     // 나의 약속 페이지 조회 (나의 PICK 조회)
@@ -409,35 +417,38 @@ public class AppointmentService
             appointmentPage = appointmentPage.subList(0, dto.getPageSize());
         }
 
-        /// 대표 이미지 리스트 조회
+        /// (제품 ID, 썸네일 URL) 맵 생성
 
-        // 대표 이미지 리스트 조회
+        // 썸네일 리스트 조회
         List<ItemImage> thumbnailList = itemImageRepository.findThumbnailListByItemIdList(appointmentPage.stream().map(appointment -> appointment.getItem().getId()).toList());
 
-        // Map(제품 ID, 대표 이미지 URL) 생성
-        Map<Long, String> thumbnailUrlMap = thumbnailList.stream()
-            .collect(Collectors.toMap(
-                itemImage -> itemImage.getItem().getId(),
-                ItemImage::getFileKey
-            ));
+        //(제품 ID, 썸네일 URL) 맵 생성
+        Map<Long, String> itemIdThumbnailUrlMap = thumbnailList.stream()
+                .collect(Collectors.toMap(
+                        itemImage -> itemImage.getItem().getId(),
+                        ItemImage::getFileKey
+                ));
 
-        // Map(약속, 대표 이미지 URL) 생성
-        Map<Appointment, Optional<String>> map = appointmentPage.stream()
-            .collect(Collectors.toMap(
-                appointment -> appointment,
-                appointment -> Optional.ofNullable(thumbnailUrlMap.get(appointment.getItem().getId())),
-                (a, b) -> b,
-                LinkedHashMap::new
-            ));
+        /// 약속 정보 리스트 생성
+
+        List<AppointmentInfo> appointmentInfoList = appointmentPage.stream().map(appointment -> {
+
+            // 채팅방 조회
+            ChatRoom chatRoom = chatRoomRepository.findByItemIdAndOwnerIdAndRequesterId(appointment.getItem().getId(), appointment.getOwner().getId(), appointment.getRequester().getId())
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.CHATROOM_NOT_FOUND, null));
+            
+            return AppointmentInfo.from(appointment, chatRoom, itemIdThumbnailUrlMap.get(appointment.getItem().getId()));
+
+        }).toList();
 
         /// 데이터 반환
 
         return AppointmentPageRes.of(
-            map,
-            cursorState,
-            cursorDate,
-            cursorId,
-            hasNext
+                appointmentInfoList,
+                cursorState,
+                cursorDate,
+                cursorId,
+                hasNext
         );
     }
 
