@@ -159,7 +159,7 @@ jobs:
           echo "REDIS_PORT=${{ secrets.MAIN_REDIS_PORT }}" >> .env
 
       - name: Login to GitHub Container Registry
-        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u kyeahxx19 --password-stdin
+        run: echo "${{ secrets.GHCR_PAT }}" | sudo docker login ghcr.io -u kyeahxx19 --password-stdin
 
       - name: Pull latest Docker image
         run: sudo docker pull ${{ env.DOCKER_IMAGE }}
