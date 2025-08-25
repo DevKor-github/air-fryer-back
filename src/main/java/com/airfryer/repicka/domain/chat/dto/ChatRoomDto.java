@@ -14,6 +14,7 @@ import java.util.Objects;
 public class ChatRoomDto
 {
     private Long chatRoomId;                    // 채팅방 ID
+    private Long itemId;                        // 제품 ID
     private Long myUserId;                      // 나의 사용자 ID
     private Long opponentUserId;                // 상대방의 사용자 ID
     private String opponentNickname;            // 상대방의 닉네임
@@ -32,6 +33,7 @@ public class ChatRoomDto
 
         return ChatRoomDto.builder()
                 .chatRoomId(chatRoom.getId())
+                .itemId(chatRoom.getItem().getId())
                 .myUserId(me.getId())
                 .opponentUserId(opponent.getId())
                 .opponentNickname(opponent.getNickname())
