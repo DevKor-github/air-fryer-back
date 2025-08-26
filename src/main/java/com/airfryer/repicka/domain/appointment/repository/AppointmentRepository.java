@@ -237,8 +237,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("limit") int limit
     );
 
-    // 레코드 수정 날짜가 특정 시점 이전인 특정 상태의 약속 페이지 조회
-    Page<Appointment> findByStateAndUpdatedAtBefore(AppointmentState state, LocalDateTime localDateTime, Pageable pageable);
+    // 만료되어야 하는 약속 페이지 조회
+    // 1. 레코드 수정 일시가 현재의 일주일 전보다 이전인 PENDING 약속
+    // 2. 대여 일시가 현재보다 이전인 PENDING 약속
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE a.state = 'PENDING' AND (
+            (a.updatedAt <= :nowMinusWeek) OR
+            (a.rentalDate <= :now)
+        )
+    """)
+    Page<Appointment> findShouldBeExpiredAppointments(
+            @Param("now") LocalDateTime now,
+            @Param("nowMinusWeek") LocalDateTime nowMinusWeek,
+            Pageable pageable
+    );
 
     // 반납 날짜가 특정 시점 이전이고 특정 상태인 약속 페이지 조회 (SUCCESS 배치용)
     Page<Appointment> findByStateAndReturnDateBefore(AppointmentState state, LocalDateTime localDateTime, Pageable pageable);

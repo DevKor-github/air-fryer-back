@@ -1,7 +1,6 @@
 package com.airfryer.repicka.common.batch.configuration;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
-import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
 import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.appointment.repository.UpdateInProgressAppointmentRepository;
@@ -90,11 +89,12 @@ public class AppointmentBatchConfig
     @StepScope
     public ItemReader<Appointment> expireAppointmentReader(@Value("#{jobParameters['now']}") String now)
     {
-        // updatedAt 일시가 일주일 이전인 Appointment 조회
+        // 1. 레코드 수정 일시가 현재의 일주일 전보다 이전인 PENDING 약속
+        // 2. 대여 일시가 현재보다 이전인 PENDING 약속
         return new RepositoryItemReaderBuilder<Appointment>()
             .repository(appointmentRepository)
-            .methodName("findByStateAndUpdatedAtBefore")
-            .arguments(List.of(AppointmentState.PENDING, LocalDateTime.parse(now).minusWeeks(1)))
+            .methodName("findShouldBeExpiredAppointments")
+            .arguments(List.of(LocalDateTime.parse(now), LocalDateTime.parse(now).minusWeeks(1)))
             .pageSize(100)
             .sorts(Map.of("updatedAt", Sort.Direction.ASC))
             .name("expireAppointmentReader")
