@@ -252,4 +252,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
         WHERE a.id = :id AND (a.requester.id = :userId OR a.owner.id = :userId)
     """)
     Optional<Appointment> findByIdAndUserId(Long id, Long userId);
+
+    // 성공 처리되어야 하는 약속 페이지 조회
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE (a.rentalDate < :time AND a.state = 'CONFIRMED' AND a.type = 'SALE')
+           OR (a.returnDate < :time AND a.state = 'IN_PROGRESS' AND a.type = 'RENTAL')
+    """)
+    Page<Appointment> findExpiredSaleOrRentalAppointments(
+            @Param("time") LocalDateTime time,
+            Pageable pageable
+    );
 }

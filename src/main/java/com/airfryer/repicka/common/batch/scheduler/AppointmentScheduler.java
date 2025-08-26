@@ -1,7 +1,5 @@
 package com.airfryer.repicka.common.batch.scheduler;
 
-import com.airfryer.repicka.domain.notification.NotificationService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -35,7 +33,7 @@ public class AppointmentScheduler
     }
 
     // 매일 12시에 실행 - 성공 처리 배치
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "* * * * * *")
     public void runSuccessBatch()
     {
         try {
