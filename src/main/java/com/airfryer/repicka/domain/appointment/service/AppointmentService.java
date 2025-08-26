@@ -351,6 +351,7 @@ public class AppointmentService
             notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CANCEL, appointment);
         }
 
+        // 약속 취소
         appointmentUtil.cancelAppointment(appointment);
 
         /// 채팅방 조회

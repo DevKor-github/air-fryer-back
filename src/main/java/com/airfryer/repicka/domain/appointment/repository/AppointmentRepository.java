@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.appointment.repository;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,30 +36,28 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
 
     @Query("""
         SELECT a FROM Appointment a
-        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = :type AND (
+        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = 'RENTAL' AND (
            (a.rentalDate > :start AND a.rentalDate < :end) OR
            (a.returnDate > :start AND a.returnDate < :end) OR
            (a.rentalDate < :start AND a.returnDate > :end)
         )
     """)
-    List<Appointment> findListOverlappingWithPeriod(
+    List<Appointment> findRentalListOverlappingWithPeriod(
             @Param("itemId") Long itemId,
             @Param("state") List<AppointmentState> state,
-            @Param("type") AppointmentType type,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
 
     @Query("""
         SELECT a FROM Appointment a
-        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = :type AND (
+        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = 'RENTAL' AND (
            (a.returnDate >= :start)
         )
     """)
-    List<Appointment> findListOverlappingWithPeriod(
+    List<Appointment> findRentalListOverlappingWithPeriod(
             @Param("itemId") Long itemId,
             @Param("state") List<AppointmentState> state,
-            @Param("type") AppointmentType type,
             @Param("start") LocalDateTime start
     );
 
