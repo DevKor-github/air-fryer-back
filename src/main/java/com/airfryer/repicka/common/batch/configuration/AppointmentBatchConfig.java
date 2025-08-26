@@ -34,7 +34,7 @@ import java.util.Map;
 @Configuration
 @EnableBatchProcessing
 @RequiredArgsConstructor
-public class AppointmentConfig
+public class AppointmentBatchConfig
 {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
@@ -109,10 +109,10 @@ public class AppointmentConfig
         // returnDate가 현재 시점 이전이고 IN_PROGRESS 상태인 Appointment 조회
         return new RepositoryItemReaderBuilder<Appointment>()
             .repository(appointmentRepository)
-            .methodName("findByStateAndReturnDateBefore")
-            .arguments(List.of(AppointmentState.IN_PROGRESS, LocalDateTime.parse(now)))
+            .methodName("findExpiredSaleOrRentalAppointments")
+            .arguments(List.of(LocalDateTime.parse(now)))
             .pageSize(100)
-            .sorts(Map.of("returnDate", Sort.Direction.ASC))
+            .sorts(Map.of("id", Sort.Direction.ASC))
             .name("successAppointmentReader")
             .build();
     }
