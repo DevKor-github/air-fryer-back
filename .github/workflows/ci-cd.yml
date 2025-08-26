@@ -159,19 +159,19 @@ jobs:
           echo "REDIS_PORT=${{ secrets.DEV_REDIS_PORT }}" >> .env
 
       - name: Login to GitHub Container Registry
-        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u kyeahxx19 --password-stdin
+        run: echo "${{ secrets.GHCR_PAT }}" | sudo docker login ghcr.io -u kyeahxx19 --password-stdin
 
       - name: Pull latest Docker image
-        run: docker pull ${{ env.DOCKER_IMAGE }}
+        run: sudo docker pull ${{ env.DOCKER_IMAGE }}
 
       - name: Stop existing container (if any)
         run: |
-          docker stop repicka || true
-          docker rm repicka || true
+          sudo docker stop repicka || true
+          sudo docker rm repicka || true
 
       - name: Run new container
         run: |
-          docker run -d \
+          sudo docker run -d \
           --network host \
           --env-file .env \
           -v /home/ec2-user/secrets:/app/secrets:ro \
