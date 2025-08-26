@@ -119,6 +119,11 @@ public class AppointmentUtil
             ));
         }
 
+        // 시작 날짜가 현재 이후인지 체크
+        if(!startDate.isAfter(LocalDateTime.now())) {
+            throw new CustomException(CustomExceptionCode.RENTAL_DATE_IS_BEFORE_THAN_TODAY, null);
+        }
+
         // 대여를 원하는 구간 동안 예정된 대여 약속이 하나도 없는지 체크
         if(!isItemRentalAvailableOnInterval(item.getId(), startDate, endDate)) {
             throw new CustomException(CustomExceptionCode.ALREADY_RENTAL_RESERVED_PERIOD, Map.of(

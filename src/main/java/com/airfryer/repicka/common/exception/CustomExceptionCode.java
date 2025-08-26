@@ -47,6 +47,7 @@ public enum CustomExceptionCode
     APPOINTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "약속 데이터를 찾을 수 없습니다."),
     UPDATE_IN_PROGRESS_APPOINTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "대여 중인 약속 변경 제시 데이터를 찾을 수 없습니다."),
     RENTAL_DATE_IS_LATER_THAN_RETURN_DATE(HttpStatus.BAD_REQUEST, "대여 일시는 반납 일시보다 이전이어야 합니다."),
+    RENTAL_DATE_IS_BEFORE_THAN_TODAY(HttpStatus.BAD_REQUEST, "대여(구매) 일시는 현재 이후여야 합니다."),
     UNRELATED_ITEM(HttpStatus.BAD_REQUEST, "연관 없는 제품입니다."),
     CANNOT_CONFIRM_APPOINTMENT_MYSELF(HttpStatus.FORBIDDEN, "본인이 제시한 약속을 본인이 확정할 수는 없습니다."),
     CANNOT_RESPONSE_UPDATE_IN_PROGRESS_APPOINTMENT_MYSELF(HttpStatus.FORBIDDEN, "본인이 제시한 대여중 약속 변경 제시를 본인이 수락 또는 거절할 수는 없습니다."),
