@@ -259,7 +259,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
         WHERE (a.rentalDate < :time AND a.state = 'CONFIRMED' AND a.type = 'SALE')
            OR (a.returnDate < :time AND a.state = 'IN_PROGRESS' AND a.type = 'RENTAL')
     """)
-    Page<Appointment> findExpiredSaleOrRentalAppointments(
+    Page<Appointment> findShouldBeSuccessAppointments(
             @Param("time") LocalDateTime time,
             Pageable pageable
     );
