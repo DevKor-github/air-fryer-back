@@ -32,8 +32,8 @@ public class AppointmentScheduler
         }
     }
 
-    // 매일 12시에 실행 - 성공 처리 배치
-    @Scheduled(cron = "* * * * * *")
+    // 매일 오전 12시에 실행 - 성공 처리 배치
+    @Scheduled(cron = "0 0 0 * * *")
     public void runSuccessBatch()
     {
         try {

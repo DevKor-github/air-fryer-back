@@ -109,7 +109,7 @@ public class AppointmentBatchConfig
         // returnDate가 현재 시점 이전이고 IN_PROGRESS 상태인 Appointment 조회
         return new RepositoryItemReaderBuilder<Appointment>()
             .repository(appointmentRepository)
-            .methodName("findExpiredSaleOrRentalAppointments")
+            .methodName("findShouldBeSuccessAppointments")
             .arguments(List.of(LocalDateTime.parse(now)))
             .pageSize(100)
             .sorts(Map.of("id", Sort.Direction.ASC))
