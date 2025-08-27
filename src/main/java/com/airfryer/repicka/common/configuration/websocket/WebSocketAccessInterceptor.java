@@ -121,6 +121,14 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // 사용자 읽지 않은 채팅 개수 감소
                 user.decreaseUnreadChatCount(participateChatRoom.getUnreadChatCount());
 
+                // 사용자 읽지 않은 채팅 개수 웹소켓 메시지 발행
+                SubMessage unreadChatCountMessage = SubMessage.createUnreadChatCountMessage(user);
+                applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                        .userId(user.getId())
+                        .destination("/sub")
+                        .message(unreadChatCountMessage)
+                        .build());
+
                 // 채팅방 참여 정보 갱신
                 participateChatRoom.renew();
 

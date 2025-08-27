@@ -11,6 +11,8 @@ import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.chat.repository.ParticipateChatRoomRepository;
 import com.airfryer.repicka.domain.chat.service.MappingSubWithRoomManager;
 import com.airfryer.repicka.domain.chat.service.OnlineStatusManager;
+import com.airfryer.repicka.domain.user.entity.user.User;
+import com.airfryer.repicka.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
@@ -19,6 +21,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +30,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class WebSocketEventHandler
 {
+    private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ParticipateChatRoomRepository participateChatRoomRepository;
 
@@ -43,6 +47,32 @@ public class WebSocketEventHandler
             messagingTemplate.convertAndSend(event.getDestination(), event.getMessage());
         } else {
             messagingTemplate.convertAndSendToUser(event.getUserId().toString(), event.getDestination(), event.getMessage());
+        }
+    }
+
+    // 사용자별 구독 초기 메시지 전송 이벤트
+    @EventListener
+    public void handleUserSubscribe(SessionSubscribeEvent event)
+    {
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        String destination = accessor.getDestination();
+
+        // 사용자 정보 가져오기
+        Authentication auth = (Authentication) accessor.getUser();
+        if(auth == null) {
+            return;
+        }
+        CustomOAuth2User customOAuth2User = (CustomOAuth2User) auth.getPrincipal();
+
+        Long userId = customOAuth2User.getUser().getId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, userId));
+
+        // 사용자별 구독일 때만 초기 메시지 전송
+        if(destination != null && destination.startsWith("/user/"))
+        {
+            SubMessage message = SubMessage.createUnreadChatCountMessage(user);
+            messagingTemplate.convertAndSendToUser(userId.toString(), "/sub", message);
         }
     }
 

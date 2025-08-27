@@ -3,6 +3,7 @@ package com.airfryer.repicka.domain.chat.dto.message.sub;
 import com.airfryer.repicka.domain.chat.dto.message.sub.content.ChatContent;
 import com.airfryer.repicka.domain.chat.dto.message.sub.content.ChatContentByUser;
 import com.airfryer.repicka.domain.chat.dto.message.sub.content.EnterOrExitContent;
+import com.airfryer.repicka.domain.chat.dto.message.sub.content.UnreadChatCountContent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.user.entity.user.User;
@@ -56,6 +57,14 @@ public class SubMessage
         return SubMessage.builder()
                 .type(SubMessageType.CHAT)
                 .message(ChatContentByUser.from(chatRoom, me, mostRecentChat, unreadChatCount))
+                .build();
+    }
+
+    public static SubMessage createUnreadChatCountMessage(User user)
+    {
+        return SubMessage.builder()
+                .type(SubMessageType.UNREAD_CHAT_COUNT)
+                .message(UnreadChatCountContent.from(user))
                 .build();
     }
 }
