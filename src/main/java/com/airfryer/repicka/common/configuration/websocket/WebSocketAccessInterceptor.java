@@ -70,6 +70,10 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 Long chatRoomId = Long.parseLong(destination.replace("/sub/chatroom/", ""));
                 Long userId = getUserId(accessor);
 
+                // 사용자 조회
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, userId));
+
                 // 채팅방 조회
                 ChatRoom chatRoom = findChatRoom(chatRoomId, userId);
 
@@ -87,12 +91,6 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
                 // 이미 채팅방을 나간 경우
                 if(participateChatRoom.getHasLeftRoom())
                 {
-                    /// 데이터 조회
-
-                    // 사용자 조회
-                    User user = userRepository.findById(userId)
-                            .orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, userId));
-
                     /// 채팅방 재입장
 
                     participateChatRoom.reEnter();
@@ -119,6 +117,9 @@ public class WebSocketAccessInterceptor implements ChannelInterceptor
 
                 // 온라인 상태 변경
                 onlineStatusManager.markUserOnline(chatRoomId, userId);
+
+                // 사용자 읽지 않은 채팅 개수 감소
+                user.decreaseUnreadChatCount(participateChatRoom.getUnreadChatCount());
 
                 // 채팅방 참여 정보 갱신
                 participateChatRoom.renew();

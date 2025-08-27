@@ -53,12 +53,11 @@ public class User extends BaseEntity
 
     private Integer height; // 키
     private Integer weight; // 몸무게
-    // fcm 토큰 업데이트
-    @Setter
+
+    @Setter // fcm 토큰 업데이트
     private String fcmToken; // 푸시알림 토큰
 
-    // 푸시 알림 활성화 여부 업데이트
-    @Setter
+    @Setter // 푸시 알림 활성화 여부 업데이트
     @Builder.Default
     @NotNull
     private Boolean isPushEnabled = false; // 푸시알림 활성화 여부
@@ -69,6 +68,10 @@ public class User extends BaseEntity
     @NotNull
     private LocalDate lastAccessDate; // 마지막 접속 날짜
 
+    @NotNull
+    @Builder.Default
+    private int unreadChatCount = 0;    // 읽지 않은 채팅 개수
+
     // 프로필 업데이트
     public void updateProfile(UpdateUserReq profileDetail) {
         this.nickname = profileDetail.getNickname();
@@ -76,5 +79,10 @@ public class User extends BaseEntity
         this.gender = profileDetail.getGender();
         this.height = profileDetail.getHeight();
         this.weight = profileDetail.getWeight();
+    }
+
+    // 읽지 않은 채팅 개수 감소
+    public void decreaseUnreadChatCount(int value) {
+        this.unreadChatCount -= value;
     }
 }
