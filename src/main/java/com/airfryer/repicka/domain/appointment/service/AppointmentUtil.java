@@ -38,39 +38,36 @@ public class AppointmentUtil
     private final FCMService fcmService;
 
     // 해당 날짜에 예정된 대여 약속이 하나도 없는지 판별
-    public boolean isItemAvailableOnDate(Long itemId, LocalDateTime date)
+    public boolean isItemRentalAvailableOnDate(Long itemId, LocalDateTime date)
     {
-        return appointmentRepository.findListOverlappingWithPeriod(
+        return appointmentRepository.findRentalListOverlappingWithPeriod(
                 itemId,
                 List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
-                AppointmentType.RENTAL,
                 date,
                 date
         ).isEmpty();
     }
 
     // 해당 구간 동안 예정된 대여 약속이 하나도 존재하지 않는지 판별
-    public boolean isItemAvailableOnInterval(Long itemId, LocalDateTime startDate, LocalDateTime endDate)
+    public boolean isItemRentalAvailableOnInterval(Long itemId, LocalDateTime startDate, LocalDateTime endDate)
     {
         if(endDate.isBefore(startDate)) {
             return true;
         }
 
-        return appointmentRepository.findListOverlappingWithPeriod(
+        return appointmentRepository.findRentalListOverlappingWithPeriod(
                 itemId,
                 List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
-                AppointmentType.RENTAL,
                 startDate,
                 endDate
         ).isEmpty();
     }
 
-    public boolean isItemAvailableOnInterval(Long itemId, LocalDateTime startDate)
+    public boolean isItemRentalAvailableOnInterval(Long itemId, LocalDateTime startDate)
     {
-        return appointmentRepository.findListOverlappingWithPeriod(
+        return appointmentRepository.findRentalListOverlappingWithPeriod(
                 itemId,
                 List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
-                AppointmentType.RENTAL,
                 startDate
         ).isEmpty();
     }
@@ -122,8 +119,13 @@ public class AppointmentUtil
             ));
         }
 
+        // 시작 날짜가 현재 이후인지 체크
+        if(!startDate.isAfter(LocalDateTime.now())) {
+            throw new CustomException(CustomExceptionCode.RENTAL_DATE_IS_BEFORE_THAN_TODAY, null);
+        }
+
         // 대여를 원하는 구간 동안 예정된 대여 약속이 하나도 없는지 체크
-        if(!isItemAvailableOnInterval(item.getId(), startDate, endDate)) {
+        if(!isItemRentalAvailableOnInterval(item.getId(), startDate, endDate)) {
             throw new CustomException(CustomExceptionCode.ALREADY_RENTAL_RESERVED_PERIOD, Map.of(
                     "startDate", startDate,
                     "endDate", endDate

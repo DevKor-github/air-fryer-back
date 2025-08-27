@@ -124,7 +124,7 @@ public class AppointmentService
             throw new CustomException(CustomExceptionCode.CURRENT_APPOINTMENT_EXIST, null);
         }
 
-        /// 채팅방 조회 (존재하지 않으면 생성)\
+        /// 채팅방 조회 (존재하지 않으면 생성)
 
         ChatRoom chatRoom = chatService.createChatRoom(item, requester);
 
@@ -351,6 +351,7 @@ public class AppointmentService
             notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CANCEL, appointment);
         }
 
+        // 약속 취소
         appointmentUtil.cancelAppointment(appointment);
 
         /// 채팅방 조회

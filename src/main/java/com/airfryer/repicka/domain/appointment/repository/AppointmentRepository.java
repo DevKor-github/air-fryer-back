@@ -2,7 +2,6 @@ package com.airfryer.repicka.domain.appointment.repository;
 
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,30 +36,28 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
 
     @Query("""
         SELECT a FROM Appointment a
-        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = :type AND (
+        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = 'RENTAL' AND (
            (a.rentalDate > :start AND a.rentalDate < :end) OR
            (a.returnDate > :start AND a.returnDate < :end) OR
            (a.rentalDate < :start AND a.returnDate > :end)
         )
     """)
-    List<Appointment> findListOverlappingWithPeriod(
+    List<Appointment> findRentalListOverlappingWithPeriod(
             @Param("itemId") Long itemId,
             @Param("state") List<AppointmentState> state,
-            @Param("type") AppointmentType type,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
 
     @Query("""
         SELECT a FROM Appointment a
-        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = :type AND (
+        WHERE a.item.id = :itemId AND a.state IN :state AND a.type = 'RENTAL' AND (
            (a.returnDate >= :start)
         )
     """)
-    List<Appointment> findListOverlappingWithPeriod(
+    List<Appointment> findRentalListOverlappingWithPeriod(
             @Param("itemId") Long itemId,
             @Param("state") List<AppointmentState> state,
-            @Param("type") AppointmentType type,
             @Param("start") LocalDateTime start
     );
 
@@ -240,8 +237,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("limit") int limit
     );
 
-    // 레코드 수정 날짜가 특정 시점 이전인 특정 상태의 약속 페이지 조회
-    Page<Appointment> findByStateAndUpdatedAtBefore(AppointmentState state, LocalDateTime localDateTime, Pageable pageable);
+    // 만료되어야 하는 약속 페이지 조회
+    // 1. 레코드 수정 일시가 현재의 일주일 전보다 이전인 PENDING 약속
+    // 2. 대여 일시가 현재보다 이전인 PENDING 약속
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE a.state = 'PENDING' AND (
+            (a.updatedAt <= :nowMinusWeek) OR
+            (a.rentalDate <= :now)
+        )
+    """)
+    Page<Appointment> findShouldBeExpiredAppointments(
+            @Param("now") LocalDateTime now,
+            @Param("nowMinusWeek") LocalDateTime nowMinusWeek,
+            Pageable pageable
+    );
 
     // 반납 날짜가 특정 시점 이전이고 특정 상태인 약속 페이지 조회 (SUCCESS 배치용)
     Page<Appointment> findByStateAndReturnDateBefore(AppointmentState state, LocalDateTime localDateTime, Pageable pageable);

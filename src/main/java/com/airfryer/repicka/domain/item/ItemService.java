@@ -9,7 +9,6 @@ import com.airfryer.repicka.domain.appointment.dto.CurrentAppointmentRes;
 import com.airfryer.repicka.domain.appointment.dto.GetItemAvailabilityRes;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
-import com.airfryer.repicka.domain.appointment.entity.AppointmentType;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
@@ -131,7 +130,10 @@ public class ItemService
         }
 
         // 예정된 약속이 존재하는 경우, 삭제 불가능
-        if(!appointmentUtil.isItemAvailableOnInterval(itemId, LocalDateTime.now())) {
+        if(
+                !appointmentUtil.isItemRentalAvailableOnInterval(itemId, LocalDateTime.now()) ||
+                item.getSaleDate() != null
+        ) {
             throw new CustomException(CustomExceptionCode.ALREADY_RESERVED_ITEM, null);
         }
 
@@ -284,10 +286,9 @@ public class ItemService
         }
 
         // 해당 월 동안 존재하는 모든 대여 약속 조회
-        List<Appointment> appointmentList = appointmentRepository.findListOverlappingWithPeriod(
+        List<Appointment> appointmentList = appointmentRepository.findRentalListOverlappingWithPeriod(
                 itemId,
                 List.of(AppointmentState.CONFIRMED, AppointmentState.IN_PROGRESS),
-                AppointmentType.RENTAL,
                 LocalDateTime.of(year, month, 1, 0, 0, 0),
                 LocalDateTime.of(year, month, YearMonth.of(year, month).lengthOfMonth(), 23, 59, 59, 0)
         );
