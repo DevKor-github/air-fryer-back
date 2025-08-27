@@ -139,10 +139,7 @@ public class RedisService
             case EXPIRE:
                 expireAppointment(task);
                 break;
-            case RENTAL_REMIND:
-                sendAppointmentReminder(task);
-                break;
-            case RETURN_REMIND:
+            case RENTAL_REMIND, RETURN_REMIND:
                 sendAppointmentReminder(task);
                 break;
             default:
