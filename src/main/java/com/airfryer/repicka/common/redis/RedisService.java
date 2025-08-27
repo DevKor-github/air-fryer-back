@@ -5,6 +5,7 @@ import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.common.redis.dto.KeyExpiredEvent;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
+import com.airfryer.repicka.common.redis.type.TaskType;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
 import com.airfryer.repicka.domain.notification.NotificationService;
@@ -138,7 +139,10 @@ public class RedisService
             case EXPIRE:
                 expireAppointment(task);
                 break;
-            case REMIND:
+            case RENTAL_REMIND:
+                sendAppointmentReminder(task);
+                break;
+            case RETURN_REMIND:
                 sendAppointmentReminder(task);
                 break;
             default:
@@ -161,12 +165,21 @@ public class RedisService
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, task.getAppointmentId()));
 
         // 약속 리마인드 푸시알림 전송
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMIND, task.getAppointmentId().toString(), task.getItemName());
+        FCMNotificationReq notificationReq = FCMNotificationReq.of(
+                task.getTaskType() == TaskType.RENTAL_REMIND ? NotificationType.APPOINTMENT_RENTAL_REMIND : NotificationType.APPOINTMENT_RETURN_REMIND,
+                task.getAppointmentId().toString(),
+                task.getItemName());
         List<String> fcmTokens = Arrays.asList(task.getOwnerFcmToken(), task.getRequesterFcmToken());
         fcmService.sendNotificationToMultiple(fcmTokens, notificationReq);
 
         // 약속 리마인드 알림 저장
-        notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_REMIND, appointment);
-        notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_REMIND, appointment);
+        notificationService.saveNotification(
+                appointment.getOwner(),
+                task.getTaskType() == TaskType.RENTAL_REMIND ? NotificationType.APPOINTMENT_RENTAL_REMIND : NotificationType.APPOINTMENT_RETURN_REMIND,
+                appointment);
+        notificationService.saveNotification(
+                appointment.getRequester(),
+                task.getTaskType() == TaskType.RENTAL_REMIND ? NotificationType.APPOINTMENT_RENTAL_REMIND : NotificationType.APPOINTMENT_RETURN_REMIND,
+                appointment);
     }
 } 

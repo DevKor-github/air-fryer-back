@@ -308,8 +308,13 @@ public class AppointmentService
         // 약속 푸시알림 전송 예약
         delayedQueueService.addDelayedTask(
                 "appointment",
-                AppointmentTask.from(appointment, TaskType.REMIND),
+                AppointmentTask.from(appointment, TaskType.RENTAL_REMIND),
                 appointment.getRentalDate().minusDays(1)
+        );
+        delayedQueueService.addDelayedTask(
+                "appointment",
+                AppointmentTask.from(appointment, TaskType.RETURN_REMIND),
+                appointment.getReturnDate().minusDays(1)
         );
 
         // 약속 데이터 반환
