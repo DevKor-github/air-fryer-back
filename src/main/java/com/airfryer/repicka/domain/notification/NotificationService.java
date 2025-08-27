@@ -38,14 +38,17 @@ public class NotificationService {
     {
         return NotificationRes.builder()
             .notificationId(notification.getId())
-            .item(notification.getItem() != null ? 
-                ItemPreviewDto.from(notification.getItem(), itemImageService.getThumbnail(notification.getItem())) 
-                : null)
-            .appointmentId(notification.getAppointment() != null ? 
-                notification.getAppointment().getId() 
-                : null)
+            .item(notification.getItem() != null ?
+                    ItemPreviewDto.from(notification.getItem(), itemImageService.getThumbnail(notification.getItem()))
+                    : null)
+            .appointmentId(notification.getAppointment() != null ?
+                    notification.getAppointment().getId()
+                    : null)
             .rentalDate(notification.getAppointment() != null ?
                     notification.getAppointment().getRentalDate()
+                    : null)
+            .returnDate(notification.getAppointment() != null ?
+                    notification.getAppointment().getReturnDate()
                     : null)
             .type(notification.getType())
             .createdAt(notification.getCreatedAt())

@@ -13,12 +13,14 @@ public class AppointmentJson
 {
     private Long id;
     private LocalDateTime rentalDate;
+    private LocalDateTime returnDate;
 
     public static AppointmentJson from(Appointment appointment)
     {
         return AppointmentJson.builder()
                 .id(appointment.getId())
                 .rentalDate(appointment.getRentalDate())
+                .returnDate(appointment.getReturnDate())
                 .build();
     }
 }
