@@ -65,7 +65,7 @@ public class AppointmentController
                         .build());
     }
 
-    // 약속 취소
+    // 약속 취소(거절)
     @PatchMapping("/{appointmentId}/cancel")
     public ResponseEntity<SuccessResponseDto> cancelAppointment(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
                                                                 @PathVariable Long appointmentId)
