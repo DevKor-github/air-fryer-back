@@ -1,5 +1,7 @@
 package com.airfryer.repicka.common.batch.configuration;
 
+import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
+import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.UpdateInProgressAppointment;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
@@ -40,6 +42,8 @@ public class AppointmentBatchConfig
 
     private final AppointmentRepository appointmentRepository;
     private final UpdateInProgressAppointmentRepository updateInProgressAppointmentRepository;
+
+    private final FCMService fcmService;
     private final NotificationService notificationService;
 
     // 약속 만료 Job
@@ -124,11 +128,19 @@ public class AppointmentBatchConfig
         return appointments -> {
 
             /// 1. 약속 상태를 EXPIRED로 변경
-            /// 2. 연관된 UpdateInProgressAppointment 데이터 삭제
+            /// 2. 푸시알림 전송 및 알림 내역 저장
+            /// 3. 연관된 UpdateInProgressAppointment 데이터 삭제
 
-            // 모든 약속 상태를 EXPIRED로 변경
-            for(Appointment appointment : appointments) {
+            for(Appointment appointment : appointments)
+            {
+                // 약속 상태를 EXPIRED로 변경
                 appointment.expire();
+
+                // 약속 만료 푸시알림 전송
+                FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_EXPIRE, appointment.getId().toString(), appointment.getItem().getTitle());
+                fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+
+                // 약속 만료 알림 내역 저장
                 notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_EXPIRE, appointment);
             }
 
@@ -151,11 +163,20 @@ public class AppointmentBatchConfig
         return appointments -> {
 
             /// 1. 약속 상태를 SUCCESS로 변경
-            /// 2. 연관된 UpdateInProgressAppointment 데이터 삭제
+            /// 2. 푸시알림 전송 및 알림 내역 저장
+            /// 3. 연관된 UpdateInProgressAppointment 데이터 삭제
 
-            // 모든 약속 상태를 SUCCESS로 변경
-            for(Appointment appointment : appointments) {
+            for(Appointment appointment : appointments)
+            {
+                // 약속 상태를 SUCCESS로 변경
                 appointment.success();
+
+                // 약속 완료 푸시알림 전송
+                FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_SUCCESS, appointment.getId().toString(), appointment.getItem().getTitle());
+                fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+
+                // 약속 완료 알림 내역 저장
+                notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_SUCCESS, appointment);
             }
 
             // 약속 ID 리스트

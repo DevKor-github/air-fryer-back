@@ -297,13 +297,13 @@ public class AppointmentService
 
         /// 약속 확정 알림
 
+        // 약속 확정 알림 내역 저장
+        notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CONFIRM, appointment);
+        notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CONFIRM, appointment);
+
         // 약속 확정 푸시알림 전송
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRM, appointment.getId().toString(), appointment.getItem().getTitle());
         fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
-
-        // 약속 확정 알림 저장
-        notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CONFIRM, appointment);
-        notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CONFIRM, appointment);
 
         // 약속 푸시알림 전송 예약
         delayedQueueService.addDelayedTask(
@@ -321,7 +321,7 @@ public class AppointmentService
         return AppointmentRes.from(appointment);
     }
 
-    // 약속 취소
+    // 약속 취소(거절)
     @Transactional
     public AppointmentRes cancelAppointment(User user, Long appointmentId)
     {
@@ -346,17 +346,43 @@ public class AppointmentService
         // 제품 데이터 조회
         Item item = appointment.getItem();
 
-        /// 약속 취소
+        /// 약속 취소(거절) 푸시알림 전송 및 알림 내역 저장
 
-        // 약속 취소 알림 저장
-        if(appointment.getState() == AppointmentState.PENDING) {
-            notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_CANCEL, appointment);
-        } else {
+        if(appointment.getState() == AppointmentState.PENDING)
+        {
+            // 상대방이 제시한 약속인 경우에는 거절 알림 처리
+            if(Objects.equals(user.getId(), appointment.getCreator().getId()))
+            {
+                // 약속 취소 푸시알림 전송
+                FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, appointment.getId().toString(), user.getNickname());
+                fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+
+                // 약속 취소 알림 내역 저장
+                notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_CANCEL, appointment);
+            }
+            else
+            {
+                // 약속 거절 푸시알림 전송
+                FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REJECT, appointment.getId().toString(), user.getNickname());
+                fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+
+                // 약속 거절 알림 내역 저장
+                notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_REJECT, appointment);
+            }
+        }
+        else
+        {
+            // 약속 취소 푸시알림 전송
+            FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, appointment.getId().toString(), user.getNickname());
+            fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+
+            // 약속 취소 알림 내역 저장
             notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CANCEL, appointment);
             notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CANCEL, appointment);
         }
 
-        // 약속 취소
+        /// 약속 취소
+
         appointmentUtil.cancelAppointment(appointment);
 
         /// 채팅방 조회
