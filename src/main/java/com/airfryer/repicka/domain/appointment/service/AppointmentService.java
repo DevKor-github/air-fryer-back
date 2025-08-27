@@ -533,8 +533,12 @@ public class AppointmentService
     {
         /// 약속 데이터 조회
 
+        // 약속 조회
         Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
             .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, dto.getAppointmentId()));
+
+        // 약속 확정 여부
+        boolean isConfirmed = appointment.getState() == AppointmentState.CONFIRMED;
 
         /// 약속 수정
 
@@ -555,7 +559,7 @@ public class AppointmentService
 
         /// 확정된 약속의 경우, 약속 취소 채팅 및 알림 전송
 
-        if(appointment.getState() == AppointmentState.CONFIRMED)
+        if(isConfirmed)
         {
             /// 약속 취소 채팅 전송
 
