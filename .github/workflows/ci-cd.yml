@@ -87,7 +87,7 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-    # develop 브랜치에 push될 때만 Docker Build 실행
+    # 브랜치에 push될 때만 Docker Build 실행
     if: github.event_name == 'push'
     
     steps:
@@ -123,7 +123,7 @@ jobs:
   deploy:
     needs: build
     runs-on: [self-hosted]
-    # develop 브랜치에 push될 때만 Docker Deploy 실행
+    # 브랜치에 push될 때만 Docker Deploy 실행
     if: github.event_name == 'push'
     
     steps:
