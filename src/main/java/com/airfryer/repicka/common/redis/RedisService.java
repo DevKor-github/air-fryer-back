@@ -1,8 +1,13 @@
 package com.airfryer.repicka.common.redis;
 
+import com.airfryer.repicka.common.exception.CustomException;
+import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.redis.dto.AppointmentTask;
 import com.airfryer.repicka.common.redis.dto.KeyExpiredEvent;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
+import com.airfryer.repicka.domain.appointment.entity.Appointment;
+import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.notification.NotificationService;
 import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,11 +27,16 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RedisService {
-    
+public class RedisService
+{
+    private final AppointmentRepository appointmentRepository;
+
+    private final FCMService fcmService;
+    private final NotificationService notificationService;
+
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
-    private final FCMService fcmService;
+
     private static final String DELAYED_TASK_PREFIX = "delayed:task:";
     private static final String TASK_DATA_PREFIX = "taskdata:";
     
@@ -144,9 +154,19 @@ public class RedisService {
     }
     
     // 예약 알림 발송
-    private void sendAppointmentReminder(AppointmentTask task) {
+    private void sendAppointmentReminder(AppointmentTask task)
+    {
+        // 약속 조회
+        Appointment appointment = appointmentRepository.findById(task.getAppointmentId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, task.getAppointmentId()));
+
+        // 약속 리마인드 푸시알림 전송
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REMIND, task.getAppointmentId().toString(), task.getItemName());
         List<String> fcmTokens = Arrays.asList(task.getOwnerFcmToken(), task.getRequesterFcmToken());
         fcmService.sendNotificationToMultiple(fcmTokens, notificationReq);
+
+        // 약속 리마인드 알림 저장
+        notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_REMIND, appointment);
+        notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_REMIND, appointment);
     }
 } 

@@ -297,7 +297,7 @@ public class AppointmentService
 
         /// 약속 확정 알림
 
-        // 약속 확정 알림
+        // 약속 확정 푸시알림 전송
         FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CONFIRM, appointment.getId().toString(), appointment.getItem().getTitle());
         fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
 
@@ -305,11 +305,11 @@ public class AppointmentService
         notificationService.saveNotification(appointment.getOwner(), NotificationType.APPOINTMENT_CONFIRM, appointment);
         notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CONFIRM, appointment);
 
-        // 약속 알림 발송 예약
+        // 약속 푸시알림 전송 예약
         delayedQueueService.addDelayedTask(
-            "appointment",
-            AppointmentTask.from(appointment, TaskType.REMIND),
-            appointment.getRentalDate().minusDays(1)
+                "appointment",
+                AppointmentTask.from(appointment, TaskType.REMIND),
+                appointment.getRentalDate().minusDays(1)
         );
 
         // 약속 데이터 반환
