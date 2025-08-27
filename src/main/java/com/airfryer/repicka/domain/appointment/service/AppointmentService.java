@@ -311,11 +311,14 @@ public class AppointmentService
                 AppointmentTask.from(appointment, TaskType.RENTAL_REMIND),
                 appointment.getRentalDate().minusDays(1)
         );
-        delayedQueueService.addDelayedTask(
-                "appointment",
-                AppointmentTask.from(appointment, TaskType.RETURN_REMIND),
-                appointment.getReturnDate().minusDays(1)
-        );
+        if(appointment.getType() == AppointmentType.RENTAL)
+        {
+            delayedQueueService.addDelayedTask(
+                    "appointment",
+                    AppointmentTask.from(appointment, TaskType.RETURN_REMIND),
+                    appointment.getReturnDate().minusDays(1)
+            );
+        }
 
         // 약속 데이터 반환
         return AppointmentRes.from(appointment);
