@@ -9,6 +9,8 @@ import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
 import com.airfryer.repicka.domain.chat.dto.ChatPageDto;
 import com.airfryer.repicka.domain.chat.dto.EnterChatRoomRes;
 import com.airfryer.repicka.domain.chat.dto.*;
+import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
+import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
 import com.airfryer.repicka.domain.chat.entity.Chat;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.entity.ParticipateChatRoom;
@@ -23,6 +25,7 @@ import com.airfryer.repicka.domain.user.entity.user.User;
 import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,6 +53,8 @@ public class ChatService
     private final OnlineStatusManager onlineStatusManager;
 
     private final ChatWebSocketService chatWebSocketService;
+
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /// 서비스
 
@@ -351,6 +356,19 @@ public class ChatService
         /// 완료되지 않은 약속 취소
 
         appointmentUtil.cancelCurrentAppointment(chatRoom, user);
+
+        /// 사용자 읽지 않은 채팅 개수 감소
+
+        // 사용자 읽지 않은 채팅 개수 감소
+        user.decreaseUnreadChatCount(participateChatRoom.getUnreadChatCount());
+
+        // 사용자 읽지 않은 채팅 개수 웹소켓 메시지 발행
+        SubMessage unreadChatCountMessage = SubMessage.createUnreadChatCountMessage(user);
+        applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                .userId(user.getId())
+                .destination("/sub")
+                .message(unreadChatCountMessage)
+                .build());
 
         /// 채팅방 나가기 처리
 
