@@ -237,6 +237,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             @Param("limit") int limit
     );
 
+    // 약속 ID, 사용자 ID, 약속 상태로 약속 조회
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE a.id = :id AND (a.requester.id = :userId OR a.owner.id = :userId)
+    """)
+    Optional<Appointment> findByIdAndUserId(Long id, Long userId);
+
     // 만료되어야 하는 약속 페이지 조회
     // 1. 레코드 수정 일시가 현재의 일주일 전보다 이전인 PENDING 약속
     // 2. 대여 일시가 현재보다 이전인 PENDING 약속
@@ -244,7 +251,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
         SELECT a FROM Appointment a
         WHERE a.state = 'PENDING' AND (
             (a.updatedAt <= :nowMinusWeek) OR
-            (a.rentalDate <= :now)
+            (a.rentalDate < :now)
         )
     """)
     Page<Appointment> findShouldBeExpiredAppointments(
@@ -253,21 +260,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
             Pageable pageable
     );
 
-    // 반납 날짜가 특정 시점 이전이고 특정 상태인 약속 페이지 조회 (SUCCESS 배치용)
-    Page<Appointment> findByStateAndReturnDateBefore(AppointmentState state, LocalDateTime localDateTime, Pageable pageable);
-
-    // 약속 ID, 사용자 ID, 약속 상태로 약속 조회
-    @Query("""
-        SELECT a FROM Appointment a
-        WHERE a.id = :id AND (a.requester.id = :userId OR a.owner.id = :userId)
-    """)
-    Optional<Appointment> findByIdAndUserId(Long id, Long userId);
-
     // 성공 처리되어야 하는 약속 페이지 조회
     @Query("""
         SELECT a FROM Appointment a
-        WHERE (a.rentalDate < :time AND a.state = 'CONFIRMED' AND a.type = 'SALE')
-           OR (a.returnDate < :time AND a.state = 'IN_PROGRESS' AND a.type = 'RENTAL')
+        WHERE (a.rentalDate <= :time AND a.state = 'CONFIRMED' AND a.type = 'SALE')
+           OR (a.returnDate <= :time AND a.state = 'IN_PROGRESS' AND a.type = 'RENTAL')
     """)
     Page<Appointment> findShouldBeSuccessAppointments(
             @Param("time") LocalDateTime time,
