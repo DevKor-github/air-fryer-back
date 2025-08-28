@@ -351,6 +351,8 @@ public class AppointmentService
 
         /// 약속 취소(거절) 푸시알림 전송 및 알림 내역 저장
 
+        User opponent = Objects.equals(appointment.getRequester().getId(), user.getId()) ? appointment.getOwner() : appointment.getRequester();
+
         if(appointment.getState() == AppointmentState.PENDING)
         {
             // 상대방이 제시한 약속인 경우에는 거절 알림 처리
@@ -358,26 +360,26 @@ public class AppointmentService
             {
                 // 약속 취소 푸시알림 전송
                 FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, appointment.getId().toString(), user.getNickname());
-                fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+                fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
 
                 // 약속 취소 알림 내역 저장
-                notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_CANCEL, appointment);
+                notificationService.saveNotification(opponent, NotificationType.APPOINTMENT_CANCEL, appointment);
             }
             else
             {
                 // 약속 거절 푸시알림 전송
                 FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_REJECT, appointment.getId().toString(), user.getNickname());
-                fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+                fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
 
                 // 약속 거절 알림 내역 저장
-                notificationService.saveNotification(appointment.getCreator(), NotificationType.APPOINTMENT_REJECT, appointment);
+                notificationService.saveNotification(opponent, NotificationType.APPOINTMENT_REJECT, appointment);
             }
         }
         else
         {
             // 약속 취소 푸시알림 전송
             FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, appointment.getId().toString(), user.getNickname());
-            fcmService.sendNotification(appointment.getCreator().getFcmToken(), notificationReq);
+            fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
 
             // 약속 취소 알림 내역 저장
             notificationService.saveNotification(appointment.getRequester(), NotificationType.APPOINTMENT_CANCEL, appointment);
@@ -408,15 +410,6 @@ public class AppointmentService
 
         // 채팅 전송
         chatWebSocketService.sendMessageChat(user, chatRoom, cancelChat);
-
-        /// 채팅 상대방에게 약속 취소 알림 전송
-
-        // 채팅 상대방 조회
-        User opponent = Objects.equals(chatRoom.getRequester().getId(), user.getId()) ? chatRoom.getOwner() : chatRoom.getRequester();
-
-        // 푸시 알림 전송
-        FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.APPOINTMENT_CANCEL, appointment.getId().toString(), user.getNickname());
-        fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
 
         // TODO: 사용자 피드백 요청
 

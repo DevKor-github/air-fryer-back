@@ -62,7 +62,12 @@ public class ItemImageService
 
     /// 제품의 썸네일 조회
 
-    public String getThumbnail(Item item) {
+    public String getThumbnail(Item item)
+    {
+        if(item == null) {
+            return null;
+        }
+
         Optional<ItemImage> itemImageOptional = itemImageRepository.findByDisplayOrderAndItemId(1, item.getId());
         ItemImage itemImage = itemImageOptional.orElse(null);
         return itemImage != null ? itemImage.getFileKey() : null;
