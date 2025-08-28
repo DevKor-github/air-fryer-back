@@ -72,11 +72,6 @@ public class ChatWebSocketService
             throw new CustomException(CustomExceptionCode.INVALID_CHAT_MESSAGE, null);
         }
 
-        // 제품이 이미 삭제되었는지 확인
-        if(chatRoom.getItem().getIsDeleted()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
-        }
-
         /// 상대방의 채팅방 재입장
 
         // 채팅 상대방 정보 조회

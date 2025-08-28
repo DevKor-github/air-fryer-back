@@ -378,11 +378,6 @@ public class ItemService
 
         /// 예외 처리
 
-        // 제품 삭제 여부 확인
-        if(item.getIsDeleted()) {
-            throw new CustomException(CustomExceptionCode.ALREADY_DELETED_ITEM, null);
-        }
-
         // 요청자와 제품 소유자가 다른 사용자인지 체크
         if(Objects.equals(requester.getId(), item.getOwner().getId())) {
             throw new CustomException(CustomExceptionCode.SAME_OWNER_AND_REQUESTER, null);
