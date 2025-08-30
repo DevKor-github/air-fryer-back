@@ -23,7 +23,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler
 {
     private final JwtUtil jwtUtil;
 
-    @Value("${FRONTEND_URI}")
+    @Value("${DEV_FRONTEND_URI}")
     private String frontendURI;
 
     @Override
