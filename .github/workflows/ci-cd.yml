@@ -60,7 +60,7 @@ jobs:
       APPLE_APP_CLIENT_ID: ${{ secrets.APPLE_APP_CLIENT_ID }}
       APPLE_CLIENT_SECRET: ${{ secrets.APPLE_CLIENT_SECRET }}
       APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
-      APPLE_REDIRECT_URI: ${{ secrets.APPLE_REDIRECT_URI }}
+      APPLE_REDIRECT_URI: ${{ secrets.MAIN_APPLE_REDIRECT_URI }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
     steps:
@@ -143,7 +143,7 @@ jobs:
           echo "APPLE_APP_CLIENT_ID=${{ secrets.APPLE_APP_CLIENT_ID }}" >> .env
           echo "APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET }}" >> .env
           echo "APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }}" >> .env
-          echo "APPLE_REDIRECT_URI=${{ secrets.APPLE_REDIRECT_URI }}" >> .env
+          echo "APPLE_REDIRECT_URI=${{ secrets.MAIN_APPLE_REDIRECT_URI }}" >> .env
           echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> .env
           echo "FRONTEND_URI=${{ secrets.MAIN_FRONTEND_URI }}" >> .env
           echo "AWS_ACCESS_KEY_ID=${{ secrets.MAIN_AWS_ACCESS_KEY_ID }}" >> .env
@@ -180,7 +180,7 @@ jobs:
           -e APPLE_APP_CLIENT_ID=${{ secrets.APPLE_APP_CLIENT_ID }} \
           -e APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET }} \
           -e APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }} \
-          -e APPLE_REDIRECT_URI=${{ secrets.APPLE_REDIRECT_URI }} \
+          -e APPLE_REDIRECT_URI=${{ secrets.MAIN_APPLE_REDIRECT_URI }} \
           -e APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }} \
           --name repicka \
           ${{ env.DOCKER_IMAGE }}
