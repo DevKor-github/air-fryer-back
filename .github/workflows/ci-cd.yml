@@ -138,7 +138,7 @@ jobs:
           echo "GOOGLE_REDIRECT_URI=${{ secrets.MAIN_GOOGLE_REDIRECT_URI }}" >> .env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
-          echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
+          echo "KAKAO_REDIRECT_URI=${{ secrets.MAIN_KAKAO_REDIRECT_URI }}" >> .env
           echo "APPLE_WEB_CLIENT_ID=${{ secrets.APPLE_WEB_CLIENT_ID }}" >> .env
           echo "APPLE_APP_CLIENT_ID=${{ secrets.APPLE_APP_CLIENT_ID }}" >> .env
           echo "APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET }}" >> .env
