@@ -28,8 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
                         "http://repicka-back-dev.shop.s3-website.ap-northeast-2.amazonaws.com",
                         "https://repicka-back-dev.shop",
                         "https://repicka.shop"
-                )
-                .withSockJS();
+                );
     }
 
     // 브로커 설정
