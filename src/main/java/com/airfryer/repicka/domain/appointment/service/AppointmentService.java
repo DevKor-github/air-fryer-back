@@ -307,18 +307,25 @@ public class AppointmentService
 
         // 약속 푸시알림 전송 예약
         delayedQueueService.addDelayedTask(
-                "appointment",
+                TaskType.RENTAL_REMIND.name(),
                 AppointmentTask.from(appointment, TaskType.RENTAL_REMIND),
-                appointment.getRentalDate().minusDays(1)
+                appointment.getRentalDate().minusMinutes(60)
         );
         if(appointment.getType() == AppointmentType.RENTAL)
         {
             delayedQueueService.addDelayedTask(
-                    "appointment",
+                    TaskType.RETURN_REMIND.name(),
                     AppointmentTask.from(appointment, TaskType.RETURN_REMIND),
-                    appointment.getReturnDate().minusDays(1)
+                    appointment.getReturnDate().minusMinutes(60)
             );
         }
+
+        // 대여중 처리 예약
+        delayedQueueService.addDelayedTask(
+                TaskType.IN_PROGRESS.name(),
+                AppointmentTask.from(appointment, TaskType.IN_PROGRESS),
+                appointment.getRentalDate()
+        );
 
         // 약속 데이터 반환
         return AppointmentRes.from(appointment);
