@@ -15,20 +15,25 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 {
     private final WebSocketAccessInterceptor webSocketAccessInterceptor;
 
+    private static final String[] ALLOWED_ORIGINS = {
+            "http://localhost:5173",
+            "http://localhost:63342",
+            "https://devkor-github.github.io",
+            "https://repicka.netlify.app",
+            "http://repicka-back-dev.shop.s3-website.ap-northeast-2.amazonaws.com",
+            "https://repicka-back-dev.shop",
+            "https://repicka.shop"
+    };
+
     // STOMP 설정
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry)
     {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins(
-                        "http://localhost:5173",
-                        "http://localhost:63342",
-                        "https://devkor-github.github.io",
-                        "https://repicka.netlify.app",
-                        "http://repicka-back-dev.shop.s3-website.ap-northeast-2.amazonaws.com",
-                        "https://repicka-back-dev.shop",
-                        "https://repicka.shop"
-                )
+                .setAllowedOrigins(ALLOWED_ORIGINS);
+
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins(ALLOWED_ORIGINS)
                 .withSockJS();
     }
 
