@@ -136,6 +136,12 @@ public class Appointment extends BaseEntity
         this.state = AppointmentState.CONFIRMED;
     }
 
+    /// 약속 대여중
+
+    public void inProgress() {
+        this.state = AppointmentState.IN_PROGRESS;
+    }
+
     /// 약속 취소
 
     public void cancel() {

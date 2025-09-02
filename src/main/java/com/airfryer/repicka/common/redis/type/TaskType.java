@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum TaskType {
     EXPIRE("EXPIRE", "예약 만료 처리"),
+    IN_PROGRESS("IN_PROGRESS", "대여중 처리"),
     RENTAL_REMIND("RENTAL_REMIND", "대여(구매) 리마인드 예약 알림 발송"),
     RETURN_REMIND("RETURN_REMIND", "반납 리마인드 예약 알림 발송");
     

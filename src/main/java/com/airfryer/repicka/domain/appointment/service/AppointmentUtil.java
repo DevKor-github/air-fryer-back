@@ -5,6 +5,7 @@ import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
 import com.airfryer.repicka.common.redis.RedisService;
+import com.airfryer.repicka.common.redis.type.TaskType;
 import com.airfryer.repicka.domain.appointment.dto.UpdateAppointmentReq;
 import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.appointment.entity.AppointmentState;
@@ -244,8 +245,10 @@ public class AppointmentUtil
             // 약속 취소
             currentAppointment.cancel();
 
-            // 약속 알림 발송 예약 취소
-            delayedQueueService.cancelDelayedTask("appointment", currentAppointment.getId());
+            // 예약된 약속 관련 기능 취소
+            delayedQueueService.cancelDelayedTask(TaskType.RENTAL_REMIND.name(), currentAppointment.getId());
+            delayedQueueService.cancelDelayedTask(TaskType.RETURN_REMIND.name(), currentAppointment.getId());
+            delayedQueueService.cancelDelayedTask(TaskType.IN_PROGRESS.name(), currentAppointment.getId());
 
             cancelAppointment(currentAppointment);
 
@@ -278,8 +281,10 @@ public class AppointmentUtil
         // 약속 상태 변경
         appointment.cancel();
 
-        // 약속 알림 발송 예약 취소
-        delayedQueueService.cancelDelayedTask("appointment", appointment.getId());
+        // 예약된 약속 관련 기능 취소
+        delayedQueueService.cancelDelayedTask(TaskType.RENTAL_REMIND.name(), appointment.getId());
+        delayedQueueService.cancelDelayedTask(TaskType.RETURN_REMIND.name(), appointment.getId());
+        delayedQueueService.cancelDelayedTask(TaskType.IN_PROGRESS.name(), appointment.getId());
 
         // 제품의 판매 예정 날짜 초기화
         appointment.getItem().cancelSale();

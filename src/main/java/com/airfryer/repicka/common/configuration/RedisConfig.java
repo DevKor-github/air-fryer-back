@@ -29,16 +29,22 @@ public class RedisConfig {
         return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
     }
     
-    // Redis 키 만료 이벤트를 위한 메시지 리스너 컨테이너
+    // Redis 메시지 리스너 컨테이너
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory) {
         
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
+        return container;
+    }
+    
+    // 키 만료 이벤트 리스너 컨테이너
+    @Bean
+    public KeyExpirationEventMessageListener keyExpirationEventMessageListener(
+            RedisMessageListenerContainer redisMessageListenerContainer) {
         
-        // 키 만료 이벤트 리스너 추가
-        new KeyExpirationEventMessageListener(container) {
+        return new KeyExpirationEventMessageListener(redisMessageListenerContainer) {
             @Override
             public void onMessage(Message message, byte[] pattern) {
                 String expiredKey = message.toString();
@@ -47,8 +53,6 @@ public class RedisConfig {
                 eventPublisher.publishEvent(new KeyExpiredEvent(this, expiredKey));
             }
         };
-        
-        return container;
     }
     
     // Redis Keyspace Notifications 자동 활성화 - 애플리케이션 컨텍스트 초기화 완료 후 실행
