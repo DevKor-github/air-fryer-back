@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-// 일주일 지난 PENDING 상태의 약속을 만료시키는 Spring Batch 설정
+// 약속 State 변경 관련 Spring Batch 설정
 
 @Configuration
 @EnableBatchProcessing

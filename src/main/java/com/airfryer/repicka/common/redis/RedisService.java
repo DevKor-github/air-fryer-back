@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -68,7 +69,6 @@ public class RedisService
             // 작업 ID 추출
             String taskId = expiredKey.substring(DELAYED_TASK_PREFIX.length());
             String taskDataKey = TASK_DATA_PREFIX + taskId;
-            
             // 작업 데이터 조회
             String taskJson = (String) redisTemplate.opsForValue().get(taskDataKey);
             if (taskJson == null) {
@@ -139,6 +139,9 @@ public class RedisService
             case EXPIRE:
                 expireAppointment(task);
                 break;
+            case IN_PROGRESS:
+                inProgressAppointment(task);
+                break;
             case RENTAL_REMIND, RETURN_REMIND:
                 sendAppointmentReminder(task);
                 break;
@@ -155,6 +158,7 @@ public class RedisService
     }
     
     // 예약 알림 발송
+    @Transactional
     private void sendAppointmentReminder(AppointmentTask task)
     {
         // 약속 조회
@@ -178,5 +182,18 @@ public class RedisService
                 appointment.getRequester(),
                 task.getTaskType() == TaskType.RENTAL_REMIND ? NotificationType.APPOINTMENT_RENTAL_REMIND : NotificationType.APPOINTMENT_RETURN_REMIND,
                 appointment);
+    }
+
+    // 대여중 처리
+    @Transactional
+    private void inProgressAppointment(AppointmentTask task) {
+        log.info("대여중 처리");
+        // 약속 조회
+        Appointment appointment = appointmentRepository.findById(task.getAppointmentId())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.APPOINTMENT_NOT_FOUND, task.getAppointmentId()));
+
+        // 약속 데이터 변경
+        appointment.inProgress();
+        appointmentRepository.save(appointment);
     }
 } 
