@@ -56,8 +56,7 @@ public class SecurityConfig
                 .csrf(CsrfConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(HeadersConfigurer::disable)
-                .sessionManagement(c -> c.sessionCreationPolicy(
-                        SessionCreationPolicy.IF_REQUIRED));
+                .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // Oauth 2.0 설정
         httpSecurity
