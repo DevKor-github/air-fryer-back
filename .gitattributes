@@ -3,3 +3,5 @@
 *.jar binary
 
 .github/workflows/ci-cd.yml merge=ours
+src/main/java/com/airfryer/repicka/common/security/redirect/CustomAuthorizationRequestResolver.java merge=ours
+src/main/java/com/airfryer/repicka/common/security/oauth2/OAuth2SuccessHandler.java merge=ours
