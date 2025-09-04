@@ -146,6 +146,7 @@ public class ChatWebSocketService
                 !onlineStatusManager.isUserOnline(chatRoom.getId(), opponent.getId())
         ) {
             opponentParticipateChatRoom.increaseUnreadChatCount();
+            opponent.increaseUnreadChatCount();
         }
 
         /// 구독자에게 소켓 메시지 및 푸시 알림 전송
@@ -153,7 +154,7 @@ public class ChatWebSocketService
         // 메시지 생성
         SubMessage message = SubMessage.createChatMessage(chat);
         SubMessage userMessage = SubMessage.createChatMessageByUser(chatRoom, user, chat, opponentParticipateChatRoom.getUnreadChatCount());
-        SubMessage unreadChatCountMessage = SubMessage.createUnreadChatCountMessage(user);
+        SubMessage unreadChatCountMessage = SubMessage.createUnreadChatCountMessage(opponent);
 
         try {
 

@@ -81,6 +81,11 @@ public class User extends BaseEntity
         this.weight = profileDetail.getWeight();
     }
 
+    // 읽지 않은 채팅 개수 증가
+    public void increaseUnreadChatCount() {
+        this.unreadChatCount++;
+    }
+
     // 읽지 않은 채팅 개수 감소
     public void decreaseUnreadChatCount(int value) {
         this.unreadChatCount -= value;
