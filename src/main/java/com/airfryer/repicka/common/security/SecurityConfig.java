@@ -6,7 +6,6 @@ import com.airfryer.repicka.common.security.jwt.JwtFilter;
 import com.airfryer.repicka.common.security.oauth2.CustomOAuth2UserService;
 import com.airfryer.repicka.common.security.oauth2.OAuth2SuccessHandler;
 import com.airfryer.repicka.common.security.oauth2.apple.CustomRequestEntityConverter;
-import com.airfryer.repicka.common.security.redirect.CustomAuthorizationRequestResolver;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -21,7 +20,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -42,9 +40,6 @@ public class SecurityConfig
 
     // 필터
     private final JwtFilter jwtFilter;
-
-    // 리다이렉트
-    private final ClientRegistrationRepository clientRegistrationRepository;
 
     // 예외 처리 클래스
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -67,11 +62,6 @@ public class SecurityConfig
         // Oauth 2.0 설정
         httpSecurity
                 .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(config -> config
-                                .authorizationRequestResolver(
-                                        new CustomAuthorizationRequestResolver(clientRegistrationRepository)
-                                )
-                        )
                         .tokenEndpoint(tokenEndpointConfig -> tokenEndpointConfig
                                 .accessTokenResponseClient(accessTokenResponseClient(customRequestEntityConverter))
                         )
