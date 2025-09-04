@@ -153,17 +153,20 @@ public class ChatWebSocketService
         // 메시지 생성
         SubMessage message = SubMessage.createChatMessage(chat);
         SubMessage userMessage = SubMessage.createChatMessageByUser(chatRoom, user, chat, opponentParticipateChatRoom.getUnreadChatCount());
+        SubMessage unreadChatCountMessage = SubMessage.createUnreadChatCountMessage(user);
 
         try {
 
             /// 채팅 전송 이벤트 발생
 
+            // 채팅방 구독에 채팅 웹소켓 메시지 발행
             applicationEventPublisher.publishEvent(SubMessageEvent.builder()
                     .userId(null)
                     .destination("/sub/chatroom/" + chatRoom.getId())
                     .message(message)
                     .build());
 
+            // 사용자별 구독에 채팅 웹소켓 메시지 발행
             applicationEventPublisher.publishEvent(SubMessageEvent.builder()
                     .userId(opponent.getId())
                     .destination("/sub")
@@ -174,6 +177,13 @@ public class ChatWebSocketService
                     .userId(user.getId())
                     .destination("/sub")
                     .message(userMessage)
+                    .build());
+
+            // 상대방에게 사용자 읽지 않은 채팅 개수 웹소켓 메시지 발행
+            applicationEventPublisher.publishEvent(SubMessageEvent.builder()
+                    .userId(opponent.getId())
+                    .destination("/sub")
+                    .message(unreadChatCountMessage)
                     .build());
 
             /// 푸시 알림 전송

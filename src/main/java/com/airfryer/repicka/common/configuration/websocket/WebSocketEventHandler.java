@@ -52,6 +52,7 @@ public class WebSocketEventHandler
 
     // 사용자별 구독 초기 메시지 전송 이벤트
     @EventListener
+    @Transactional(readOnly = true)
     public void handleUserSubscribe(SessionSubscribeEvent event)
     {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
