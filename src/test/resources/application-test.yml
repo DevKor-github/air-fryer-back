@@ -79,7 +79,7 @@ spring:
 file:
   upload:
     max-size: 1048576
-    allowed-extensions: jpg,jpeg,png,webp
+    allowed-extensions: jpg,jpeg,png,webp,heic
 
 ## 테스트 로그 레벨 설정
 logging:

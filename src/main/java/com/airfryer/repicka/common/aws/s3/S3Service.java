@@ -137,6 +137,8 @@ public class S3Service {
                 return "image/png".equals(contentType.toLowerCase());
             case "webp":
                 return "image/webp".equals(contentType.toLowerCase());
+            case "heic":
+                return "image/heic".equals(contentType.toLowerCase()) || "image/heif".equals(contentType.toLowerCase());
             default:
                 return false; // 허용되지 않는 확장자
         }
