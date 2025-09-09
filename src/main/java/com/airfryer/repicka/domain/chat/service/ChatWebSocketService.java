@@ -190,7 +190,11 @@ public class ChatWebSocketService
             /// 푸시 알림 전송
 
             // 푸시 알림 전송
-            FCMNotificationReq notificationReq = FCMNotificationReq.of(NotificationType.CHAT_MESSAGE, chat.getId().toHexString(), user.getNickname());
+            FCMNotificationReq notificationReq = FCMNotificationReq.of(
+                    chat.getId().toHexString(),
+                    "[" + chatRoom.getItem().getTitle() + "] " + user.getNickname(),
+                    chat.getContent()
+            );
             fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
 
         } catch (Exception e) {
