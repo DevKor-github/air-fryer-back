@@ -15,22 +15,35 @@ public class FCMNotificationReq {
     private NotificationType notificationType;
     private String relatedId;  // appointmentId, chatId 등
     private String relatedName;  // 약속 관련 아이템 이름 또는 채팅 상대 이름
-    
-    // 제목 생성
+
+    private String customTitle;
+    private String customBody;
+
     public String getTitle() {
-        return notificationType.getTitle();
-    }
-    
-    // 내용 생성  
-    public String getBody() {
-        return notificationType.getFormattedBody(relatedName);
+        return customTitle != null ? customTitle : notificationType.getTitle();
     }
 
-    public static FCMNotificationReq of(NotificationType notificationType, String id, String name) {
+    public String getBody() {
+        return customBody != null ? customBody : notificationType.getFormattedBody(relatedName);
+    }
+
+    public static FCMNotificationReq of(NotificationType notificationType, String id, String name)
+    {
         return FCMNotificationReq.builder()
             .notificationType(notificationType)
             .relatedId(id)
             .relatedName(name)
             .build();
+    }
+
+    // 채팅 메시지 전용 팩토리 메서드
+    public static FCMNotificationReq of(String chatId, String customTitle, String customBody)
+    {
+        return FCMNotificationReq.builder()
+                .notificationType(NotificationType.CHAT_MESSAGE)
+                .relatedId(chatId)
+                .customTitle(customTitle)
+                .customBody(customBody)
+                .build();
     }
 } 
