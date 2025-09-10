@@ -189,10 +189,9 @@ public class ChatWebSocketService
 
             /// 푸시 알림 전송
 
-            // 푸시 알림 전송
             FCMNotificationReq notificationReq = FCMNotificationReq.of(
                     chat.getId().toHexString(),
-                    "[" + chatRoom.getItem().getTitle() + "] " + user.getNickname(),
+                    user.getNickname() + " (" + chatRoom.getItem().getTitle() + ")",
                     chat.getContent()
             );
             fcmService.sendNotification(opponent.getFcmToken(), notificationReq);
