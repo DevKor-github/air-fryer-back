@@ -4,7 +4,6 @@ import com.airfryer.repicka.common.exception.CustomException;
 import com.airfryer.repicka.common.exception.CustomExceptionCode;
 import com.airfryer.repicka.common.firebase.dto.FCMNotificationReq;
 import com.airfryer.repicka.common.firebase.service.FCMService;
-import com.airfryer.repicka.domain.notification.entity.NotificationType;
 import com.airfryer.repicka.domain.chat.dto.message.pub.SendChatMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.SubMessage;
 import com.airfryer.repicka.domain.chat.dto.message.sub.event.SubMessageEvent;
@@ -153,7 +152,7 @@ public class ChatWebSocketService
 
         // 메시지 생성
         SubMessage message = SubMessage.createChatMessage(chat);
-        SubMessage userMessage = SubMessage.createChatMessageByUser(chatRoom, user, chat, opponentParticipateChatRoom.getUnreadChatCount());
+        SubMessage userMessage = SubMessage.createChatMessageByUser(chatRoom, opponent, chat, opponentParticipateChatRoom.getUnreadChatCount());
         SubMessage unreadChatCountMessage = SubMessage.createUnreadChatCountMessage(opponent);
 
         try {
