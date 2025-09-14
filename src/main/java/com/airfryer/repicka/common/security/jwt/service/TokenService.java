@@ -40,8 +40,11 @@ public class TokenService
         // 사용자 ID 추출
         Long userId = jwtUtil.getUserIdFromToken(refreshToken);
 
-        // 계정 존재 확인
-        userRepository.findById(userId).orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, userId));
+        // 계정 존재 확인 및 탈퇴 여부 체크
+        var user = userRepository.findById(userId).orElseThrow(() -> new CustomException(CustomExceptionCode.USER_NOT_FOUND, userId));
+        if(user.getIsDeleted()) {
+            throw new CustomException(CustomExceptionCode.USER_NOT_FOUND, null);
+        }
 
         /// Access token 재발급
 
