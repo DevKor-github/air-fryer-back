@@ -263,11 +263,27 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>
     // 성공 처리되어야 하는 약속 페이지 조회
     @Query("""
         SELECT a FROM Appointment a
-        WHERE (a.rentalDate <= :time AND a.state = 'CONFIRMED' AND a.type = 'SALE')
+        WHERE (a.rentalDate <= :time AND a.state = 'IN_PROGRESS' AND a.type = 'SALE')
            OR (a.returnDate <= :time AND a.state = 'IN_PROGRESS' AND a.type = 'RENTAL')
     """)
     Page<Appointment> findShouldBeSuccessAppointments(
             @Param("time") LocalDateTime time,
             Pageable pageable
     );
+
+    // 사용자의 진행 중인 약속이 있는지 확인
+    @Query("""
+        SELECT COUNT(a) > 0 FROM Appointment a
+        WHERE (a.owner.id = :userId OR a.requester.id = :userId)
+        AND a.state = 'IN_PROGRESS'
+    """)
+    boolean existsInProgressAppointmentByUserId(@Param("userId") Long userId);
+
+    // 사용자의 CONFIRMED, PENDING 상태 약속들 조회
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE (a.owner.id = :userId OR a.requester.id = :userId)
+        AND a.state IN ('CONFIRMED', 'PENDING')
+    """)
+    List<Appointment> findConfirmedOrPendingAppointmentsByUserId(@Param("userId") Long userId);
 }

@@ -137,4 +137,14 @@ public class UserController {
                 .data(data)
                 .build());
     }
+
+    // 유저 탈퇴
+    @DeleteMapping
+    public ResponseEntity<SuccessResponseDto> withdrawUser(@AuthenticationPrincipal CustomOAuth2User user)
+    {
+        userService.withdrawUser(user.getUser());
+        return ResponseEntity.ok(SuccessResponseDto.builder()
+            .message("유저 탈퇴가 성공적으로 완료되었습니다.")
+            .build());
+    }
 }

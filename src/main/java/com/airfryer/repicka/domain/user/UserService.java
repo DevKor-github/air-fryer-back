@@ -1,6 +1,9 @@
 package com.airfryer.repicka.domain.user;
 
 import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
+import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.item.dto.res.OwnedItemListRes;
@@ -42,6 +45,8 @@ public class UserService
     private final UserBlockRepository userBlockRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ItemRepository itemRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final AppointmentService appointmentService;
 
     private final AppointmentUtil appointmentUtil;
 
@@ -237,5 +242,24 @@ public class UserService
             return OwnedItemListRes.from(item, thumbnail.getFileKey(), isSold);
 
         }).toList();
+    }
+
+    // 유저 탈퇴
+    @Transactional
+    public void withdrawUser(User user)
+    {
+        // 진행 중인 약속이 있는지 확인
+        if(appointmentRepository.existsInProgressAppointmentByUserId(user.getId())) {
+            throw new CustomException(CustomExceptionCode.IN_PROGRESS_APPOINTMENT_EXIST, null);
+        }
+        
+        // CONFIRMED, PENDING 상태의 약속들을 모두 취소
+        List<Appointment> appointmentsToCancel = appointmentRepository.findConfirmedOrPendingAppointmentsByUserId(user.getId());
+        for(Appointment appointment : appointmentsToCancel) {
+            appointmentService.cancelAppointment(user, appointment.getId());
+        }
+        
+        user.withdraw();
+        userRepository.save(user);
     }
 }

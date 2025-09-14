@@ -72,6 +72,11 @@ public class User extends BaseEntity
     @Builder.Default
     private int unreadChatCount = 0;    // 읽지 않은 채팅 개수
 
+    @NotNull
+    @Builder.Default
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isDeleted = false; // 유저 탈퇴 여부
+
     // 프로필 업데이트
     public void updateProfile(UpdateUserReq profileDetail) {
         this.nickname = profileDetail.getNickname();
@@ -89,5 +94,19 @@ public class User extends BaseEntity
     // 읽지 않은 채팅 개수 감소
     public void decreaseUnreadChatCount(int value) {
         this.unreadChatCount -= value;
+    }
+
+    // 유저 탈퇴
+    public void withdraw() {
+        this.isDeleted = true;
+        this.nickname = "탈퇴한 사용자";
+        this.profileImageUrl = null;
+        this.isKoreaUnivVerified = false;
+        this.gender = null;
+        this.height = null;
+        this.weight = null;
+        this.fcmToken = null;
+        this.isPushEnabled = false;
+        this.email = this.email + "_deleted_" + LocalDate.now().toString();
     }
 }
