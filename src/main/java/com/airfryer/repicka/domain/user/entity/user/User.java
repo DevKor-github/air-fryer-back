@@ -99,7 +99,7 @@ public class User extends BaseEntity
     // 유저 탈퇴
     public void withdraw() {
         this.isDeleted = true;
-        this.nickname = "탈퇴한 사용자";
+        this.nickname = "알 수 없음";
         this.profileImageUrl = null;
         this.isKoreaUnivVerified = false;
         this.gender = null;

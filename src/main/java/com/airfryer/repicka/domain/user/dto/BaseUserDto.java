@@ -25,7 +25,7 @@ public class BaseUserDto
         if(user.getIsDeleted()) {
             return BaseUserDto.builder()
                     .id(null)
-                    .nickname("탈퇴한 사용자")
+                    .nickname("알 수 없음")
                     .profileImageUrl(null)
                     .isKoreanUnivVerified(false)
                     .gender(null)
