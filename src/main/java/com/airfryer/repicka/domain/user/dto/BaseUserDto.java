@@ -21,6 +21,19 @@ public class BaseUserDto
 
     public static BaseUserDto from(User user)
     {
+        // 탈퇴한 사용자의 경우 기본값으로 설정
+        if(user.getIsDeleted()) {
+            return BaseUserDto.builder()
+                    .id(null)
+                    .nickname("탈퇴한 사용자")
+                    .profileImageUrl(null)
+                    .isKoreanUnivVerified(false)
+                    .gender(null)
+                    .height(null)
+                    .weight(null)
+                    .build();
+        }
+        
         return BaseUserDto.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
