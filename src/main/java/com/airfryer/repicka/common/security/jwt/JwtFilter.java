@@ -52,7 +52,7 @@ public class JwtFilter extends OncePerRequestFilter
                         User user = userRepository.findById(id).orElse(null);
 
                         // 존재하는 계정인지 체크
-                        if(user != null)
+                        if(user != null && !user.getIsDeleted())
                         {
                             OAuth2User oAuth2User = new CustomOAuth2User(user);
 
