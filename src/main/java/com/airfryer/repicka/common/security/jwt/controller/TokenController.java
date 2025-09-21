@@ -37,15 +37,12 @@ public class TokenController
                         .build());
     }
 
+    // 로그아웃
     @PostMapping("/logout")
     @PreAuthorize("permitAll()")
     public ResponseEntity<SuccessResponseDto> logout(HttpServletResponse response)
     {
-        ResponseCookie accessTokenCookie = tokenService.expireAccessToken();
-        ResponseCookie refreshTokenCookie = tokenService.expireRefreshToken();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        tokenService.logout(response);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponseDto.builder()

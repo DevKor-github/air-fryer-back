@@ -6,7 +6,9 @@ import com.airfryer.repicka.common.security.jwt.JwtUtil;
 import com.airfryer.repicka.common.security.jwt.Token;
 import com.airfryer.repicka.domain.user.entity.user.User;
 import com.airfryer.repicka.domain.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,8 @@ public class TokenService
 {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+
+    /// 서비스
 
     // Access token 재발급
     @Transactional(readOnly = true)
@@ -55,6 +59,18 @@ public class TokenService
         // 토큰을 쿠키로 변환 후, 반환
         return jwtUtil.parseTokenToCookie(accessToken, Token.ACCESS_TOKEN);
     }
+
+    // 로그아웃
+    public void logout(HttpServletResponse response)
+    {
+        ResponseCookie accessTokenCookie = expireAccessToken();
+        ResponseCookie refreshTokenCookie = expireRefreshToken();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+    }
+
+    /// 공통 로직
 
     // Access token 만료
     public ResponseCookie expireAccessToken()
