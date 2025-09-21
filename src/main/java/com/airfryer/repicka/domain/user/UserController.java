@@ -4,6 +4,7 @@ import com.airfryer.repicka.domain.user.dto.BlockUserReq;
 import com.airfryer.repicka.domain.item.dto.res.OwnedItemListRes;
 import com.airfryer.repicka.domain.user.dto.ReportUserReq;
 import com.airfryer.repicka.domain.user.entity.user.User;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -140,9 +141,11 @@ public class UserController {
 
     // 유저 탈퇴
     @DeleteMapping
-    public ResponseEntity<SuccessResponseDto> withdrawUser(@AuthenticationPrincipal CustomOAuth2User user)
+    public ResponseEntity<SuccessResponseDto> withdrawUser(HttpServletResponse response,
+                                                           @AuthenticationPrincipal CustomOAuth2User user)
     {
-        userService.withdrawUser(user.getUser());
+        userService.withdrawUser(user.getUser(), response);
+
         return ResponseEntity.ok(SuccessResponseDto.builder()
             .message("유저 탈퇴가 성공적으로 완료되었습니다.")
             .build());

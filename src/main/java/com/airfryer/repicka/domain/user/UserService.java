@@ -1,5 +1,6 @@
 package com.airfryer.repicka.domain.user;
 
+import com.airfryer.repicka.common.security.jwt.service.TokenService;
 import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
 import com.airfryer.repicka.domain.appointment.service.AppointmentService;
 import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
@@ -17,6 +18,7 @@ import com.airfryer.repicka.domain.user.entity.user_block.UserBlock;
 import com.airfryer.repicka.domain.user.entity.user_report.UserReport;
 import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import com.airfryer.repicka.domain.user.repository.UserReportRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -46,11 +48,12 @@ public class UserService
     private final ChatRoomRepository chatRoomRepository;
     private final ItemRepository itemRepository;
     private final AppointmentRepository appointmentRepository;
-    private final AppointmentService appointmentService;
+    private final ItemImageRepository itemImageRepository;
 
     private final AppointmentUtil appointmentUtil;
 
-    private final ItemImageRepository itemImageRepository;
+    private final AppointmentService appointmentService;
+    private final TokenService tokenService;
     private final S3Service s3Service;
 
     // fcm 토큰 업데이트
@@ -246,7 +249,7 @@ public class UserService
 
     // 유저 탈퇴
     @Transactional
-    public void withdrawUser(User user)
+    public void withdrawUser(User user, HttpServletResponse response)
     {
         // 진행 중인 약속이 있는지 확인
         if(appointmentRepository.existsInProgressAppointmentByUserId(user.getId())) {
@@ -258,8 +261,12 @@ public class UserService
         for(Appointment appointment : appointmentsToCancel) {
             appointmentService.cancelAppointment(user, appointment.getId());
         }
-        
+
+        // 유저 탈퇴
         user.withdraw();
         userRepository.save(user);
+
+        // 로그아웃
+        tokenService.logout(response);
     }
 }
