@@ -1,6 +1,10 @@
 package com.airfryer.repicka.domain.user;
 
+import com.airfryer.repicka.common.security.jwt.service.TokenService;
 import com.airfryer.repicka.domain.appointment.service.AppointmentUtil;
+import com.airfryer.repicka.domain.appointment.service.AppointmentService;
+import com.airfryer.repicka.domain.appointment.repository.AppointmentRepository;
+import com.airfryer.repicka.domain.appointment.entity.Appointment;
 import com.airfryer.repicka.domain.chat.entity.ChatRoom;
 import com.airfryer.repicka.domain.chat.repository.ChatRoomRepository;
 import com.airfryer.repicka.domain.item.dto.res.OwnedItemListRes;
@@ -14,6 +18,7 @@ import com.airfryer.repicka.domain.user.entity.user_block.UserBlock;
 import com.airfryer.repicka.domain.user.entity.user_report.UserReport;
 import com.airfryer.repicka.domain.user.repository.UserBlockRepository;
 import com.airfryer.repicka.domain.user.repository.UserReportRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -42,10 +47,13 @@ public class UserService
     private final UserBlockRepository userBlockRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ItemRepository itemRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final ItemImageRepository itemImageRepository;
 
     private final AppointmentUtil appointmentUtil;
 
-    private final ItemImageRepository itemImageRepository;
+    private final AppointmentService appointmentService;
+    private final TokenService tokenService;
     private final S3Service s3Service;
 
     // fcm 토큰 업데이트
@@ -237,5 +245,28 @@ public class UserService
             return OwnedItemListRes.from(item, thumbnail.getFileKey(), isSold);
 
         }).toList();
+    }
+
+    // 유저 탈퇴
+    @Transactional
+    public void withdrawUser(User user, HttpServletResponse response)
+    {
+        // 진행 중인 약속이 있는지 확인
+        if(appointmentRepository.existsInProgressAppointmentByUserId(user.getId())) {
+            throw new CustomException(CustomExceptionCode.IN_PROGRESS_APPOINTMENT_EXIST, null);
+        }
+        
+        // CONFIRMED, PENDING 상태의 약속들을 모두 취소
+        List<Appointment> appointmentsToCancel = appointmentRepository.findConfirmedOrPendingAppointmentsByUserId(user.getId());
+        for(Appointment appointment : appointmentsToCancel) {
+            appointmentService.cancelAppointment(user, appointment.getId());
+        }
+
+        // 유저 탈퇴
+        user.withdraw();
+        userRepository.save(user);
+
+        // 로그아웃
+        tokenService.logout(response);
     }
 }

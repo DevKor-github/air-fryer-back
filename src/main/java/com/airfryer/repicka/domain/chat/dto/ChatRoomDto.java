@@ -35,7 +35,7 @@ public class ChatRoomDto
                 .chatRoomId(chatRoom.getId())
                 .itemId(chatRoom.getItem().getId())
                 .myUserId(me.getId())
-                .opponentUserId(opponent.getId())
+                .opponentUserId(opponent.getIsDeleted() ? null : opponent.getId())
                 .opponentNickname(opponent.getNickname())
                 .opponentProfileImageUrl(opponent.getProfileImageUrl())
                 .isOpponentKorean(opponent.getIsKoreaUnivVerified())

@@ -70,19 +70,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService
 
             // ID 토큰 추출
             String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
-            log.info("idToken: {}", idToken);
 
             // ID 토큰으로부터 사용자 정보 디코딩
             Map<String, Object> attributes = decodeIdToken(idToken);
             attributes.put("id_token", idToken);
-
-
-            log.info("attributes");
-            for(Map.Entry<String, Object> entry : attributes.entrySet())
-            {
-                log.info("key: {}", entry.getKey());
-                log.info("value: {}", entry.getValue());
-            }
 
             oAuth2Response = new AppleResponse(attributes);
 

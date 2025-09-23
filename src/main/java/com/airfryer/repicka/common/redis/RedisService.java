@@ -159,7 +159,7 @@ public class RedisService
     
     // 예약 알림 발송
     @Transactional
-    private void sendAppointmentReminder(AppointmentTask task)
+    public void sendAppointmentReminder(AppointmentTask task)
     {
         // 약속 조회
         Appointment appointment = appointmentRepository.findById(task.getAppointmentId())
@@ -186,7 +186,7 @@ public class RedisService
 
     // 대여중 처리
     @Transactional
-    private void inProgressAppointment(AppointmentTask task) {
+    public void inProgressAppointment(AppointmentTask task) {
         log.info("대여중 처리");
         // 약속 조회
         Appointment appointment = appointmentRepository.findById(task.getAppointmentId())
