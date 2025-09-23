@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(
@@ -107,6 +108,6 @@ public class User extends BaseEntity
         this.weight = null;
         this.fcmToken = null;
         this.isPushEnabled = false;
-        this.email = this.email + "_deleted_" + LocalDate.now().toString();
+        this.email = this.email + "_deleted_" + LocalDateTime.now();
     }
 }
